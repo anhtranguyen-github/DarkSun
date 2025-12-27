@@ -4,8 +4,9 @@
 
 
 # Environment variables
-.env
-.env.*
+# .env
+# .env.*
+
 !.env.example
 
 # Production
