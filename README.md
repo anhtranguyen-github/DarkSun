@@ -1,4 +1,4 @@
-# 🌙 BlueMoon Apartment Manager (IT4082 - Nhóm 18)
+# 🌙 BlueMoon Apartment Manager (IT4082 - Nhóm 23)
 
 Hệ thống quản lý chung cư BlueMoon, được xây dựng để hỗ trợ Ban quản lý và Cư dân trong việc quản lý hộ khẩu, nhân khẩu, các khoản phí và đóng tiền.
 
