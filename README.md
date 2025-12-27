@@ -1,60 +1,48 @@
-# 🌙 BlueMoon Apartment Manager (IT4082 - Nhóm 23)
+# 🌙 BlueMoon Apartment Manager (IT4082 - Nhóm 18)
 
 Hệ thống quản lý chung cư BlueMoon, được xây dựng để hỗ trợ Ban quản lý và Cư dân trong việc quản lý hộ khẩu, nhân khẩu, các khoản phí và đóng tiền.
 
-## 🚀 Chạy Nhanh (Sử dụng Docker) - **KHUYÊN DÙNG**
-Dự án đã được đóng gói sẵn, bạn không cần cài đặt môi trường lập trình.
+## 🚀 Hướng dẫn Cài đặt & Chạy
 
-### 1. Yêu cầu
-- Cài đặt **Docker Desktop** trên máy tính.
+Bạn có thể chạy dự án bằng cách **Thủ công (Khuyên dùng nếu không rành Docker)** hoặc **Sử dụng Docker**.
 
-### 2. Khởi chạy
-- **Windows**: Chạy file `docker-run.bat` (Double-click)
-- **Linux/Mac**: Chạy lệnh `./docker-run.sh` trong terminal.
+---
 
-_(Lần đầu chạy sẽ mất vài phút để tải và build chương trình)._
+### 👉 Cách 1: Chạy Tự Động (Dễ nhất - Không cần cài Docker)
+Yêu cầu: Máy tính đã cài **Node.js** (v14 trở lên).
 
-### 3. Truy cập
-Mở trình duyệt và truy cập: [http://localhost:3000](http://localhost:3000)
+1. **Windows:**
+   - Double-click vào file `start.bat`.
+   - Script sẽ tự động cài đặt mọi thứ và mở trình duyệt.
+
+2. **Linux/Mac:**
+   - Mở terminal tại thư mục dự án.
+   - Chạy lệnh: `./start.sh`
+
+_(Lần chạy đầu tiên sẽ mất khoảng 1-2 phút để cài đặt thư viện)._
+- Web: [http://localhost:5173](http://localhost:5173)
+
+---
+
+### 👉 Cách 2: Chạy bằng Docker
+Yêu cầu: Đã cài **Docker Desktop**.
+
+1. **Windows:** Double-click file `docker-run.bat`.
+2. **Linux/Mac:** Chạy lệnh `./docker-run.sh`.
+
+- Web: [http://localhost:3000](http://localhost:3000)
 
 ---
 
 ## 🔑 Tài khoản Demo (Mật khẩu: `password123`)
 
-| Vai trò       | Username        | Mô tả chức năng chính |
-|---------------|-----------------|-----------------------|
-| **Admin**     | `demo_admin`    | Quản trị toàn hệ thống (Users, Roles, mọi chức năng) |
-| **Kế toán**   | `demo_ketoan`   | Quản lý các loại phí, đợt thu, hóa đơn, thống kê |
-| **Tổ trưởng** | `demo_totruong` | Quản lý hộ khẩu, nhân khẩu, tạm trú/tạm vắng |
-| **Tổ phó**    | `demo_topho`    | Hỗ trợ quản lý dân cư |
-| **Cư dân**    | `demo_cudan`    | Xem thông tin cá nhân, xem hóa đơn, lịch sử đóng phí |
-
----
-
-## 🛠️ Cài đặt Thủ công (Dành cho Developer)
-Nếu muốn chạy môi trường phát triển (Dev) không qua Docker:
-
-**Yêu cầu:** Node.js v14+
-
-1. **Backend:**
-   ```bash
-   cd backend
-   npm install
-   npm run dev
-   # Server chạy tại: http://localhost:5000
-   ```
-
-2. **Frontend:**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   # Web chạy tại: http://localhost:5173
-   ```
-
-3. **Chạy nhanh cả hai:**
-   - Windows: Chạy file `start.bat`
-   - Linux: Chạy file `start.sh`
+| Vai trò       | Username        | Mật khẩu      |
+|---------------|-----------------|---------------|
+| **Admin**     | `demo_admin`    | `password123` |
+| **Kế toán**   | `demo_ketoan`   | `password123` |
+| **Tổ trưởng** | `demo_totruong` | `password123` |
+| **Tổ phó**    | `demo_topho`    | `password123` |
+| **Cư dân**    | `demo_cudan`    | `password123` |
 
 ---
 
@@ -62,7 +50,3 @@ Nếu muốn chạy môi trường phát triển (Dev) không qua Docker:
 - **Backend:** Node.js, Express.js
 - **Frontend:** React.js, Vite
 - **Database:** PostgreSQL (Cloud/Remote)
-- **Containerization:** Docker, Nginx
-
-## 👥 Nhóm phát triển
-- IT4082 - Kỹ thuật phần mềm - Nhóm 18
