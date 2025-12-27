@@ -72,6 +72,10 @@ cleanup() {
   exit 0
 }
 
+# Ensure demo users exist
+echo -e "${YELLOW}👤 Checking/Creating demo accounts...${NC}"
+cd backend && node create-demo-users.js && cd ..
+
 trap cleanup SIGINT SIGTERM
 
 # Start backend

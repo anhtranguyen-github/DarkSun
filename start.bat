@@ -56,6 +56,12 @@ if not exist "%ROOT_DIR%frontend\.env" (
 )
 
 echo.
+echo Checking/Creating demo accounts...
+cd /d "%ROOT_DIR%backend"
+call node create-demo-users.js
+cd /d "%ROOT_DIR%"
+
+echo.
 echo Starting servers...
 echo.
 
