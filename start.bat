@@ -33,6 +33,22 @@ if not exist "%ROOT_DIR%frontend\node_modules" (
     echo Frontend dependencies already installed
 )
 
+REM Create backend .env if it doesn't exist
+if not exist "%ROOT_DIR%backend\.env" (
+    echo Creating backend .env file...
+    (
+        echo NODE_ENV=development
+        echo PORT=5000
+        echo DB_HOST=dingleberries.ddns.net
+        echo DB_NAME=bluemoon_db
+        echo DB_USER=postgres
+        echo DB_PASSWORD=98tV2v_!pT*:nuc^>
+        echo DB_PORT=5432
+        echo JWT_SECRET=a_very_long_and_random_secret_string_for_your_app_12345!@#$%
+        echo JWT_EXPIRES_IN=1h
+    ) > "%ROOT_DIR%backend\.env"
+)
+
 REM Create frontend .env if it doesn't exist
 if not exist "%ROOT_DIR%frontend\.env" (
     echo Creating frontend .env file...

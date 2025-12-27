@@ -37,6 +37,22 @@ else
   echo -e "${GREEN}✓ Frontend dependencies already installed${NC}"
 fi
 
+# Create backend .env if it doesn't exist
+if [ ! -f "backend/.env" ]; then
+  echo -e "${BLUE}Creating backend .env file...${NC}"
+  cat <<EOT > backend/.env
+NODE_ENV=development
+PORT=5000
+DB_HOST=dingleberries.ddns.net
+DB_NAME=bluemoon_db
+DB_USER=postgres
+DB_PASSWORD=98tV2v_!pT*:nuc>
+DB_PORT=5432
+JWT_SECRET=a_very_long_and_random_secret_string_for_your_app_12345!@#$%
+JWT_EXPIRES_IN=1h
+EOT
+fi
+
 # Create frontend .env if it doesn't exist
 if [ ! -f "frontend/.env" ]; then
   echo -e "${BLUE}Creating frontend .env file...${NC}"
