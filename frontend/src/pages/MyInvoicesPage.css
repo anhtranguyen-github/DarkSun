@@ -1,0 +1,91 @@
+/* src/pages/MyInvoicesPage.css */
+
+/* Kế thừa các style chung nếu có */
+@import './UserManagementPage.css';
+
+/* Bố cục danh sách hóa đơn */
+.invoice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* Khoảng cách giữa các thẻ hóa đơn */
+}
+
+/* Style cho mỗi thẻ hóa đơn */
+.invoice-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  overflow: hidden; /* Đảm bảo các góc bo được áp dụng đúng */
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.invoice-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Phần header của thẻ hóa đơn */
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.invoice-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Phần thân của thẻ hóa đơn */
+.invoice-body {
+  padding: 1.5rem;
+}
+
+.invoice-body p {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #495057;
+}
+
+.invoice-body p:last-child {
+  margin-bottom: 0;
+}
+
+.invoice-body p strong {
+  font-weight: 600;
+  min-width: 150px; /* Căn chỉnh các giá trị */
+  display: inline-block;
+}
+
+/* Phần footer của thẻ hóa đơn */
+.invoice-footer {
+  padding: 1rem 1.5rem;
+  text-align: right;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.invoice-footer button {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #007bff;
+  background-color: transparent;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.invoice-footer button:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Kế thừa style cho Modal và bảng bên trong modal */
+/* .modal-overlay, .modal-content, .data-table... */

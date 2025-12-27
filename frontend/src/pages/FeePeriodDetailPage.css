@@ -1,0 +1,160 @@
+/* src/pages/FeePeriodDetailPage.css */
+
+/* Kế thừa các biến màu chung nếu có, ví dụ: */
+:root {
+  --primary-color: #007bff;
+  --primary-hover-color: #0056b3;
+  --card-bg: #ffffff;
+  --page-bg: #f4f6f8;
+  --text-color: #333;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.page-container {
+  padding: 2rem;
+  background-color: var(--page-bg);
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.info-card {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 3rem; /* Khoảng cách giữa các mục thông tin */
+  border-left: 4px solid var(--primary-color);
+}
+
+.info-card p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.info-card p strong {
+  color: var(--text-color);
+  margin-right: 0.5rem;
+}
+
+.action-card {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.action-card h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  color: var(--text-color);
+}
+
+.action-card p {
+  margin-top: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.invoice-generator-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.invoice-generator-form select {
+  flex-grow: 1; /* Cho phép select chiếm hết không gian còn lại */
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: #fff;
+  transition: border-color 0.2s;
+}
+
+.invoice-generator-form select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.generate-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap; /* Ngăn nút bị xuống dòng */
+}
+
+.generate-btn:hover:not(:disabled) {
+  background-color: var(--primary-hover-color);
+}
+
+.generate-btn:disabled {
+  background-color: #a0c4ff;
+  cursor: not-allowed;
+}
+
+.invoice-list-section {
+  margin-top: 2rem;
+}
+
+.invoice-list-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* Style cho phần xem trước mô tả trong bảng */
+.description-preview {
+  color: #6c757d;
+  font-style: italic;
+  margin-right: 8px;
+}
+
+.view-description-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border: 1px solid #6c757d; /* Màu xám viền */
+  background-color: transparent;
+  color: #6c757d; /* Chữ màu xám */
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.view-description-btn:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+.no-description {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Style cho nội dung mô tả trong modal */
+.modal-body.description-body p {
+  white-space: pre-wrap; /* Giữ lại các dấu xuống dòng và khoảng trắng */
+  line-height: 1.6;
+  font-size: 1rem;
+  margin: 0;
+  max-height: 60vh; /* Giới hạn chiều cao và cho phép cuộn */
+  overflow-y: auto;
+}

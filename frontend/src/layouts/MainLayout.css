@@ -1,0 +1,14 @@
+.main-layout {
+  display: flex;
+}
+
+/* 
+  Phần nội dung chính cần có một khoảng lề trái
+  bằng với chiều rộng của Sidebar để không bị che.
+*/
+.main-content {
+  flex-grow: 1;
+  background-color: #f4f7fa;
+  min-height: 100vh;
+  margin-left: 250px; /* Bằng với chiều rộng của .sidebar */
+}

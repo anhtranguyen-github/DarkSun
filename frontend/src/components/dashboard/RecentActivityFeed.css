@@ -1,0 +1,21 @@
+.feed-title {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.activity-item:last-child {
+  border-bottom: none;
+}
+.activity-item p { margin: 0; }
+.activity-item span {
+  font-size: 0.9rem;
+  color: #888;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
