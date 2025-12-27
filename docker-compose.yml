@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8' (valid for older compose, optional for V2)
 
 services:
   # Backend API Service
