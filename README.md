@@ -1,15 +1,4 @@
-# 🌙 BlueMoon Apartment Manager (IT4082 - Nhóm 18)
-
-Hệ thống quản lý chung cư BlueMoon, được xây dựng để hỗ trợ Ban quản lý và Cư dân trong việc quản lý hộ khẩu, nhân khẩu, các khoản phí và đóng tiền.
-
-## 🚀 Hướng dẫn Cài đặt & Chạy
-
-Bạn có thể chạy dự án bằng cách **Thủ công (Khuyên dùng nếu không rành Docker)** hoặc **Sử dụng Docker**.
-
----
-
-### 👉 Cách 1: Chạy Tự Động (Dễ nhất - Không cần cài Docker)
-Yêu cầu: Máy tính đã cài **Node.js** (v14 trở lên).
+**Manual**
 
 1. **Windows:**
    - Double-click vào file `start.bat`.
@@ -23,9 +12,7 @@ _(Lần chạy đầu tiên sẽ mất khoảng 1-2 phút để cài đặt thư
 - Web: [http://localhost:5173](http://localhost:5173)
 
 ---
-
-### 👉 Cách 2: Chạy bằng Docker
-Yêu cầu: Đã cài **Docker Desktop**.
+**Docker Desktop**.
 
 1. **Windows:** Double-click file `docker-run.bat`.
 2. **Linux/Mac:** Chạy lệnh `./docker-run.sh`.
@@ -34,7 +21,7 @@ Yêu cầu: Đã cài **Docker Desktop**.
 
 ---
 
-## 🔑 Tài khoản Demo (Mật khẩu: `password123`)
+## Demo (Mật khẩu: `password123`)
 
 | Vai trò       | Username        | Mật khẩu      |
 |---------------|-----------------|---------------|
@@ -44,9 +31,3 @@ Yêu cầu: Đã cài **Docker Desktop**.
 | **Tổ phó**    | `demo_topho`    | `password123` |
 | **Cư dân**    | `demo_cudan`    | `password123` |
 
----
-
-## 📚 Công nghệ sử dụng
-- **Backend:** Node.js, Express.js
-- **Frontend:** React.js, Vite
-- **Database:** PostgreSQL (Cloud/Remote)
