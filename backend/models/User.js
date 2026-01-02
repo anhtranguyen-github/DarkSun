@@ -22,12 +22,15 @@ module.exports = (sequelize, DataTypes) => {
     avatar_url: { type: DataTypes.TEXT },
     status: { type: DataTypes.STRING, defaultValue: 'active' },
     householdId: { type: DataTypes.INTEGER, field: 'household_id' },
+    createdAt: { type: DataTypes.DATE, field: 'created_at' },
+    updatedAt: { type: DataTypes.DATE, field: 'updated_at' }
   }, {
     sequelize,
     modelName: 'User',
     tableName: 'users',
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    underscored: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
     hooks: {
       beforeSave: async (user) => {
         // Only hash if password was changed

@@ -26,13 +26,16 @@ module.exports = (sequelize, DataTypes) => {
 
     area: { type: DataTypes.NUMERIC(10, 2) },
     status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'occupied' },
-    createdDate: { type: DataTypes.DATE, field: 'created_date' } // Ngay lap
+    createdDate: { type: DataTypes.DATE, field: 'created_date' }, // Ngay lap
+    createdAt: { type: DataTypes.DATE, field: 'created_at' },
+    updatedAt: { type: DataTypes.DATE, field: 'updated_at' }
   }, {
     sequelize,
     modelName: 'Household',
     tableName: 'households',
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    underscored: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
   });
   return Household;
 };

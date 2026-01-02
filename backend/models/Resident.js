@@ -52,12 +52,27 @@ module.exports = (sequelize, DataTypes) => {
     idCardPlace: { type: DataTypes.STRING, field: 'id_card_place' }, // Noi cap CCCD
     previousResidence: { type: DataTypes.STRING, field: 'previous_residence' }, // Dia chi truoc khi chuyen den
     moveInDate: { type: DataTypes.DATE, field: 'move_in_date' }, // Ngay chuyen den
+
+    // Explicitly define timestamps to match DB columns exactly
+    createdAt: {
+      type: DataTypes.DATE,
+      field: 'created_at',
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      field: 'updated_at',
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    }
   }, {
     sequelize,
     modelName: 'Resident',
     tableName: 'residents',
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    timestamps: true,
+    createdAt: 'createdAt', // Tell Sequelize to use our defined attribute
+    updatedAt: 'updatedAt'  // Tell Sequelize to use our defined attribute
   });
   return Resident;
 };
