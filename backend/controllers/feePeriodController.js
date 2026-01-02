@@ -1,4 +1,4 @@
-const { FeePeriod } = require('../models');
+const { FeePeriod, Invoice, sequelize } = require('../models');
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
 // GET all fee periods
@@ -11,9 +11,32 @@ exports.getAllFeePeriods = asyncHandler(async (req, res) => {
 
   const periods = await FeePeriod.findAll({
     where: whereClause,
+    include: [{
+      model: Invoice,
+      attributes: ['status']
+    }],
     order: [['startDate', 'DESC']]
   });
-  res.status(200).json({ success: true, data: periods });
+
+  // Calculate progress and format labels
+  const data = periods.map(p => {
+    const invoices = p.Invoices || [];
+    const total = invoices.length;
+    const paid = invoices.filter(inv => inv.status === 'paid').length;
+    const progress = total > 0 ? Math.round((paid / total) * 100) : 0;
+
+    return {
+      ...(p.toJSON ? p.toJSON() : p),
+      progress,
+      totalInvoices: total,
+      paidInvoices: paid,
+      // Map enums for frontend display
+      typeLabel: p.type === 'mandatory' ? 'Bắt buộc' : 'Đóng góp',
+      statusLabel: p.status === 'open' ? 'Đang mở' : 'Đã đóng'
+    };
+  });
+
+  res.status(200).json({ success: true, data });
 });
 
 // GET fee period by ID

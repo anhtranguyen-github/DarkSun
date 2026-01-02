@@ -22,6 +22,9 @@ jest.mock('../../models', () => ({
     Vehicle: {},
     User: {},
     FeeType: {},
+    PeriodFee: {
+        findAll: jest.fn(),
+    },
     sequelize: {
         transaction: jest.fn().mockImplementation(() => ({
             commit: jest.fn(),
@@ -84,7 +87,16 @@ describe('Invoice Controller', () => {
         test('should create invoices for households with residents', async () => {
             req.params = { feePeriodId: 1 };
 
+            const { PeriodFee } = require('../../models');
+
             FeePeriod.findByPk.mockResolvedValue({ id: 1 });
+
+            // Mock period fees
+            PeriodFee.findAll.mockResolvedValue([
+                { amount: 6000, FeeType: { name: 'Phí vệ sinh', unit: 'người' } },
+                { amount: 70000, FeeType: { name: 'Phí gửi xe máy', unit: 'xe' } }
+            ]);
+
             Household.findAll.mockResolvedValue([
                 {
                     id: 10,

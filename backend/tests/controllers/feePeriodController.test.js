@@ -7,6 +7,9 @@ jest.mock('../../models', () => ({
         findByPk: jest.fn(),
         create: jest.fn(),
     },
+    Invoice: {
+        findAll: jest.fn(),
+    },
 }));
 
 // Mock asyncHandler to just pass through

@@ -83,11 +83,11 @@ const FeePeriodManagement = () => {
             <div key={period.id} className="glass-card rounded-2xl overflow-hidden hover:border-primary-500/30 transition-all group flex flex-col">
               <div className="p-6 flex-1 space-y-6">
                 <div className="flex justify-between items-start">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${period.type === 'Bắt buộc' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                    {period.type}
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${period.type === 'mandatory' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
+                    {period.typeLabel || (period.type === 'mandatory' ? 'Bắt buộc' : 'Đóng góp')}
                   </span>
-                  <div className="p-2.5 rounded-xl bg-white/5 text-dark-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                  <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${period.status === 'open' ? 'bg-primary-500/10 text-primary-400 border-primary-500/20' : 'bg-dark-500/10 text-dark-400 border-white/10'}`}>
+                    {period.statusLabel || (period.status === 'open' ? 'Đang mở' : 'Đã đóng')}
                   </div>
                 </div>
 
@@ -97,13 +97,20 @@ const FeePeriodManagement = () => {
                 </div>
 
                 <div className="flex items-center gap-4 text-xs">
-                  <div className="flex flex-col">
-                    <span className="text-dark-600 font-black uppercase tracking-tighter">Tiến độ</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="w-24 h-1.5 bg-dark-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary-500" style={{ width: '65%' }}></div>
-                      </div>
-                      <span className="text-white font-bold">65%</span>
+                  <div className="flex flex-col flex-1">
+                    <div className="flex justify-between items-end mb-1">
+                      <span className="text-dark-600 font-black uppercase tracking-tighter text-[9px]">Tiến độ thu phí</span>
+                      <span className="text-white font-black text-[10px]">{period.progress || 0}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-dark-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-1000 ${period.progress === 100 ? 'bg-emerald-500' : 'bg-primary-500'}`}
+                        style={{ width: `${period.progress || 0}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between mt-2 text-[9px] font-bold text-dark-500">
+                      <span>{period.paidInvoices || 0} hộ đã đóng</span>
+                      <span>{period.totalInvoices || 0} tổng hộ</span>
                     </div>
                   </div>
                 </div>
