@@ -16,13 +16,17 @@ const RoleBasedGuard = ({ allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // 3. Logic kiểm tra quyền hạn
-  const isAdmin = user?.roles?.includes('Admin');
-  
+  // 3. Logic kiểm tra quyền hạn (Backend uses lowercase role names)
+  const userRoles = user?.roles?.map(r => r.toLowerCase()) || [];
+  const isAdmin = userRoles.includes('admin');
+
   // Cho phép truy cập nếu là Admin HOẶC có vai trò trong danh sách được phép
-  const hasPermission = isAdmin || user?.roles?.some(role => allowedRoles.includes(role));
+  const hasPermission = isAdmin || userRoles.some(role =>
+    allowedRoles.map(r => r.toLowerCase()).includes(role)
+  );
 
   if (!hasPermission) {
+    console.warn(`Access denied. User roles: ${userRoles}, Allowed roles: ${allowedRoles}`);
     return <Navigate to="/unauthorized" replace />;
   }
 
