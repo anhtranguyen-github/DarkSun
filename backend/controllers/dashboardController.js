@@ -1,4 +1,15 @@
-const { User, Household, Resident, Vehicle, FeePeriod, Invoice } = require('../models');
+const { User, Role, Household, Resident, Vehicle, FeePeriod, Invoice } = require('../models');
+
+// Helper to format relative time
+const getRelativeTime = (date) => {
+  const now = new Date();
+  const diff = Math.floor((now - new Date(date)) / 1000); // seconds
+
+  if (diff < 60) return 'Vừa xong';
+  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
+  return `${Math.floor(diff / 86400)} ngày trước`;
+};
 
 // Lấy các chỉ số thống kê chính cho Dashboard
 exports.getDashboardStats = async (req, res) => {
@@ -26,7 +37,7 @@ exports.getDashboardStats = async (req, res) => {
       id: r.id,
       user: r.relationship === 'Chủ hộ' ? 'CH' : 'NK',
       action: `Thêm nhân khẩu: ${r.fullName} vào hộ ${r.Household?.householdCode || 'N/A'}`,
-      time: 'Gần đây',
+      time: getRelativeTime(r.createdAt),
       type: r.relationship === 'Chủ hộ' ? 'success' : 'info'
     }));
 

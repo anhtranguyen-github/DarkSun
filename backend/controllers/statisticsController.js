@@ -1,7 +1,7 @@
 const { Resident, Household, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const excel = require('exceljs');
-const puppeteer = require('puppeteer'); 
+const puppeteer = require('puppeteer');
 
 
 
@@ -50,12 +50,13 @@ exports.getResidentStats = async (req, res) => {
       // Kết hợp điều kiện tuổi vào whereClause
       whereClause[Op.and] = (whereClause[Op.and] || []).concat(ageCondition);
     }
-    
+
     // 2. Xây dựng điều kiện lọc cho bảng households (theo Khu vực)
     if (area) {
       householdWhereClause[Op.or] = [
-        { apartmentCode: { [Op.iLike]: `%${area}%` } },
-        { address: { [Op.iLike]: `%${area}%` } }
+        { householdCode: { [Op.iLike]: `%${area}%` } },
+        { address: { [Op.iLike]: `%${area}%` } },
+        { addressStreet: { [Op.iLike]: `%${area}%` } }
       ];
     }
 
@@ -65,7 +66,7 @@ exports.getResidentStats = async (req, res) => {
       include: {
         model: Household,
         where: householdWhereClause, // Lọc trên bảng được include
-        attributes: ['apartmentCode']
+        attributes: ['householdCode']
       },
       order: [['fullName', 'ASC']]
     });
@@ -84,25 +85,26 @@ exports.getHouseholdStats = async (req, res) => {
 
     if (area) {
       whereClause[Op.or] = [
-        { apartmentCode: { [Op.iLike]: `%${area}%` } },
-        { address: { [Op.iLike]: `%${area}%` } }
+        { householdCode: { [Op.iLike]: `%${area}%` } },
+        { address: { [Op.iLike]: `%${area}%` } },
+        { addressStreet: { [Op.iLike]: `%${area}%` } }
       ];
     }
     if (apartmentType) {
-      whereClause.apartmentType = apartmentType;
+      whereClause.status = apartmentType; // Status is the proxy for state
     }
     if (memberCount) {
-      whereClause.memberCount = memberCount;
+      whereClause.count = memberCount;
     }
 
     const filteredHouseholds = await Household.findAll({
       where: whereClause,
-      order: [['apartmentCode', 'ASC']]
+      order: [['householdCode', 'ASC']]
     });
 
     const householdCount = filteredHouseholds.length;
     const totalMemberCount = filteredHouseholds.reduce((sum, household) => {
-      return sum + (Number(household.memberCount) || 0);
+      return sum + (Number(household.count) || 0);
     }, 0);
 
     res.status(200).json({
@@ -121,11 +123,11 @@ exports.exportHouseholdStatsToExcel = async (req, res) => {
     // Lấy các tham số lọc từ query, logic giống hệt hàm getHouseholdStats
     const { area, apartmentType, memberCount } = req.query;
     const whereClause = {};
-    if (area) whereClause[Op.or] = [{ apartmentCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
-    if (apartmentType) whereClause.apartmentType = apartmentType;
-    if (memberCount) whereClause.memberCount = memberCount;
+    if (area) whereClause[Op.or] = [{ householdCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
+    if (apartmentType) whereClause.status = apartmentType;
+    if (memberCount) whereClause.count = memberCount;
 
-    const households = await Household.findAll({ where: whereClause, order: [['apartmentCode', 'ASC']] });
+    const households = await Household.findAll({ where: whereClause, order: [['householdCode', 'ASC']] });
 
     // Bắt đầu tạo file Excel
     let workbook = new excel.Workbook();
@@ -133,11 +135,11 @@ exports.exportHouseholdStatsToExcel = async (req, res) => {
 
     worksheet.columns = [
       { header: 'ID', key: 'id', width: 10 },
-      { header: 'Mã Hộ khẩu', key: 'apartmentCode', width: 20 },
+      { header: 'Mã Hộ khẩu', key: 'householdCode', width: 20 },
       { header: 'Tên Chủ hộ', key: 'ownerName', width: 30 },
       { header: 'Địa chỉ', key: 'address', width: 40 },
-      { header: 'Loại Căn hộ', key: 'apartmentType', width: 20 },
-      { header: 'Số Thành viên', key: 'memberCount', width: 15 },
+      { header: 'Trạng thái', key: 'status', width: 20 },
+      { header: 'Số Thành viên', key: 'count', width: 15 },
       { header: 'Diện tích (m²)', key: 'area', width: 15 },
     ];
     worksheet.addRows(households);
@@ -161,10 +163,10 @@ exports.exportHouseholdStatsToPdf = async (req, res) => {
     // 1. Lấy dữ liệu với logic lọc tương tự như các hàm khác
     const { area, apartmentType, memberCount } = req.query;
     const whereClause = {};
-    if (area) whereClause[Op.or] = [{ apartmentCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
-    if (apartmentType) whereClause.apartmentType = apartmentType;
-    if (memberCount) whereClause.memberCount = memberCount;
-    const households = await Household.findAll({ where: whereClause, order: [['apartmentCode', 'ASC']] });
+    if (area) whereClause[Op.or] = [{ householdCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
+    if (apartmentType) whereClause.status = apartmentType;
+    if (memberCount) whereClause.count = memberCount;
+    const households = await Household.findAll({ where: whereClause, order: [['householdCode', 'ASC']] });
 
     // 2. Tạo nội dung HTML cho file PDF
     const htmlContent = `
@@ -186,15 +188,15 @@ exports.exportHouseholdStatsToPdf = async (req, res) => {
             <thead>
               <tr>
                 <th>Mã Hộ khẩu</th><th>Tên Chủ hộ</th><th>Địa chỉ</th>
-                <th>Loại Căn hộ</th><th>Số Thành viên</th><th>Diện tích (m²)</th>
+                <th>Trạng thái</th><th>Số Thành viên</th><th>Diện tích (m²)</th>
               </tr>
             </thead>
             <tbody>
               ${households.map(h => `
                 <tr>
-                  <td>${h.apartmentCode || ''}</td><td>${h.ownerName || ''}</td>
-                  <td>${h.address || ''}</td><td>${h.apartmentType || ''}</td>
-                  <td>${h.memberCount || 0}</td><td>${h.area || ''}</td>
+                  <td>${h.householdCode || ''}</td><td>${h.ownerName || ''}</td>
+                  <td>${h.address || ''}</td><td>${h.status || ''}</td>
+                  <td>${h.count || 0}</td><td>${h.area || ''}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -214,13 +216,13 @@ exports.exportHouseholdStatsToPdf = async (req, res) => {
         '--disable-setuid-sandbox',
       ]
     });
-    
+
 
     console.log(">>>> Đã khởi động Puppeteer. Đang tạo trang mới...");
 
     const page = await browser.newPage();
     console.log(">>>> Đã tạo trang mới. Đang set nội dung HTML...");
-    
+
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
     console.log(">>>> Đã set nội dung. Đang tạo PDF...");
 
@@ -260,11 +262,11 @@ exports.exportResidentStatsToExcel = async (req, res) => {
     if (gender) whereClause.gender = gender;
     const ageCondition = getAgeCondition(ageGroup); // Dùng lại hàm helper
     if (ageCondition) whereClause[Op.and] = (whereClause[Op.and] || []).concat(ageCondition);
-    if (area) householdWhereClause[Op.or] = [{ apartmentCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
+    if (area) householdWhereClause[Op.or] = [{ householdCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
 
     const residents = await Resident.findAll({
       where: whereClause,
-      include: { model: Household, where: householdWhereClause, attributes: ['apartmentCode'] },
+      include: { model: Household, where: householdWhereClause, attributes: ['householdCode'] },
       order: [['fullName', 'ASC']]
     });
 
@@ -285,7 +287,7 @@ exports.exportResidentStatsToExcel = async (req, res) => {
     // Xử lý dữ liệu để thêm cột 'householdCode'
     const dataToExport = residents.map(res => ({
       ...res.get({ plain: true }),
-      householdCode: res.Household ? res.Household.apartmentCode : ''
+      householdCodeLabel: res.Household ? res.Household.householdCode : ''
     }));
 
     worksheet.addRows(dataToExport);
@@ -313,11 +315,11 @@ exports.exportResidentStatsToPdf = async (req, res) => {
     if (gender) whereClause.gender = gender;
     const ageCondition = getAgeCondition(ageGroup);
     if (ageCondition) whereClause[Op.and] = (whereClause[Op.and] || []).concat(ageCondition);
-    if (area) householdWhereClause[Op.or] = [{ apartmentCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
+    if (area) householdWhereClause[Op.or] = [{ householdCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
 
     const residents = await Resident.findAll({
       where: whereClause,
-      include: { model: Household, where: householdWhereClause, attributes: ['apartmentCode'] },
+      include: { model: Household, where: householdWhereClause, attributes: ['householdCode'] },
       order: [['fullName', 'ASC']]
     });
 
@@ -339,7 +341,7 @@ exports.exportResidentStatsToPdf = async (req, res) => {
                   <td>${res.idCardNumber || ''}</td>
                   <td>${res.relationship || ''}</td>
                   <td>${res.occupation || ''}</td>
-                  <td>${res.Household ? res.Household.apartmentCode : ''}</td>
+                  <td>${res.Household ? res.Household.householdCode : ''}</td>
                 </tr>
               `).join('')}
             </tbody>

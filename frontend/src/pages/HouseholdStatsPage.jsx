@@ -133,10 +133,10 @@ const HouseholdStatsPage = () => {
                         {h.address}
                       </td>
                       <td className="px-8 py-6">
-                        <span className="px-2 py-0.5 bg-dark-800 text-dark-400 rounded text-[9px] font-black uppercase tracking-tighter">{h.apartmentType}</span>
+                        <span className="px-2 py-0.5 bg-dark-800 text-dark-400 rounded text-[9px] font-black uppercase tracking-tighter">{h.status === 'occupied' ? 'Đang ở' : 'Trống'}</span>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <span className="text-lg font-outfit font-black text-white">{h.memberCount}</span>
+                        <span className="text-lg font-outfit font-black text-white">{h.count || 0}</span>
                       </td>
                     </tr>
                   ))}

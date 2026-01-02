@@ -105,12 +105,12 @@ const ResidentStatsPage = () => {
               </div>
             </div>
 
-            {/* Additional Quick Stats Card */}
+            {/* Additional Info Card */}
             <div className="glass-card p-8 rounded-3xl flex items-center justify-center bg-dark-900/50">
               <div className="text-center">
-                <div className="text-[10px] font-black text-dark-500 uppercase tracking-widest mb-2">Tỷ lệ tăng trưởng</div>
-                <div className="text-3xl font-outfit font-black text-white">+2.4%</div>
-                <div className="text-[10px] font-bold text-emerald-500 uppercase mt-1">Sát với dự báo</div>
+                <div className="text-[10px] font-black text-dark-500 uppercase tracking-widest mb-2">Độ phủ giới tính</div>
+                <div className="text-xl font-outfit font-black text-white">Ổn định</div>
+                <div className="text-[10px] font-bold text-emerald-500 uppercase mt-1">Dữ liệu thời gian thực</div>
               </div>
             </div>
           </div>
