@@ -1,21 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import * as financeService from '../services/financeService';
-import Spinner from '../components/common/Spinner'; // Giả sử bạn có component Spinner
-import './FeePeriodManagement.css'; // Sẽ tạo file CSS sau
-import { useAuth } from '../context/AuthContext'; // Import hook useAuth để lấy thông tin người dùng
+import { useAuth } from '../context/AuthContext';
 
 const FeePeriodManagement = () => {
-
   const { user } = useAuth();
-  const canEdit = user?.roles?.includes('Kế toán') || user?.roles?.includes('Admin');
+  const canEdit = user?.roles?.includes('ke_toan') || user?.roles?.includes('admin');
 
   const [periods, setPeriods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPeriod, setCurrentPeriod] = useState(null); // null: tạo mới
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     startDate: '',
@@ -23,123 +20,162 @@ const FeePeriodManagement = () => {
     type: 'Bắt buộc',
     description: ''
   });
-  
-  useEffect(() => {
-    const fetchPeriods = async () => {
-      try {
-        const response = await financeService.getAllFeePeriods();
-        setPeriods(response.data.data);
-      } catch (err) {
-        console.error("Lỗi khi tải danh sách đợt thu:", err);
-        setError('Không thể tải dữ liệu từ server.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPeriods();
+
+  const fetchPeriods = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await financeService.getAllFeePeriods();
+      setPeriods(response.data.data);
+      setError('');
+    } catch (err) {
+      setError('Không thể tải các đợt thu từ máy chủ.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // --- CÁC HÀM XỬ LÝ CHO MODAL ---
-  const handleOpenModal = (period = null) => {
-    // Hiện tại chỉ hỗ trợ tạo mới, logic sửa sẽ thêm sau nếu cần
-    setCurrentPeriod(null);
-    setFormData({
-      name: '',
-      startDate: '',
-      endDate: '',
-      type: 'Bắt buộc',
-      description: ''
-    });
-    setIsModalOpen(true);
-  };
+  useEffect(() => {
+    fetchPeriods();
+  }, [fetchPeriods]);
 
-  const handleCloseModal = () => setIsModalOpen(false);
   const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
-      // Logic cho sửa sẽ thêm ở đây
-      // if (currentPeriod) { ... }
       await financeService.createFeePeriod(formData);
-      alert('Tạo đợt thu mới thành công!');
-      handleCloseModal();
-      fetchPeriods(); // Tải lại danh sách
+      setIsModalOpen(false);
+      fetchPeriods();
     } catch (error) {
-      alert('Thao tác thất bại: ' + (error.response?.data?.message || 'Lỗi không xác định'));
+      alert('Lỗi: ' + (error.response?.data?.message || 'Có lỗi xảy ra.'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (loading) return <Spinner />;
-  if (error) return <div className="error-message">{error}</div>;
-
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Quản lý Đợt thu phí</h1>
-        {/* Gắn sự kiện onClick cho nút */}
+    <div className="space-y-8 animate-fade-in text-dark-50">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-outfit font-black text-white">Quản lý Đợt thu</h1>
+          <p className="text-dark-400 font-medium">Khởi tạo và điều hành quy trình thu phí dịch vụ & đóng góp tự nguyện.</p>
+        </div>
         {canEdit && (
-          <button className="add-btn" onClick={() => handleOpenModal()}>Thêm Đợt thu mới</button>
+          <button onClick={() => setIsModalOpen(true)} className="premium-button-primary">
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+            Khởi tạo Đợt thu
+          </button>
         )}
-      </div>
+      </header>
 
-      <div className="list-container">
-        {periods.length > 0 ? (
+      {error && (
+        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 font-bold text-sm">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {loading ? (
+          Array(3).fill(0).map((_, i) => <div key={i} className="glass-card h-48 rounded-2xl animate-pulse"></div>)
+        ) : periods.length > 0 ? (
           periods.map(period => (
-            <div key={period.id} className="list-item-card">
-              <div className="item-info">
-                <h3>{period.name}</h3>
-                <div className="item-details">
-                  <span>Loại hình: <span className={`type-badge type-${period.type === 'Bắt buộc' ? 'mandatory' : 'voluntary'}`}>{period.type}</span></span>
-                  <span>Thời gian: {new Date(period.startDate).toLocaleDateString('vi-VN')} - {new Date(period.endDate).toLocaleDateString('vi-VN')}</span>
+            <div key={period.id} className="glass-card rounded-2xl overflow-hidden hover:border-primary-500/30 transition-all group flex flex-col">
+              <div className="p-6 flex-1 space-y-6">
+                <div className="flex justify-between items-start">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${period.type === 'Bắt buộc' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
+                    {period.type}
+                  </span>
+                  <div className="p-2.5 rounded-xl bg-white/5 text-dark-400">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-bold text-white group-hover:text-primary-400 transition-colors leading-tight">{period.name}</h3>
+                  <p className="text-dark-500 text-xs font-bold uppercase mt-1 tracking-tight">Kỳ thu: {new Date(period.startDate).toLocaleDateString('vi-VN')} - {new Date(period.endDate).toLocaleDateString('vi-VN')}</p>
+                </div>
+
+                <div className="flex items-center gap-4 text-xs">
+                  <div className="flex flex-col">
+                    <span className="text-dark-600 font-black uppercase tracking-tighter">Tiến độ</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-24 h-1.5 bg-dark-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary-500" style={{ width: '65%' }}></div>
+                      </div>
+                      <span className="text-white font-bold">65%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <Link to={`/fee-periods/${period.id}`} className="details-btn">
-              {/* Thay đổi text của nút tùy theo quyền */}
-              {canEdit ? 'Quản lý Khoản thu →' : 'Xem chi tiết →'}
-            </Link>
+
+              <Link to={`/fee-periods/${period.id}`} className="block w-full py-4 bg-white/5 border-t border-white/5 text-center text-xs font-black uppercase tracking-[0.2em] text-dark-400 hover:bg-primary-600 hover:text-white transition-all">
+                {canEdit ? 'Quản lý Khoản thu' : 'Xem chi tiết'}
+              </Link>
             </div>
           ))
         ) : (
-          <p className="no-data-message">Chưa có đợt thu phí nào được tạo.</p>
+          <div className="md:col-span-2 lg:col-span-3 py-20 text-center glass-card rounded-2xl border-dashed">
+            <svg className="w-16 h-16 text-dark-700 mx-auto mb-4" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            <p className="text-dark-500 font-bold uppercase tracking-widest text-sm">Chưa có đợt thu phí nào được khởi tạo</p>
+          </div>
         )}
       </div>
 
-      {/* MODAL ĐỂ THÊM ĐỢT THU MỚI */}
-      {isModalOpen && canEdit && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h2>Thêm Đợt thu mới</h2>
-              <button className="close-btn" onClick={handleCloseModal}>×</button>
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-dark-950/80 backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
+          <div className="relative w-full max-w-xl glass-card rounded-3xl overflow-hidden shadow-2xl animate-page-transition-enter-active">
+            <div className="p-8 border-b border-white/5 bg-white/5 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-outfit font-black text-white">Khởi tạo Đợt thu</h2>
+                <p className="text-dark-500 text-[10px] uppercase font-bold tracking-[0.2em] mt-1">Chu kỳ tài chính BlueMoon</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 text-dark-500 hover:text-white transition-colors bg-white/5 rounded-xl">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
             </div>
-            <form className="modal-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Tên Đợt thu*</label>
-                <input name="name" placeholder="VD: Thu phí tháng 6/2025" value={formData.name} onChange={handleInputChange} required />
+            <form className="p-8 space-y-6" onSubmit={handleSubmit}>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Tên gọi Đợt thu*</label>
+                <input name="name" placeholder="VD: Thu phí vận hành tháng 08/2024" value={formData.name} onChange={handleInputChange} required className="premium-input bg-dark-950/40 text-white font-bold" />
               </div>
-              <div className="form-group">
-                <label>Ngày bắt đầu*</label>
-                <input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} required />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Ngày bắt đầu*</label>
+                  <input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} required className="premium-input bg-dark-950/40" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Ngày kết thúc*</label>
+                  <input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} required className="premium-input bg-dark-950/40" />
+                </div>
               </div>
-              <div className="form-group">
-                <label>Ngày kết thúc*</label>
-                <input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} required />
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Hình thức thu phí*</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.type === 'Bắt buộc' ? 'bg-primary-500/10 border-primary-500 text-white' : 'bg-dark-950/40 border-white/5 text-dark-500'}`}>
+                    <input type="radio" name="type" value="Bắt buộc" checked={formData.type === 'Bắt buộc'} onChange={handleInputChange} className="hidden" />
+                    <span className="text-xs font-black uppercase tracking-widest">Bắt buộc</span>
+                  </label>
+                  <label className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.type === 'Đóng góp' ? 'bg-primary-500/10 border-primary-500 text-white' : 'bg-dark-950/40 border-white/5 text-dark-500'}`}>
+                    <input type="radio" name="type" value="Đóng góp" checked={formData.type === 'Đóng góp'} onChange={handleInputChange} className="hidden" />
+                    <span className="text-xs font-black uppercase tracking-widest">Đóng góp</span>
+                  </label>
+                </div>
               </div>
-              <div className="form-group">
-                <label>Loại hình*</label>
-                <select name="type" value={formData.type} onChange={handleInputChange} required>
-                  <option value="Bắt buộc">Bắt buộc</option>
-                  <option value="Đóng góp">Đóng góp</option>
-                </select>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Ghi chú vận hành</label>
+                <textarea name="description" value={formData.description} onChange={handleInputChange} rows="3" className="premium-input bg-dark-950/40 resize-none" placeholder="Thông tin bổ sung cho bộ phận kế toán..." />
               </div>
-              <div className="form-group">
-                <label>Mô tả</label>
-                <textarea name="description" value={formData.description} onChange={handleInputChange}></textarea>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="cancel-btn" onClick={handleCloseModal}>Hủy</button>
-                <button type="submit" className="submit-btn">Thêm mới</button>
+
+              <div className="pt-6 border-t border-white/5 flex justify-end gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 text-dark-400 font-bold hover:text-white transition-colors uppercase tracking-widest text-xs">Hủy bỏ</button>
+                <button type="submit" disabled={isSubmitting} className="premium-button-primary py-3 px-10">
+                  {isSubmitting ? 'Đang tạo...' : 'Xác nhận khởi tạo'}
+                </button>
               </div>
             </form>
           </div>
