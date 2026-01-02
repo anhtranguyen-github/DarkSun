@@ -31,7 +31,10 @@ All accounts use the default password: **`password123`**
 | **Admin (Demo)** | `demo_admin` | Full System Access |
 | **Accountant** | `demo_ketoan` | Billing, Fee Mgmt, Invoices |
 | **Manager** | `demo_totruong` | Resident & Household Mgmt |
+| **Deputy Manager** | `demo_topho` | Assistant Management |
 | **Resident** | `demo_cudan` | View personal bills & Profile |
+
+> **Note:** All passwords have been unified to **`password123`**. If you cannot log in, please ensure you have run the launcher (`run.sh` / `run.bat`) at least once to synchronize the database roles.
 
 ---
 
