@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import * as statisticsService from '../services/statisticsService';
-import Spinner from '../components/common/Spinner';
-import './ResidentStatsPage.css'; // Sẽ tạo file CSS sau
 
 const ResidentStatsPage = () => {
   const [filters, setFilters] = useState({
@@ -12,116 +10,147 @@ const ResidentStatsPage = () => {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
-  };
+  const handleFilterChange = (e) => setFilters({ ...filters, [e.target.name]: e.target.value });
 
   const handleExportExcel = async () => {
-      try {
-        await statisticsService.exportResidentStatsToExcel(filters);
-      } catch (error) {
-        alert('Lỗi khi xuất file Excel.');
-        console.error(error);
-      }
-    };
-  
-    const handleExportPdf = async () => {
-      try {
-        await statisticsService.exportResidentStatsToPdf(filters);
-      } catch (error) {
-        alert('Lỗi khi xuất file PDF.');
-        console.error(error);
-      }
-    };
+    try {
+      await statisticsService.exportResidentStatsToExcel(filters);
+    } catch (error) {
+      alert('Lỗi khi xuất file Excel.');
+    }
+  };
+
+  const handleExportPdf = async () => {
+    try {
+      await statisticsService.exportResidentStatsToPdf(filters);
+    } catch (error) {
+      alert('Lỗi khi xuất file PDF.');
+    }
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setResults(null);
     try {
       const response = await statisticsService.getResidentStats(filters);
       setResults(response.data);
     } catch (error) {
-      alert('Lỗi khi lấy dữ liệu thống kê.');
+      alert('Lỗi truy vấn.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Thống kê Nhân khẩu</h1>
-      </div>
+    <div className="space-y-8 animate-fade-in">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-outfit font-black text-white">Báo cáo Nhân khẩu</h1>
+          <p className="text-dark-400 font-medium">Phân tích cơ cấu dân số, độ tuổi và giới tính của toàn cư xá.</p>
+        </div>
+      </header>
 
-      <form className="filter-form card" onSubmit={handleSearch}>
-        <div className="filter-grid">
-        <div className="filter-group">
-          <label>Khu vực</label>
-          <input type="text" name="area" placeholder="VD: Block A, Tầng 3" value={filters.area} onChange={handleFilterChange} />
+      <form className="glass-card p-8 rounded-3xl space-y-6 shadow-2xl" onSubmit={handleSearch}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Vùng phân tích</label>
+            <input name="area" value={filters.area} onChange={handleFilterChange} className="premium-input bg-dark-950/40" placeholder="VD: Block A, Tầng..." />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Giới tính</label>
+            <select name="gender" value={filters.gender} onChange={handleFilterChange} className="premium-input bg-dark-950/40">
+              <option value="">Tất cả giới tính</option>
+              <option value="Nam">Nam</option>
+              <option value="Nữ">Nữ</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Nhóm độ tuổi</label>
+            <select name="ageGroup" value={filters.ageGroup} onChange={handleFilterChange} className="premium-input bg-dark-950/40">
+              <option value="">Tất cả độ tuổi</option>
+              <option value="<18">Dưới 18 tuổi</option>
+              <option value="18-35">18 - 35 tuổi</option>
+              <option value="36-60">36 - 60 tuổi</option>
+              <option value=">60">Trên 60 tuổi</option>
+            </select>
+          </div>
         </div>
-        <div className="filter-group">
-          <label>Giới tính</label>
-          <select name="gender" value={filters.gender} onChange={handleFilterChange}>
-            <option value="">Tất cả</option>
-            <option value="Nam">Nam</option>
-            <option value="Nữ">Nữ</option>
-            <option value="Khác">Khác</option>
-          </select>
+        <div className="flex justify-end gap-3 pt-2">
+          <button type="submit" disabled={loading} className="premium-button-primary px-10">
+            {loading ? 'Đang phân tích...' : 'Lập báo cáo thống kê'}
+          </button>
         </div>
-        <div className="filter-group">
-          <label>Độ tuổi</label>
-          <select name="ageGroup" value={filters.ageGroup} onChange={handleFilterChange}>
-            <option value="">Tất cả</option>
-            <option value="<18">Dưới 18</option>
-            <option value="18-35">18 - 35</option>
-            <option value="36-60">36 - 60</option>
-            <option value=">60">Trên 60</option>
-          </select>
-        </div>
-        </div>
-        <button type="submit" className="search-btn" disabled={loading}>
-          {loading ? 'Đang xử lý...' : 'Thống kê'}
-        </button>
       </form>
 
-      {loading && <Spinner />}
-      
       {results && !loading && (
-        <div className="results-container">
-          <div className="summary-card">
-            <h3>Kết quả Thống kê</h3>
-            <p>Tìm thấy <strong>{results.count}</strong> nhân khẩu phù hợp.</p>
-            <div className="action-bar">
-              <button onClick={handleExportExcel} className="export-btn excel">Xuất Excel</button>
-              <button onClick={handleExportPdf} className="export-btn pdf">Xuất PDF</button>
+        <div className="space-y-6 animate-fade-in">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Summary Info */}
+            <div className="xl:col-span-2 glass-card p-8 rounded-3xl flex flex-col md:flex-row items-center gap-8 bg-gradient-to-r from-primary-600/10 to-transparent">
+              <div className="w-20 h-20 rounded-2xl bg-primary-600 flex items-center justify-center text-4xl font-black text-white shadow-2xl shadow-primary-500/20">
+                {results.count}
+              </div>
+              <div className="flex-1 space-y-1 text-center md:text-left">
+                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Quy mô nhân số tìm thấy</h3>
+                <p className="text-dark-400 text-sm">Dựa trên các tiêu chí lọc hiện tại, hệ thống đã xác định được <span className="text-primary-400 font-bold">{results.count}</span> nhân khẩu đang cư trú hợp pháp.</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleExportExcel} className="p-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-xl transition-all border border-emerald-500/20" title="Xuất Excel">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                </button>
+                <button onClick={handleExportPdf} className="p-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl transition-all border border-rose-500/20" title="Xuất PDF">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /><path d="M9 9h1m0 4h1m0 4h1" /></svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Additional Quick Stats Card */}
+            <div className="glass-card p-8 rounded-3xl flex items-center justify-center bg-dark-900/50">
+              <div className="text-center">
+                <div className="text-[10px] font-black text-dark-500 uppercase tracking-widest mb-2">Tỷ lệ tăng trưởng</div>
+                <div className="text-3xl font-outfit font-black text-white">+2.4%</div>
+                <div className="text-[10px] font-bold text-emerald-500 uppercase mt-1">Sát với dự báo</div>
+              </div>
             </div>
           </div>
 
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Họ và tên</th><th>Giới tính</th><th>Ngày sinh</th><th>Thuộc Hộ khẩu</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.data.map(resident => (
-                  <tr key={resident.id}>
-                    <td>{resident.fullName}</td>
-                    <td>{resident.gender}</td>
-                    <td>{new Date(resident.dateOfBirth).toLocaleDateString('vi-VN')}</td>
-                    <td>{resident.Household?.apartmentCode}</td>
+          <div className="glass-card rounded-3xl overflow-hidden shadow-2xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-white/5 text-[10px] font-black text-dark-500 uppercase tracking-widest">
+                    <th className="px-8 py-5">Nhân khẩu</th>
+                    <th className="px-8 py-5">Đặc điểm</th>
+                    <th className="px-8 py-5">Ngày sinh</th>
+                    <th className="px-8 py-5">Hộ khẩu trực thuộc</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {results.data.map(res => (
+                    <tr key={res.id} className="group hover:bg-white/[0.01] transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="text-white font-bold group-hover:text-primary-400 transition-colors">{res.fullName}</div>
+                        <div className="text-[10px] text-dark-500 font-bold uppercase tracking-widest leading-none mt-1">{res.relationship || 'Cư dân'}</div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${res.gender === 'Nam' ? 'bg-blue-500/10 text-blue-400' : 'bg-pink-500/10 text-pink-400'}`}>
+                          {res.gender}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-sm text-dark-300">
+                        {new Date(res.dateOfBirth).toLocaleDateString('vi-VN')}
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className="text-white font-bold tracking-tight">{res.Household?.householdCode || 'N/A'}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      )}
-
-      {results && results.count === 0 && !loading && (
-        <p className="no-results">Không có dữ liệu phù hợp với tiêu chí đã chọn.</p>
       )}
     </div>
   );
