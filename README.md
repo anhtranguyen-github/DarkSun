@@ -6,26 +6,19 @@ Premium Apartment Management System built with **React (Vite)**, **Node.js (Sequ
 
 ## ⚡ Quick Start
 
-### 1. Manual Startup (Linux/Mac/WSL)
-Open your terminal and run:
-```bash
-./start.sh
-```
-*The script will automatically:*
-- Detect and kill stale processes on ports 3000, 5000, and 5173.
-- Check and install dependencies (Node.js).
-- Configure environment variables (`.env`).
-- Synchronize the database schema.
-- **Seed full sample data** (Residents, Households, Fees, etc.).
-- Launch both Backend and Frontend.
+One script to rule them all. Launch the system with a single command and choose between **Native** or **Docker** setup.
 
-### 2. Docker Startup
-If you prefer containers:
-```bash
-./docker-run.sh
+### 1. Windows
+Double-click `run.bat` or run:
+```cmd
+run.bat
 ```
-- **Frontend**: [http://localhost:3000](http://localhost:3000)
-- **Backend**: [http://localhost:5000](http://localhost:5000)
+
+### 2. Linux / macOS / WSL
+Run:
+```bash
+./run.sh
+```
 
 ---
 
