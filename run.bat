@@ -1,40 +1,19 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 title BlueMoon Unified Launcher
-
-REM =============================================================
-REM 🌙 BLUE MOON - UNIFIED SYSTEM LAUNCHER (v2.0)
-REM Platform: Windows
-REM =============================================================
 
 set ROOT_DIR=%~dp0
 cd /d "%ROOT_DIR%"
 
-:MENU
-cls
 echo =============================================================
 echo    🌙  BLUE MOON - UNIFIED SYSTEM LAUNCHER
 echo =============================================================
 echo.
-echo Choose your deployment mode:
-echo   [1] Native (Runs via Node.js locally - Fast ^& Flexible)
-echo   [2] Docker (Isolated containers - Clean ^& Consistent)
-echo   [3] Exit
-echo.
 
-set /p mode="Selection [1-3]: "
-
-if "%mode%"=="1" goto NATIVE
-if "%mode%"=="2" goto DOCKER
-if "%mode%"=="3" exit
-goto MENU
-
-:NATIVE
-echo.
 echo [1/5] Analyzing environment for stale processes...
 for %%p in (5000 5173) do (
     for /f "tokens=5" %%a in ('netstat -aon ^| findstr :%%p ^| findstr LISTENING') do (
-        echo.  ! Cleaning up zombie process on port %%p (PID: %%a)...
+        echo.   - Cleaning up zombie process on port %%p (PID: %%a)...
         taskkill /F /PID %%a >nul 2>&1
     )
 )
@@ -92,38 +71,3 @@ echo.
 timeout /t 5 /nobreak > nul
 start "" "http://localhost:5173"
 pause
-exit
-
-:DOCKER
-echo.
-echo 🚀 Checking Docker status...
-docker info >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ ERROR: Docker is not running.
-    echo Please start Docker Desktop and try again.
-    pause
-    goto MENU
-)
-
-echo.
-docker compose version >nul 2>&1
-if %errorlevel% equ 0 (
-    set COMPOSE_CMD=docker compose
-) else (
-    set COMPOSE_CMD=docker-compose
-)
-
-echo 🐳 Starting BlueMoon via !COMPOSE_CMD!...
-!COMPOSE_CMD! up --build -d
-
-if %errorlevel% equ 0 (
-    echo.
-    echo ✅ Application is running in Containers!
-    echo    👉 Frontend: http://localhost:3000
-    echo    To stop: !COMPOSE_CMD! down
-) else (
-    echo.
-    echo ❌ Failed to start containers.
-)
-pause
-goto MENU
