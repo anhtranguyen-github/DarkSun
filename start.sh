@@ -153,7 +153,7 @@ echo -e "   ${BOLD}Backend:${NC}    ${CYAN}http://localhost:$BACKEND_PORT/api${N
 echo ""
 echo -e "   ${BOLD}Master Admin Audit:${NC}"
 echo -e "     User:     ${BOLD}admin123${NC}"
-echo -e "     Pass:     ${BOLD}admin123${NC}"
+echo -e "     Pass:     ${BOLD}password123${NC}"
 echo ""
 echo -e "   ${MAGENTA}Press Ctrl+C to terminate all services${NC}"
 echo -e "${GREEN}${BOLD}=============================================================${NC}"

@@ -10,8 +10,9 @@ async function createDemoUsers() {
         // 1. Define Core Roles (v2.0)
         const rolesDef = [
             { name: 'admin', displayName: 'Quản Trị Viên' },
-            { name: 'manager', displayName: 'Tổ Trưởng/Tổ Phó' },
-            { name: 'accountant', displayName: 'Kế Toán' },
+            { name: 'to_truong', displayName: 'Tổ Trưởng' },
+            { name: 'to_pho', displayName: 'Tổ Phó' },
+            { name: 'ke_toan', displayName: 'Kế Toán' },
             { name: 'cu_dan', displayName: 'Cư Dân' }
         ];
 
@@ -32,10 +33,11 @@ async function createDemoUsers() {
         // Note: User model has beforeCreate hook that auto-hashes password
 
         const demoAccounts = [
+            { role: 'admin', username: 'admin123', fullName: 'Master Admin' },
             { role: 'admin', username: 'demo_admin', fullName: 'Demo Admin' },
-            { role: 'manager', username: 'demo_totruong', fullName: 'Demo Tổ Trưởng' },
-            { role: 'manager', username: 'demo_topho', fullName: 'Demo Tổ Phó' },
-            { role: 'accountant', username: 'demo_ketoan', fullName: 'Demo Kế Toán' },
+            { role: 'to_truong', username: 'demo_totruong', fullName: 'Demo Tổ Trưởng' },
+            { role: 'to_pho', username: 'demo_topho', fullName: 'Demo Tổ Phó' },
+            { role: 'ke_toan', username: 'demo_ketoan', fullName: 'Demo Kế Toán' },
             { role: 'cu_dan', username: 'demo_cudan', fullName: 'Demo Cư Dân' }
         ];
 
