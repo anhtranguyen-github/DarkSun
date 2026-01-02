@@ -23,19 +23,7 @@ const MainLayout = () => {
           </div>
         </div>
 
-        {/* Footer Info */}
-        <footer className="relative z-10 px-8 py-6 border-t border-white/5 bg-dark-950/20 backdrop-blur-sm">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-dark-500 text-xs font-medium">
-              &copy; 2024 BlueMoon Residence Management. All rights reserved.
-            </p>
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-dark-500 hover:text-dark-300 text-xs transition-colors">Documentation</a>
-              <a href="#" className="text-dark-500 hover:text-dark-300 text-xs transition-colors">Support</a>
-              <span className="text-dark-600 text-[10px] py-1 px-2 border border-white/5 rounded mx-2">v2.0.4-stable</span>
-            </div>
-          </div>
-        </footer>
+
       </main>
     </div>
   );
