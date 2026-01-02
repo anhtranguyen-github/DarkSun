@@ -100,9 +100,14 @@ if [ ! -f "frontend/.env" ]; then
 fi
 
 # --- DATABASE SEEDING ---
-echo -e "\n${YELLOW}🗄️  Synchronizing database & RBAC...${NC}"
-cd backend && node create-demo-users.js > /dev/null 2>&1 && cd ..
-echo -e "${GREEN}   ✓ Database ready${NC}"
+echo -e "\n${YELLOW}🗄️  Synchronizing database & Seeding data...${NC}"
+cd backend
+node scripts/seed-rbac.js > /dev/null 2>&1
+node scripts/create-demo-users.js > /dev/null 2>&1
+node scripts/seed-fee-types.js > /dev/null 2>&1
+node scripts/seed-full-data.js > /dev/null 2>&1
+cd ..
+echo -e "${GREEN}   ✓ Database synchronized with full sample data${NC}"
 
 # --- PROCESS CLEANUP HANDLER ---
 cleanup() {
