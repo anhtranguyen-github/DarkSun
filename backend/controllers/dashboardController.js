@@ -1,25 +1,59 @@
-// THAY ĐỔI Ở ĐÂY: Import các model cần thiết
-const { User, Household, Resident } = require('../models');
+const { User, Household, Resident, Vehicle, FeePeriod, Invoice } = require('../models');
 
 // Lấy các chỉ số thống kê chính cho Dashboard
 exports.getDashboardStats = async (req, res) => {
   try {
-    const [residentCount, householdCount] = await Promise.all([
-      Resident.count(), // Đếm tổng số nhân khẩu
-      Household.count() // Đếm tổng số hộ khẩu
+    const [
+      totalResidents,
+      totalHouseholds,
+      totalVehicles,
+      activeFeePeriods
+    ] = await Promise.all([
+      Resident.count(),
+      Household.count(),
+      Vehicle.count(),
+      FeePeriod.count({ where: { status: 'open' } })
     ]);
 
-    const recentActivities = [
-      { id: 1, text: 'Kế toán đã tạo đợt thu phí tháng 6/2025.', time: '1 giờ trước' },
-      { id: 2, text: 'Tổ trưởng đã thêm hộ khẩu mới: A-1205.', time: '3 giờ trước' },
-    ];
+    // Lấy 5 hoạt động gần đây (ví dụ: các cư dân mới được thêm)
+    const recentResidents = await Resident.findAll({
+      limit: 5,
+      order: [['createdAt', 'DESC']],
+      include: [{ model: Household }]
+    });
+
+    const recentActivities = recentResidents.map(r => ({
+      id: r.id,
+      user: r.relationship === 'Chủ hộ' ? 'CH' : 'NK',
+      action: `Thêm nhân khẩu: ${r.fullName} vào hộ ${r.Household?.householdCode || 'N/A'}`,
+      time: 'Gần đây',
+      type: r.relationship === 'Chủ hộ' ? 'success' : 'info'
+    }));
+
+    // Lấy danh sách quản lý viên (nhân viên hệ thống)
+    const staffList = await User.findAll({
+      limit: 3,
+      attributes: ['fullName', 'status'],
+      include: [{
+        model: Role,
+        attributes: ['displayName'],
+        through: { attributes: [] }
+      }]
+    });
 
     res.status(200).json({
       success: true,
       data: {
-        residentCount,
-        householdCount,
+        totalResidents,
+        totalHouseholds,
+        totalVehicles,
+        activeFeePeriods,
         recentActivities,
+        staffList: staffList.map(s => ({
+          name: s.fullName,
+          role: s.Roles?.[0]?.displayName || 'Nhân viên',
+          active: s.status === 'active'
+        }))
       },
     });
   } catch (error) {

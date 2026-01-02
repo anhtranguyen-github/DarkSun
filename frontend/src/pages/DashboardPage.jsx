@@ -157,43 +157,46 @@ const DashboardPage = () => {
               <span className="text-[10px] text-primary-400 hover:underline cursor-pointer">Xem tất cả</span>
             </h3>
             <div className="space-y-4">
-              {[
-                { user: 'Ad', action: 'Duyệt tạm trú cho Hộ HK-102', time: '10 phút trước', type: 'info' },
-                { user: 'KT', action: 'Ghi nhận đóng góp từ thiện đợt 2', time: '1 giờ trước', type: 'success' },
-                { user: 'TT', action: 'Đăng ký xe máy mới cho KH-405', time: '3 giờ trước', type: 'info' }
-              ].map((item, i) => (
-                <div key={i} className="flex gap-4 items-start group">
-                  <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 bg-${item.type === 'success' ? 'emerald' : 'sky'}-500 shadow-[0_0_8px_rgba(var(--color-primary),0.5)]`}></div>
-                  <div className="space-y-0.5">
-                    <p className="text-sm text-dark-200 group-hover:text-white transition-colors">
-                      <span className="font-bold text-primary-400">{item.user}</span>: {item.action}
-                    </p>
-                    <span className="text-[10px] text-dark-500 font-bold uppercase">{item.time}</span>
+              {stats?.recentActivities && stats.recentActivities.length > 0 ? (
+                stats.recentActivities.map((item, i) => (
+                  <div key={i} className="flex gap-4 items-start group">
+                    <div className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 bg-${item.type === 'success' ? 'emerald' : 'sky'}-500 shadow-[0_0_8px_rgba(var(--color-primary),0.5)]`}></div>
+                    <div className="space-y-0.5">
+                      <p className="text-sm text-dark-200 group-hover:text-white transition-colors leading-relaxed">
+                        <span className="font-bold text-primary-400">{item.user}</span>: {item.action}
+                      </p>
+                      <span className="text-[10px] text-dark-500 font-bold uppercase tracking-wider">{item.time}</span>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="py-8 text-center space-y-2">
+                  <div className="text-dark-600 text-xs font-bold uppercase tracking-widest">Không có hoạt động</div>
+                  <p className="text-dark-500 text-[10px]">Hệ thống hiện chưa ghi nhận thay đổi nào.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
           <div className="glass-card rounded-2xl p-6 space-y-6">
-            <h3 className="text-lg font-outfit font-bold">Quản lý viên</h3>
+            <h3 className="text-lg font-outfit font-bold">Ban Quản trị</h3>
             <div className="space-y-4">
-              {[
-                { name: 'Nguyễn Văn Admin', role: 'Quản trị viên', active: true },
-                { name: 'Trần Thị Kế Toán', role: 'Kế toán trưởng', active: true },
-                { name: 'Lê Văn Tổ Trưởng', role: 'Tổ trưởng tổ 2', active: false }
-              ].map((staff, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded bg-dark-700/50 flex items-center justify-center font-bold text-[10px] text-dark-300">
-                    {staff.name.split(' ').map(n => n[0]).join('')}
+              {stats?.staffList && stats.staffList.length > 0 ? (
+                stats.staffList.map((staff, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded bg-dark-700/50 flex items-center justify-center font-bold text-[10px] text-dark-300">
+                      {staff.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-xs font-bold text-white">{staff.name}</div>
+                      <div className="text-[10px] text-dark-500 font-medium uppercase tracking-tight">{staff.role}</div>
+                    </div>
+                    <div className={`h-1.5 w-1.5 rounded-full ${staff.active ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-dark-700'}`}></div>
                   </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-bold text-white">{staff.name}</div>
-                    <div className="text-[10px] text-dark-500 font-medium uppercase tracking-tight">{staff.role}</div>
-                  </div>
-                  <div className={`h-1.5 w-1.5 rounded-full ${staff.active ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-dark-700'}`}></div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-dark-500 text-[10px] font-bold uppercase py-4">Đang đồng bộ nhân sự...</p>
+              )}
             </div>
           </div>
         </div>
