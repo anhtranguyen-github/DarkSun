@@ -30,12 +30,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     description: { type: DataTypes.TEXT },
+    createdAt: { type: DataTypes.DATE, field: 'created_at' },
+    updatedAt: { type: DataTypes.DATE, field: 'updated_at' }
   }, {
     sequelize,
     modelName: 'Role',
     tableName: 'roles',
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    underscored: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
   });
   return Role;
 };

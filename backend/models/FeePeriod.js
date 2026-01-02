@@ -23,13 +23,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     description: {
       type: DataTypes.TEXT
-    }
+    },
+    createdAt: { type: DataTypes.DATE, field: 'created_at' },
+    updatedAt: { type: DataTypes.DATE, field: 'updated_at' }
   }, {
     sequelize,
     modelName: 'FeePeriod',
     tableName: 'fee_periods',
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    underscored: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
   });
   return FeePeriod;
 };

@@ -68,6 +68,7 @@ exports.getDashboardStats = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error('DASHBOARD STATS ERROR:', error);
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
