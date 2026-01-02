@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     phone_number: { type: DataTypes.STRING },
     avatar_url: { type: DataTypes.TEXT },
     status: { type: DataTypes.STRING, defaultValue: 'active' },
+    householdId: { type: DataTypes.INTEGER, field: 'household_id' },
   }, {
     sequelize,
     modelName: 'User',
@@ -35,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
     },
-    householdId: { type: DataTypes.INTEGER, field: 'household_id' },
   });
   return User;
 };

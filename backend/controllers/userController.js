@@ -12,7 +12,7 @@ exports.getAllUsers = async (req, res) => {
       attributes: ['id', 'username', 'fullName', 'email', 'status'],
       include: {
         model: Role,
-        attributes: ['name'],
+        attributes: ['id', 'name'],
         through: { attributes: [] } // Không lấy thông tin từ bảng trung gian
       }
     });
@@ -27,14 +27,14 @@ exports.getAllUsers = async (req, res) => {
  */
 exports.updateUserStatus = async (req, res) => {
   try {
-     // Lấy các tham số truy vấn từ URL (ví dụ: /users?username=test&status=active)
+    // Lấy các tham số truy vấn từ URL (ví dụ: /users?username=test&status=active)
     const { username, fullName, roleId, status } = req.query;
 
     // Xây dựng điều kiện lọc động
     const whereClause = {};
     const includeOptions = {
       model: Role,
-      attributes: ['name'],
+      attributes: ['id', 'name'],
       through: { attributes: [] }
     };
 
@@ -71,40 +71,40 @@ exports.updateUserStatus = async (req, res) => {
  * DELETE: Xóa mềm một người dùng (thay đổi trạng thái thành 'deleted')
  */
 exports.deleteUser = async (req, res) => {
-    try {
-        const { userId } = req.params;
+  try {
+    const { userId } = req.params;
 
-        if (Number(userId) === req.user.id) {
-            return res.status(403).json({ success: false, message: 'Bạn không thể tự xóa chính mình.' });
-        }
-
-        const user = await User.findByPk(userId, {
-            include: { model: Role, attributes: ['name'] }
-        });
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
-        }
-
-        // Luồng thay thế UC017: Kiểm tra vai trò quản trị
-        const userRoles = user.Roles.map(role => role.name);
-        const adminRoles = ['Admin', 'Tổ trưởng', 'Tổ phó'];
-        if (userRoles.some(role => adminRoles.includes(role))) {
-            return res.status(403).json({ success: false, message: 'Không thể xóa tài khoản có vai trò quản trị.' });
-        }
-
-        // Luồng thay thế UC017: Kiểm tra tài khoản đang được sử dụng
-        const isOwner = await Household.findOne({ where: { ownerId: userId } });
-        if (isOwner) {
-            return res.status(400).json({ success: false, message: 'Không thể xóa người dùng này vì họ đang là chủ hộ. Vui lòng chuyển chủ hộ trước.' });
-        }
-
-        user.status = 'deleted';
-        await user.save();
-
-        res.status(200).json({ success: true, message: 'Xóa người dùng thành công.' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+    if (Number(userId) === req.user.id) {
+      return res.status(403).json({ success: false, message: 'Bạn không thể tự xóa chính mình.' });
     }
+
+    const user = await User.findByPk(userId, {
+      include: { model: Role, attributes: ['name'] }
+    });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
+    }
+
+    // Luồng thay thế UC017: Kiểm tra vai trò quản trị
+    const userRoles = user.Roles.map(role => role.name.toLowerCase());
+    const adminRoles = ['admin', 'to_truong', 'to_pho'];
+    if (userRoles.some(role => adminRoles.includes(role))) {
+      return res.status(403).json({ success: false, message: 'Không thể xóa tài khoản có vai trò quản trị.' });
+    }
+
+    // Luồng thay thế UC017: Kiểm tra tài khoản đang được sử dụng
+    const isOwner = await Household.findOne({ where: { ownerId: userId } });
+    if (isOwner) {
+      return res.status(400).json({ success: false, message: 'Không thể xóa người dùng này vì họ đang là chủ hộ. Vui lòng chuyển chủ hộ trước.' });
+    }
+
+    user.status = 'deleted';
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Xóa người dùng thành công.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
 };
 
 /**
@@ -114,7 +114,7 @@ exports.assignRoleToUser = async (req, res) => {
   try {
     const { userId } = req.params;
     const { roleId } = req.body;
-    
+
     // Lấy thông tin về người đang thực hiện hành động từ token (đã được middleware `protect` thêm vào)
     const actor = req.user;
 
@@ -131,22 +131,22 @@ exports.assignRoleToUser = async (req, res) => {
 
     // 2. LOGIC PHÂN QUYỀN NÂNG CAO
     // Kiểm tra xem người thực hiện có phải là Admin hay không
-    const isActorAdmin = actor.roles.includes('Admin');
-    
+    const isActorAdmin = actor.roles.includes('admin');
+
     // Nếu người thực hiện KHÔNG PHẢI LÀ ADMIN, chúng ta cần kiểm tra thêm
     if (!isActorAdmin) {
       // Định nghĩa các vai trò mà Tổ trưởng/Tổ phó được phép gán
-      const allowedRolesToAssign = ['Tổ trưởng', 'Tổ phó', 'Cư dân'];
+      const allowedRolesToAssign = ['to_truong', 'to_pho', 'cu_dan'];
 
       // Nếu vai trò sắp được gán không nằm trong danh sách cho phép, từ chối.
-      if (!allowedRolesToAssign.includes(roleToAssign.name)) {
+      if (!allowedRolesToAssign.includes(roleToAssign.name.toLowerCase())) {
         return res.status(403).json({ success: false, message: 'Bạn không có quyền gán vai trò này.' });
       }
     }
-    
+
     // 3. Nếu vượt qua tất cả các bước kiểm tra, thực hiện gán vai trò
     await userToUpdate.addRole(roleToAssign);
-    
+
     // Lấy lại thông tin user đầy đủ với các vai trò mới nhất để trả về cho frontend
     const updatedUserWithRoles = await User.findByPk(userId, {
       include: {
