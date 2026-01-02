@@ -23,11 +23,12 @@ Run:
 ---
 
 ## 🔑 Demo Accounts
-All accounts use the default password: `password123`
+All accounts use the default password: **`password123`**
 
 | Role | Username | Permissions |
 | :--- | :--- | :--- |
-| **Admin** | `demo_admin` | Full System Access |
+| **Master Admin** | `admin123` | Full Audit & System Control |
+| **Admin (Demo)** | `demo_admin` | Full System Access |
 | **Accountant** | `demo_ketoan` | Billing, Fee Mgmt, Invoices |
 | **Manager** | `demo_totruong` | Resident & Household Mgmt |
 | **Resident** | `demo_cudan` | View personal bills & Profile |
