@@ -3,9 +3,8 @@ import AppRoutes from './routes/AppRoutes';
 
 function App() {
   return (
-    // Có thể thêm Layout chung ở đây nếu muốn
-    <div className="app-container">
-        <AppRoutes />
+    <div className="min-h-screen bg-dark-950 text-white selection:bg-primary-500/30">
+      <AppRoutes />
     </div>
   );
 }

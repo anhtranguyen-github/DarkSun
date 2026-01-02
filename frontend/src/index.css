@@ -1,258 +1,92 @@
-/* 
-  Project Zenith: Flat & Unified Design System
-  Philosophy: No shadows. Borders define structure. Consistent colors.
-*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  /* =========================
-     COLOR PALETTE
-     ========================= */
-  
-  /* Primary Actions */
-  --primary: #2563ea;       /* Solid Blue */
-  --primary-hover: #1d4ed8; /* Darker Blue */
-  --primary-light: #eff6ff; /* Pale Blue (for active backgrounds) */
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
-  /* Neutral / Structures */
-  --surface: #ffffff;       /* Pure White Cards */
-  --background: #f1f5f9;    /* Light Gray App Background */
-  --border: #e2e8f0;        /* Light Border (Main separator) */
-  --divider: #cbd5e1;       /* Slightly darker border for strong separation */
+  :root {
+    --bg-deep: #0f172a;
+    --bg-main: #1e293b;
+    --bg-surface: rgba(30, 41, 59, 0.7);
+    --glass: blur(12px) saturate(180%);
+  }
 
-  /* Text Colors */
-  --text-main: #0f172a;     /* Very Dark Slate - Main content */
-  --text-secondary: #64748b; /* Muted Slate - Metadata */
-  --text-inverse: #ffffff;  /* Text on Primary Backgrounds */
+  body {
+    @apply bg-dark-900 text-dark-50 antialiased font-sans transition-colors duration-300;
+    min-height: 100vh;
+  }
 
-  /* Feedback Colors */
-  --success: #10b981;
-  --success-bg: #ecfdf5;
-  --danger: #ef4444;
-  --danger-bg: #fef2f2;
-  --warning: #f59e0b;
-  --warning-bg: #fffbeb;
-
-  /* =========================
-     DIMENSIONS & SPACING
-     ========================= */
-  --radius: 4px; /* Small radius for a "boxy/professional" feel */
-  --header-height: 60px;
-  --sidebar-width: 260px;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-outfit font-bold tracking-tight text-white;
+  }
 }
 
-/* =========================
-   GLOBAL RESET
-   ========================= */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@layer components {
+  .glass-card {
+    @apply bg-dark-800/60 backdrop-blur-md border border-white/5 shadow-xl;
+  }
+
+  .premium-input {
+    @apply w-full bg-dark-950/50 border border-dark-700 rounded-lg px-4 py-3 text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-200;
+  }
+
+  .premium-button {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .premium-button-primary {
+    @apply premium-button bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-900/40 hover:shadow-primary-500/50 hover:brightness-110;
+  }
+
+  .premium-button-secondary {
+    @apply premium-button bg-dark-800 text-dark-100 border border-dark-700 hover:bg-dark-700 hover:border-dark-600;
+  }
+
+  .status-badge {
+    @apply px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider;
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
+
+  @keyframes shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
 }
 
-body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: var(--background);
-  color: var(--text-main);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+/* Page Transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
-/* =========================
-   TYPOGRAPHY
-   ========================= */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 0.75rem;
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
 }
 
-h1 { font-size: 1.875rem; letter-spacing: -0.025em; } /* 30px */
-h2 { font-size: 1.5rem; letter-spacing: -0.025em; }   /* 24px */
-h3 { font-size: 1.25rem; }  /* 20px */
-
-p {
-  margin-bottom: 1rem;
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-a {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 500;
-}
-a:hover {
-  text-decoration: underline;
-}
-
-/* =========================
-   COMPONENT UTILITIES (FLAT THEME)
-   ========================= */
-
-/* CORE CONTAINER: replaces shadows with borders */
-.card {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-}
-
-/* BUTTONS */
-button, .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-  border: 1px solid transparent; /* default border */
-  line-height: 1.25;
-}
-
-/* Primary Button */
-.btn-primary, button[type="submit"] {
-  background-color: var(--primary);
-  color: var(--text-inverse);
-  border-color: var(--primary);
-}
-.btn-primary:hover, button[type="submit"]:hover {
-  background-color: var(--primary-hover);
-  border-color: var(--primary-hover);
-}
-
-/* Secondary / Outline Button */
-.btn-secondary, .btn-outline {
-  background-color: var(--surface);
-  color: var(--text-main);
-  border-color: var(--border);
-}
-.btn-secondary:hover, .btn-outline:hover {
-  background-color: var(--background);
-  border-color: var(--divider);
-}
-
-/* Danger Button */
-.btn-danger {
-  background-color: var(--danger);
-  color: var(--text-inverse);
-}
-.btn-danger:hover {
-  opacity: 0.9;
-}
-
-/* INPUTS */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="date"],
-select,
-textarea {
-  display: block;
-  width: 100%;
-  padding: 0.625rem 0.75rem;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--text-main);
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  transition: border-color 0.15s ease;
-}
-
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  /* Flat design: No ring/shadow, just color change */
-}
-
-input:disabled, select:disabled {
-  background-color: var(--background);
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* TABLES */
-.table-container {
-  width: 100%;
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-thead {
-  background-color: #f8fafc; /* Subtle header background */
-  border-bottom: 1px solid var(--border);
-}
-
-th {
-  padding: 0.75rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  letter-spacing: 0.05em;
-}
-
-td {
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid var(--border);
-  color: var(--text-main);
-  font-size: 0.95rem;
-}
-
-tbody tr:last-child td {
-  border-bottom: none;
-}
-
-tbody tr:hover {
-  background-color: var(--primary-light); /* Very subtle active row indication */
-}
-
-/* LAYOUT HELPERS */
-.page-header {
-  margin-bottom: 2rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 1rem;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-main);
-  font-size: 0.9rem;
-}
-
-/* STATUS BADGES */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.status-active, .status-paid {
-  background-color: var(--success-bg);
-  color: var(--success);
-}
-
-.status-locked, .status-inactive, .status-unpaid {
-  background-color: var(--danger-bg);
-  color: var(--danger);
-  /* Add border to badge if contrast is too low, but these colors should be fine */
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
 }
