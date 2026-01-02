@@ -1,114 +1,157 @@
 #!/bin/bash
 
 # ============================================
-# BlueMoon Quick Setup Script
-# IT4082-BlueMoon-Nhom18
+# BlueMoon Apartment Management System
+# Production-Guided Setup & Startup Script
 # ============================================
 
-echo "========================================="
-echo "🌙 BlueMoon Apartment Manager - Setup"
-echo "========================================="
-echo ""
+# Colors for premium terminal output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Ports
+BACKEND_PORT=5000
+FRONTEND_PORT=5173
+
+clear
+echo -e "${MAGENTA}${BOLD}=============================================================${NC}"
+echo -e "${MAGENTA}${BOLD}   🌙  BLUE MOON APARTMENT MANAGEMENT SYSTEM - V2.0${NC}"
+echo -e "${MAGENTA}${BOLD}=============================================================${NC}"
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Colors
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+# --- PORT MANAGEMENT & ZOMBIE CLEANUP ---
+echo -e "${CYAN}🔍 Analyzing environment for stale processes...${NC}"
 
-# Check if node_modules exist, if not install dependencies
-echo -e "${YELLOW}📦 Checking dependencies...${NC}"
+kill_process_on_port() {
+  local port=$1
+  local pids=$(lsof -t -i:$port)
+  
+  if [ -n "$pids" ]; then
+    echo -e "${YELLOW}⚠️  Detected zombie/stale service on port $port (PID: $pids)${NC}"
+    echo -e "${YELLOW}   Terminating to prevent startup conflicts...${NC}"
+    
+    # Try graceful kill first
+    for pid in $pids; do
+      kill -15 $pid 2>/dev/null
+    done
+    sleep 1
+    
+    # Force kill if still alive
+    pids=$(lsof -t -i:$port)
+    if [ -n "$pids" ]; then
+      echo -e "${RED}   Forcefully purging port $port...${NC}"
+      fuser -k $port/tcp > /dev/null 2>&1
+    fi
+    echo -e "${GREEN}   ✓ Port $port cleared${NC}"
+  else
+    echo -e "${CYAN}   ✓ Port $port is available${NC}"
+  fi
+}
 
-if [ ! -d "backend/node_modules" ]; then
-  echo -e "${BLUE}Installing backend dependencies...${NC}"
-  cd backend && npm install && cd ..
-else
-  echo -e "${GREEN}✓ Backend dependencies already installed${NC}"
-fi
+kill_process_on_port $BACKEND_PORT
+kill_process_on_port $FRONTEND_PORT
 
-if [ ! -d "frontend/node_modules" ]; then
-  echo -e "${BLUE}Installing frontend dependencies...${NC}"
-  cd frontend && npm install && cd ..
-else
-  echo -e "${GREEN}✓ Frontend dependencies already installed${NC}"
-fi
+# --- DEPENDENCY CHECK ---
+echo -e "\n${YELLOW}📦 Validating dependencies...${NC}"
 
-# Create backend .env if it doesn't exist
+check_node_modules() {
+  local dir=$1
+  local label=$2
+  if [ ! -d "$dir/node_modules" ]; then
+    echo -e "${BLUE}   Installing $label dependencies (this may take a minute)...${NC}"
+    cd "$dir" && npm install --silent && cd ..
+    echo -e "${GREEN}   ✓ $label dependencies installed${NC}"
+  else
+    echo -e "${GREEN}   ✓ $label dependencies verified${NC}"
+  fi
+}
+
+check_node_modules "backend" "Backend"
+check_node_modules "frontend" "Frontend"
+
+# --- ENVIRONMENT CONFIGURATION ---
 if [ ! -f "backend/.env" ]; then
-  echo -e "${BLUE}Creating backend .env file...${NC}"
+  echo -e "\n${BLUE}📝 Generating backend .env configuration...${NC}"
   cat <<EOT > backend/.env
 NODE_ENV=development
-PORT=5000
+PORT=$BACKEND_PORT
 DB_HOST=dingleberries.ddns.net
 DB_NAME=bluemoon_db
 DB_USER=postgres
 DB_PASSWORD=98tV2v_!pT*:nuc>
 DB_PORT=5432
-JWT_SECRET=a_very_long_and_random_secret_string_for_your_app_12345!@#$%
-JWT_EXPIRES_IN=1h
+JWT_SECRET=bluemoon_ultra_secure_secret_2024_dark_infinity
+JWT_EXPIRES_IN=24h
 EOT
 fi
 
-# Create frontend .env if it doesn't exist
 if [ ! -f "frontend/.env" ]; then
-  echo -e "${BLUE}Creating frontend .env file...${NC}"
-  echo "VITE_API_BASE_URL=http://localhost:5000/api" > frontend/.env
+  echo -e "${BLUE}📝 Generating frontend .env configuration...${NC}"
+  echo "VITE_API_BASE_URL=http://localhost:$BACKEND_PORT/api" > frontend/.env
 fi
 
-echo ""
-echo -e "${YELLOW}🚀 Starting servers...${NC}"
-echo ""
+# --- DATABASE SEEDING ---
+echo -e "\n${YELLOW}🗄️  Synchronizing database & RBAC...${NC}"
+cd backend && node create-demo-users.js > /dev/null 2>&1 && cd ..
+echo -e "${GREEN}   ✓ Database ready${NC}"
 
-# Function to cleanup on exit
+# --- PROCESS CLEANUP HANDLER ---
 cleanup() {
-  echo ""
-  echo -e "${YELLOW}Shutting down servers...${NC}"
-  kill $BACKEND_PID 2>/dev/null
-  kill $FRONTEND_PID 2>/dev/null
+  echo -e "\n\n${MAGENTA}🛑 Shutting down BlueMoon elegantly...${NC}"
+  # Kill process groups to ensure all children (nodemon/vite) die
+  [ -n "$BACKEND_PID" ] && kill -TERM -$BACKEND_PID 2>/dev/null
+  [ -n "$FRONTEND_PID" ] && kill -TERM -$FRONTEND_PID 2>/dev/null
+  
+  # Final sweep for specific ports just in case
+  fuser -k $BACKEND_PORT/tcp > /dev/null 2>&1
+  fuser -k $FRONTEND_PORT/tcp > /dev/null 2>&1
+  
+  echo -e "${GREEN}✨ Workspace clean. See you soon!${NC}"
   exit 0
 }
 
-# Ensure demo users exist
-echo -e "${YELLOW}👤 Checking/Creating demo accounts...${NC}"
-cd backend && node create-demo-users.js && cd ..
-
 trap cleanup SIGINT SIGTERM
 
-# Start backend
-echo -e "${BLUE}Starting Backend (Express.js)...${NC}"
+# --- START SERVERS ---
+echo -e "\n${BOLD}${CYAN}🚀 LAUNCHING SERVICES...${NC}"
+
+# Start Backend
 cd backend
-npm run dev &
+npm run dev 2>&1 | sed 's/^/[BACKEND] /' &
 BACKEND_PID=$!
 cd ..
 
-# Wait a bit for backend to start
-sleep 3
+# Wait for backend to stabilize
+sleep 2
 
-# Start frontend
-echo -e "${BLUE}Starting Frontend (Vite + React)...${NC}"
+# Start Frontend
 cd frontend
-npm run dev &
+npm run dev 2>&1 | sed 's/^/[FRONTEND] /' &
 FRONTEND_PID=$!
 cd ..
 
+echo -e "\n${GREEN}${BOLD}=============================================================${NC}"
+echo -e "${GREEN}${BOLD}   ✓ SYSTEM ONLINE - BLUE MOON IS READY${NC}"
+echo -e "${GREEN}${BOLD}=============================================================${NC}"
 echo ""
-echo "========================================="
-echo -e "${GREEN}✓ BlueMoon is running!${NC}"
-echo "========================================="
+echo -e "   ${BOLD}Frontend:${NC}   ${CYAN}http://localhost:$FRONTEND_PORT${NC}"
+echo -e "   ${BOLD}Backend:${NC}    ${CYAN}http://localhost:$BACKEND_PORT/api${NC}"
 echo ""
-echo -e "  ${BLUE}Frontend:${NC} http://localhost:5173"
-echo -e "  ${BLUE}Backend:${NC}  http://localhost:5000/api"
+echo -e "   ${BOLD}Master Admin Audit:${NC}"
+echo -e "     User:     ${BOLD}admin123${NC}"
+echo -e "     Pass:     ${BOLD}admin123${NC}"
 echo ""
-echo -e "  ${YELLOW}Login:${NC}"
-echo "    Username: admin123"
-echo "    Password: admin123"
-echo ""
-echo "  Press Ctrl+C to stop both servers"
-echo "========================================="
+echo -e "   ${MAGENTA}Press Ctrl+C to terminate all services${NC}"
+echo -e "${GREEN}${BOLD}=============================================================${NC}"
 
 # Wait for both processes
 wait
