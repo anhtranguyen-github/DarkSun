@@ -1,12 +1,11 @@
-// routes/dashboardRoutes.js
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
-const { protect } = require('../middleware/authMiddleware'); // Import middleware
+const { protect, authorize } = require('../middleware/authMiddleware');
 
-// Áp dụng middleware "protect" cho tất cả các route trong file này
 router.use(protect);
 
-router.get('/stats', dashboardController.getDashboardStats);
+// Dashboard is viewable by all management roles
+router.get('/stats', authorize('admin', 'manager', 'accountant'), dashboardController.getDashboardStats);
 
 module.exports = router;

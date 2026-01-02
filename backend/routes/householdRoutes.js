@@ -3,16 +3,22 @@ const router = express.Router();
 const householdController = require('../controllers/householdController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
-// Tất cả các route dưới đây đều yêu cầu phải đăng nhập
+// All routes require authentication
 router.use(protect);
 
-// Chỉ Tổ trưởng và Tổ phó mới có quyền quản lý hộ khẩu
-router.route('/')
-  .get(authorize('Admin', 'Tổ trưởng', 'Tổ phó'), householdController.getAllHouseholds)
-  .post(authorize('Admin', 'Tổ trưởng', 'Tổ phó'), householdController.createHousehold);
+// GET all households (Manager & Accountant can view)
+router.get('/', authorize('admin', 'manager', 'accountant'), householdController.getAllHouseholds);
 
-router.route('/:id')
-  .put(authorize('Admin', 'Tổ trưởng', 'Tổ phó'), householdController.updateHousehold)
-  .delete(authorize('Admin', 'Tổ trưởng', 'Tổ phó'), householdController.deleteHousehold);
+// GET household details with residents & vehicles
+router.get('/:id', authorize('admin', 'manager', 'accountant'), householdController.getHouseholdDetails);
+
+// POST create new household (Manager only)
+router.post('/', authorize('admin', 'manager'), householdController.createHousehold);
+
+// PUT update household info
+router.put('/:id', authorize('admin', 'manager'), householdController.updateHousehold);
+
+// PUT change owner
+router.put('/:id/change-owner', authorize('admin', 'manager'), householdController.changeOwner);
 
 module.exports = router;

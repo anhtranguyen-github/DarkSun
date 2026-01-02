@@ -1,9 +1,11 @@
-// routes/roleRoutes.js
 const express = require('express');
 const router = express.Router();
 const roleController = require('../controllers/roleController');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
-// Chỉ cần đăng nhập là có thể lấy danh sách vai trò
-router.get('/', roleController.getAllRoles);
+router.use(protect);
+
+// GET all roles (Admin only for security)
+router.get('/', authorize('admin'), roleController.getAllRoles);
 
 module.exports = router;

@@ -12,14 +12,14 @@ module.exports = (sequelize, DataTypes) => {
     name: { type: DataTypes.STRING, allowNull: false },
     startDate: { type: DataTypes.DATE, field: 'start_date' },
     endDate: { type: DataTypes.DATE, field: 'end_date' },
-     status: { 
-      type: 'enum_fee_periods_status', // Dùng tên kiểu đã tạo trong CSDL
-      defaultValue: 'Chưa bắt đầu' 
+    status: {
+      type: DataTypes.ENUM('open', 'closed', 'pending'),
+      defaultValue: 'open'
     },
-    type: { 
-      type: 'enum_fee_periods_type', // Dùng tên kiểu đã tạo trong CSDL
+    type: {
+      type: DataTypes.ENUM('mandatory', 'contribution'),
       allowNull: false,
-      defaultValue: 'Bắt buộc'
+      defaultValue: 'mandatory'
     },
     description: {
       type: DataTypes.TEXT

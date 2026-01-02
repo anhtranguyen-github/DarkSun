@@ -1,27 +1,23 @@
-// routes/residentRoutes.js
 const express = require('express');
 const router = express.Router();
 const residentController = require('../controllers/residentController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.use(protect);
-router.use(authorize('Tổ trưởng', 'Tổ phó', 'Admin'));
 
-// Định nghĩa lại các route theo chuẩn CRUD
-router.route('/')
-  .get(residentController.getAllResidents)
-  .post(residentController.createResident);
+// GET all residents (All roles can view)
+router.get('/', authorize('admin', 'manager', 'accountant'), residentController.getAllResidents);
 
-router.route('/:residentId')
-  .put(residentController.updateResident)
-  .delete(residentController.deleteResident);
+// GET residents by household
+router.get('/by-household/:householdId', authorize('admin', 'manager', 'accountant'), residentController.getResidentsByHousehold);
 
-  // === ROUTE ĐẶC BIỆT ĐỂ LẤY NHÂN KHẨU THEO HỘ ===
-// Route này phải được định nghĩa để khớp với yêu cầu từ frontend
-// GET /api/residents/by-household/4
-router.get(
-  '/by-household/:householdId',
-  residentController.getResidentsByHousehold
-);
+// POST create resident (Manager only)
+router.post('/', authorize('admin', 'manager'), residentController.createResident);
+
+// PUT update resident (Manager only)
+router.put('/:residentId', authorize('admin', 'manager'), residentController.updateResident);
+
+// DELETE remove resident (Manager only)
+router.delete('/:residentId', authorize('admin', 'manager'), residentController.deleteResident);
 
 module.exports = router;

@@ -28,8 +28,9 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     hooks: {
-      beforeCreate: async (user) => {
-        if (user.password) {
+      beforeSave: async (user) => {
+        // Only hash if password was changed
+        if (user.changed('password') && user.password) {
           user.password = await hashPassword(user.password);
         }
       },

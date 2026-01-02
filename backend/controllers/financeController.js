@@ -1,127 +1,85 @@
-// THAY ĐỔI Ở ĐÂY: Import model và service
-const { Invoice, InvoiceDetail, FeeType, FeePeriod } = require('../models');
-const invoiceService = require('../services/invoiceService');
+const { FeeType, PeriodFee, InvoiceDetail } = require('../models');
+const { asyncHandler } = require('../middleware/errorMiddleware');
 
-// CREATE a new FeeType
-exports.createFeeType = async (req, res) => {
-  try {
-    const { name, unit, price, description } = req.body;
-    if (!name || !unit || !price) {
-      return res.status(400).json({ success: false, message: 'Tên, đơn vị và đơn giá là bắt buộc.' });
-    }
-    const newFeeType = await FeeType.create({ name, unit, price, description });
-    res.status(201).json({ success: true, message: 'Tạo loại phí thành công!', data: newFeeType });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+// GET all fee types
+exports.getAllFeeTypes = asyncHandler(async (req, res) => {
+  const { category } = req.query;
+  const whereClause = {};
+  if (category) whereClause.category = category;
+
+  const feeTypes = await FeeType.findAll({
+    where: whereClause,
+    order: [['name', 'ASC']]
+  });
+  res.status(200).json({ success: true, data: feeTypes });
+});
+
+// GET fee type by ID
+exports.getFeeTypeById = asyncHandler(async (req, res) => {
+  const feeType = await FeeType.findByPk(req.params.id);
+  if (!feeType) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
   }
-};
+  res.status(200).json({ success: true, data: feeType });
+});
 
-// GET all FeeTypes
-exports.getAllFeeTypes = async (req, res) => {
-  try {
-    const feeTypes = await FeeType.findAll({ order: [['name', 'ASC']] });
-    res.status(200).json({ success: true, data: feeTypes });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
-  }
-};
+// CREATE new fee type
+exports.createFeeType = asyncHandler(async (req, res) => {
+  const { name, unit, price, description, category } = req.body;
 
-// GET a single FeeType by ID
-exports.getFeeTypeById = async (req, res) => {
-  try {
-    const feeType = await FeeType.findByPk(req.params.id);
-    if (!feeType) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
-    }
-    res.status(200).json({ success: true, data: feeType });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
-  }
-};
-
-// UPDATE a FeeType
-exports.updateFeeType = async (req, res) => {
-  try {
-    const { name, unit, price, description } = req.body;
-    const feeType = await FeeType.findByPk(req.params.id);
-    if (!feeType) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
-    }
-    await feeType.update({ name, unit, price, description });
-    res.status(200).json({ success: true, message: 'Cập nhật loại phí thành công!', data: feeType });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
-  }
-};
-
-// DELETE a FeeType
-exports.deleteFeeType = async (req, res) => {
-  try {
-    const feeType = await FeeType.findByPk(req.params.id);
-    if (!feeType) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
-    }
-
-    // Check if FeeType is being used in PeriodFee or InvoiceDetail
-    const { PeriodFee, InvoiceDetail } = require('../models');
-
-    const periodFeeCount = await PeriodFee.count({ where: { feeTypeId: req.params.id } });
-    if (periodFeeCount > 0) {
-      return res.status(400).json({
-        success: false,
-        message: `Không thể xóa loại phí này vì đang được sử dụng trong ${periodFeeCount} đợt thu phí.`
-      });
-    }
-
-    const invoiceDetailCount = await InvoiceDetail.count({ where: { fee_type_id: req.params.id } });
-    if (invoiceDetailCount > 0) {
-      return res.status(400).json({
-        success: false,
-        message: `Không thể xóa loại phí này vì đang được sử dụng trong ${invoiceDetailCount} chi tiết hóa đơn.`
-      });
-    }
-
-    await feeType.destroy();
-    res.status(200).json({ success: true, message: 'Xóa loại phí thành công!' });
-  } catch (error) {
-    console.error('Error deleting FeeType:', error);
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
-  }
-};
-
-exports.generateInvoices = async (req, res) => {
-  try {
-    const { feePeriodId } = req.params;
-    const result = await invoiceService.generateInvoicesForPeriod(feePeriodId);
-    res.status(201).json(result);
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
-  }
-};
-
-// GET: Lấy tất cả hóa đơn của hộ khẩu mà người dùng đang đăng nhập thuộc về
-exports.getMyInvoices = async (req, res) => {
-  try {
-    // Giả sử middleware đã xác định được người dùng thuộc hộ khẩu nào
-    // Đây là một logic phức tạp cần làm sau, tạm thời hardcode
-    const householdId = req.user.householdId; // Sẽ cần thêm householdId vào token hoặc CSDL User
-
-    if (!householdId) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin hộ khẩu của bạn.' });
-    }
-
-    const invoices = await Invoice.findAll({
-      where: { householdId },
-      include: [
-        { model: FeePeriod, attributes: ['name', 'description'] },
-        // Lấy chi tiết hóa đơn
-        { model: InvoiceDetail, include: [{ model: FeeType, attributes: ['name', 'unit'] }] }
-      ],
-      order: [['createdAt', 'DESC']]
+  if (!name || !unit || price === undefined) {
+    return res.status(400).json({
+      success: false,
+      message: 'Các trường bắt buộc: Tên, Đơn vị, Đơn giá.'
     });
-
-    res.status(200).json({ success: true, data: invoices });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
-};
+
+  const newFeeType = await FeeType.create({
+    name,
+    unit,
+    price,
+    description,
+    category: category || 'mandatory'
+  });
+
+  res.status(201).json({ success: true, message: 'Tạo loại phí thành công!', data: newFeeType });
+});
+
+// UPDATE fee type
+exports.updateFeeType = asyncHandler(async (req, res) => {
+  const feeType = await FeeType.findByPk(req.params.id);
+  if (!feeType) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
+  }
+
+  await feeType.update(req.body);
+  res.status(200).json({ success: true, message: 'Cập nhật thành công!', data: feeType });
+});
+
+// DELETE fee type (with dependency check)
+exports.deleteFeeType = asyncHandler(async (req, res) => {
+  const feeType = await FeeType.findByPk(req.params.id);
+  if (!feeType) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
+  }
+
+  // Check if being used
+  const periodFeeCount = await PeriodFee.count({ where: { feeTypeId: req.params.id } });
+  if (periodFeeCount > 0) {
+    return res.status(400).json({
+      success: false,
+      message: `Không thể xóa: Đang được sử dụng trong ${periodFeeCount} đợt thu phí.`
+    });
+  }
+
+  const invoiceDetailCount = await InvoiceDetail.count({ where: { feeTypeId: req.params.id } });
+  if (invoiceDetailCount > 0) {
+    return res.status(400).json({
+      success: false,
+      message: `Không thể xóa: Đang có ${invoiceDetailCount} hóa đơn chi tiết liên quan.`
+    });
+  }
+
+  await feeType.destroy();
+  res.status(200).json({ success: true, message: 'Xóa loại phí thành công!' });
+});

@@ -6,13 +6,29 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsToMany(models.User, {
         through: models.UserRole,
-        foreignKey: 'role_id', // Dùng tên cột trong DB
+        foreignKey: 'role_id',
         otherKey: 'user_id',
+      });
+
+      // Permission association
+      this.belongsToMany(models.Permission, {
+        through: 'role_permissions',
+        foreignKey: 'role_id',
+        otherKey: 'permission_id',
       });
     }
   }
   Role.init({
-    name: { type: DataTypes.STRING, allowNull: false, unique: true },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    displayName: {
+      type: DataTypes.STRING,
+      field: 'display_name',
+      allowNull: true
+    },
     description: { type: DataTypes.TEXT },
   }, {
     sequelize,

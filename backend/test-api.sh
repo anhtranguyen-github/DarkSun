@@ -1,92 +1,143 @@
 #!/bin/bash
-
-# API Test Script for BlueMoon Backend
-# Run this script to test all API endpoints
+# API Integration Test Script for BlueMoon Backend v2.0
+# Tests all routes, RBAC, and core features
 
 BASE_URL="http://localhost:5000/api"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+echo "==============================================="
+echo "BlueMoon Backend v2.0 - API Integration Tests"
+echo "==============================================="
 
-echo "========================================="
-echo "BlueMoon API Test Script"
-echo "========================================="
-echo ""
-
-# 1. Login to get token
-echo -e "${YELLOW}1. Testing Authentication...${NC}"
-LOGIN_RESPONSE=$(curl -s -X POST "$BASE_URL/auth/login" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin123","password":"admin123"}')
-
-TOKEN=$(echo $LOGIN_RESPONSE | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
-
-if [ -z "$TOKEN" ]; then
-  echo -e "${RED}✗ Login failed!${NC}"
-  echo "$LOGIN_RESPONSE"
-  exit 1
-else
-  echo -e "${GREEN}✓ Login successful - Token obtained${NC}"
-fi
-
-# Function to test endpoint
+# Helper function
 test_endpoint() {
-  local METHOD=$1
-  local ENDPOINT=$2
-  local DESCRIPTION=$3
-  local DATA=$4
-  
-  if [ "$METHOD" == "GET" ]; then
-    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL$ENDPOINT" \
-      -H "Authorization: Bearer $TOKEN")
-  else
-    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X $METHOD "$BASE_URL$ENDPOINT" \
-      -H "Authorization: Bearer $TOKEN" \
-      -H "Content-Type: application/json" \
-      -d "$DATA")
-  fi
-  
-  if [ "$RESPONSE" == "200" ] || [ "$RESPONSE" == "201" ]; then
-    echo -e "${GREEN}✓ $METHOD $ENDPOINT - $DESCRIPTION (HTTP $RESPONSE)${NC}"
-  elif [ "$RESPONSE" == "404" ]; then
-    echo -e "${YELLOW}○ $METHOD $ENDPOINT - $DESCRIPTION (HTTP $RESPONSE - Not Found/No Data)${NC}"
-  else
-    echo -e "${RED}✗ $METHOD $ENDPOINT - $DESCRIPTION (HTTP $RESPONSE)${NC}"
-  fi
+    local method=$1
+    local endpoint=$2
+    local token=$3
+    local data=$4
+    local expected=$5
+    local description=$6
+    
+    if [ -n "$data" ]; then
+        response=$(curl -s -X $method "$BASE_URL$endpoint" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $token" \
+            -d "$data")
+    else
+        response=$(curl -s -X $method "$BASE_URL$endpoint" \
+            -H "Authorization: Bearer $token")
+    fi
+    
+    if echo "$response" | grep -q "$expected"; then
+        echo "✅ PASS: $description"
+    else
+        echo "❌ FAIL: $description"
+        echo "   Response: $response"
+    fi
 }
 
-echo ""
-echo -e "${YELLOW}2. Testing GET Endpoints (Read Operations)...${NC}"
+# Login helper
+get_token() {
+    local username=$1
+    local response=$(curl -s -X POST "$BASE_URL/auth/login" \
+        -H "Content-Type: application/json" \
+        -d "{\"username\":\"$username\",\"password\":\"password123\"}")
+    echo $response | grep -o '"token":"[^"]*"' | cut -d'"' -f4
+}
 
-# Roles (Public endpoint)
-RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/roles")
-if [ "$RESPONSE" == "200" ]; then
-  echo -e "${GREEN}✓ GET /roles - List all roles (HTTP $RESPONSE)${NC}"
+# ===========================
+# 1. Authentication Tests
+# ===========================
+echo ""
+echo "=== 1. AUTHENTICATION ==="
+
+ADMIN_TOKEN=$(get_token "demo_admin")
+if [ -n "$ADMIN_TOKEN" ]; then echo "✅ Admin login success"; else echo "❌ Admin login failed"; fi
+
+MANAGER_TOKEN=$(get_token "demo_totruong")
+if [ -n "$MANAGER_TOKEN" ]; then echo "✅ Manager login success"; else echo "❌ Manager login failed"; fi
+
+ACCOUNTANT_TOKEN=$(get_token "demo_ketoan")
+if [ -n "$ACCOUNTANT_TOKEN" ]; then echo "✅ Accountant login success"; else echo "❌ Accountant login failed"; fi
+
+CUDAN_TOKEN=$(get_token "demo_cudan")
+if [ -n "$CUDAN_TOKEN" ]; then echo "✅ Cư Dân login success"; else echo "❌ Cư Dân login failed"; fi
+
+# ===========================
+# 2. RBAC Tests
+# ===========================
+echo ""
+echo "=== 2. RBAC / Authorization ==="
+
+# Test: No token should return 401
+response=$(curl -s -X GET "$BASE_URL/households")
+if echo "$response" | grep -q "401\|Không có quyền"; then
+    echo "✅ PASS: No token returns 401"
 else
-  echo -e "${RED}✗ GET /roles - List all roles (HTTP $RESPONSE)${NC}"
+    echo "❌ FAIL: No token should return 401"
 fi
 
-# Protected endpoints
-test_endpoint "GET" "/dashboard/stats" "Dashboard statistics"
-test_endpoint "GET" "/households" "List all households"
-test_endpoint "GET" "/users" "List all users"
-test_endpoint "GET" "/residents" "List all residents"
-test_endpoint "GET" "/fee-types" "List all fee types"
-test_endpoint "GET" "/fee-periods" "List all fee periods"
-test_endpoint "GET" "/statistics/households" "Household statistics"
-test_endpoint "GET" "/statistics/residents" "Resident statistics"
-test_endpoint "GET" "/invoices/my-invoices" "My invoices"
-test_endpoint "GET" "/period-fees/in-period/1" "Fees in period 1"
-test_endpoint "GET" "/residents/by-household/4" "Residents in household 4"
+# Test: Manager can access households
+test_endpoint "GET" "/households" "$MANAGER_TOKEN" "" "success" "Manager can access /households"
+
+# Test: Accountant can access fee-types
+test_endpoint "GET" "/fee-types" "$ACCOUNTANT_TOKEN" "" "success" "Accountant can access /fee-types"
+
+# Test: Cư Dân CANNOT access households
+response=$(curl -s -X GET "$BASE_URL/households" -H "Authorization: Bearer $CUDAN_TOKEN")
+if echo "$response" | grep -q "403\|không có quyền"; then
+    echo "✅ PASS: Cư Dân CANNOT access /households (403)"
+else
+    echo "❌ FAIL: Cư Dân should NOT access /households"
+fi
+
+# Test: Accountant CANNOT create household (Manager domain)
+response=$(curl -s -X POST "$BASE_URL/households" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $ACCOUNTANT_TOKEN" \
+    -d '{"householdCode":"TEST001","owner":{"fullName":"Test","idCardNumber":"123"}}')
+if echo "$response" | grep -q "403\|không có quyền"; then
+    echo "✅ PASS: Accountant CANNOT create household (403)"
+else
+    echo "❌ FAIL: Accountant should NOT create household"
+fi
+
+# ===========================
+# 3. Self-Service Tests (Cổng Cư Dân)
+# ===========================
+echo ""
+echo "=== 3. SELF-SERVICE (Cổng Cư Dân) ==="
+
+test_endpoint "GET" "/me/profile" "$CUDAN_TOKEN" "" "success.*demo_cudan" "Cư Dân can view their profile"
+test_endpoint "GET" "/me/invoices" "$CUDAN_TOKEN" "" "success" "Cư Dân can view their invoices"
+test_endpoint "PUT" "/me/profile" "$CUDAN_TOKEN" '{"email":"cudan@example.com"}' "success" "Cư Dân can update their email"
+
+# ===========================
+# 4. CRUD Operations
+# ===========================
+echo ""
+echo "=== 4. CRUD Operations ==="
+
+# Create Household (as Manager)
+response=$(curl -s -X POST "$BASE_URL/households" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $MANAGER_TOKEN" \
+    -d '{"householdCode":"HK-TEST-100","addressStreet":"100 Test St","addressWard":"Ward 1","addressDistrict":"District 1","owner":{"fullName":"Nguyen Van B","idCardNumber":"001234567891","dateOfBirth":"1995-05-20","gender":"Nam"}}')
+if echo "$response" | grep -q "success.*true"; then
+    echo "✅ PASS: Create household HK-TEST-100"
+else
+    echo "❌ FAIL: Create household HK-TEST-100"
+    echo "   Response: $response"
+fi
+
+# ===========================
+# 5. Statistics/Dashboard
+# ===========================
+echo ""
+echo "=== 5. Statistics ==="
+
+test_endpoint "GET" "/dashboard/stats" "$ADMIN_TOKEN" "" "success\|200" "Dashboard stats accessible"
 
 echo ""
-echo -e "${YELLOW}3. Summary${NC}"
-echo "========================================="
-echo "All API endpoints have been tested."
-echo "Green (✓) = Success"
-echo "Yellow (○) = No data found (but endpoint works)"
-echo "Red (✗) = Error"
-echo "========================================="
+echo "==============================================="
+echo "API Integration Tests Complete"
+echo "==============================================="

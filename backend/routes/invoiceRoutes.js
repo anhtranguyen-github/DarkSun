@@ -1,4 +1,3 @@
-// backend/routes/invoiceRoutes.js
 const express = require('express');
 const router = express.Router();
 const invoiceController = require('../controllers/invoiceController');
@@ -6,10 +5,16 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.use(protect);
 
-// Route cho Cư dân xem hóa đơn của mình
-router.get('/my-invoices', authorize('Cư dân', 'Tổ trưởng', 'Tổ phó', 'Kế toán', 'Admin'), invoiceController.getMyInvoices);
+// GET all invoices (Accountant/Admin)
+router.get('/', authorize('admin', 'accountant'), invoiceController.getAllInvoices);
 
-// Route để phát hành hóa đơn hàng loạt
-router.post('/generate-from-period/:feePeriodId', authorize('Kế toán', 'Admin'), invoiceController.generateInvoices);
+// GET invoices by household
+router.get('/household/:householdId', authorize('admin', 'manager', 'accountant'), invoiceController.getInvoicesByHousehold);
+
+// POST generate invoices for a fee period (Accountant only)
+router.post('/generate/:feePeriodId', authorize('admin', 'accountant'), invoiceController.generateInvoicesForPeriod);
+
+// PUT record payment (Accountant only)
+router.put('/:invoiceId/pay', authorize('admin', 'accountant'), invoiceController.recordPayment);
 
 module.exports = router;

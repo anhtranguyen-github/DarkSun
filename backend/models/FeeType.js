@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
     unit: { type: DataTypes.STRING, allowNull: false },
     price: { type: DataTypes.DECIMAL(12, 2), allowNull: false },
     description: { type: DataTypes.TEXT },
+    category: {
+      type: DataTypes.ENUM('mandatory', 'contribution'),
+      defaultValue: 'mandatory',
+      allowNull: false
+    }
   }, {
     sequelize,
     modelName: 'FeeType',

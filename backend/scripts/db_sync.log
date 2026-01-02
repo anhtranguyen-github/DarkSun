@@ -1,0 +1,31 @@
+🔄 Syncing Database Schemes (v2.0)...
+❌ Failed to sync database: ConnectionError [SequelizeConnectionError]: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+    at Client._connectionCallback (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/sequelize/lib/dialects/postgres/connection-manager.js:149:20)
+    at Client._handleErrorWhileConnecting (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/client.js:336:19)
+    at Client._handleErrorEvent (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/client.js:346:19)
+    at Connection.emit (node:events:517:28)
+    at Client._handleAuthSASLContinue (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/client.js:284:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  parent: Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+      at Object.continueSession (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/crypto/sasl.js:36:11)
+      at Client._handleAuthSASLContinue (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/client.js:276:18)
+      at Connection.emit (node:events:517:28)
+      at /mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/connection.js:116:12
+      at Parser.parse (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg-protocol/dist/parser.js:36:17)
+      at Socket.<anonymous> (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg-protocol/dist/index.js:11:42)
+      at Socket.emit (node:events:517:28)
+      at addChunk (node:internal/streams/readable:368:12)
+      at readableAddChunk (node:internal/streams/readable:341:9)
+      at Readable.push (node:internal/streams/readable:278:10),
+  original: Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+      at Object.continueSession (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/crypto/sasl.js:36:11)
+      at Client._handleAuthSASLContinue (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/client.js:276:18)
+      at Connection.emit (node:events:517:28)
+      at /mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg/lib/connection.js:116:12
+      at Parser.parse (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg-protocol/dist/parser.js:36:17)
+      at Socket.<anonymous> (/mnt/c/Users/tra01/OneDrive/Desktop/Last dance/Kỹ thuật phần mềm/DarkSun/backend/node_modules/pg-protocol/dist/index.js:11:42)
+      at Socket.emit (node:events:517:28)
+      at addChunk (node:internal/streams/readable:368:12)
+      at readableAddChunk (node:internal/streams/readable:341:9)
+      at Readable.push (node:internal/streams/readable:278:10)
+}
