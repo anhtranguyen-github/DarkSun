@@ -27,25 +27,27 @@ All accounts use the default password: **`password123`**
 
 | Role (EN/VN) | Username | Permissions |
 | :--- | :--- | :--- |
-| **Admin** (Quản trị viên) | `admin123` | Full Audit & System Control |
-| **Manager** (Tổ Trưởng) | `demo_manager` | Resident & Household Mgmt |
-| **Accountant** (Kế Toán) | `demo_accountant` | Billing, Fee Mgmt, Invoices |
-| **Deputy** (Tổ Phó) | `demo_deputy` | Assistant Management |
+| **Admin** (Quản trị viên) | `admin123` | Full Audit, User Management, Create Staff |
+| **Manager** (Tổ Trưởng) | `demo_manager` | CRUD Users (excl. Admins), Manage Households/Residents |
+| **Deputy** (Tổ Phó) | `demo_deputy` | **Read-Only** access to Resident/Household data, View Stats |
+| **Accountant** (Kế Toán) | `demo_accountant` | Full Financial Management (Fees, Invoices, Payments) |
 | **Resident** (Cư Dân) | `demo_resident` | View personal bills & Profile |
 
-> **Note:** We have standardized role codes to English (`manager`, `resident`...) while keeping Vietnamese display names. If you cannot log in, please restart the server.
+> **Note:** We have removed the 'Lock Account' feature to simplify operations. Deleting a user serves as a soft-delete/deactivation.
 
 ---
 
-## 🔥 New Features (v2.1)
-- **Enhanced Security**: 
-  - Restricted public registration to **Residents** only (Anti-Privilege Escalation).
-  - Admins must now explicitly create Manager/Accountant accounts via Dashboard or API.
-- **Admin Dashboard**:
-  - New "Create User" interface for direct staff account provisioning.
-  - Localized role display names (Tổ Trưởng, Kế Toán...).
-- **Role Standardization**: 
-  - Unified RBAC system using standard English identifiers across Backend/Database.
+## 🔥 New Features (v2.2)
+- **Refined RBAC Rules**:
+  - **Managers** can manage all users *except* Admins. They cannot create, delete, or assign the 'Admin' role.
+  - **Deputies** now have strict **Read-Only** access to sensitive data (Households, Residents) but can view Dashboard analytics.
+  - **Admins** retain exclusive control over system configuration and other Admin accounts.
+- **Enhanced Security**:
+  - **API Protection**: Backend strictly filters Admin accounts from non-admin lists and blocks unauthorized status updates.
+  - **UI Consistency**: Buttons and inputs are dynamically hidden based on detailed permission checks.
+- **Database Standardization**:
+  - Fully migrated all legacy Vietnamese role codes (`quan_ly`, `ke_toan`) to English (`manager`, `accountant`).
+  - Use `npm run db:setup` (in backend) for a complete clean slate & re-seed.
 
 ---
 
