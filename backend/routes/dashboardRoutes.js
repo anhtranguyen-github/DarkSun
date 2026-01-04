@@ -6,6 +6,6 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 router.use(protect);
 
 // Dashboard is viewable by all management roles
-router.get('/stats', authorize('admin', 'manager', 'accountant', 'resident'), dashboardController.getDashboardStats);
+router.get('/stats', authorize('admin', 'manager', 'deputy', 'accountant', 'resident'), dashboardController.getDashboardStats);
 
 module.exports = router;

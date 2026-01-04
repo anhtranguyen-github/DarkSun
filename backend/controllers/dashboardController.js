@@ -19,7 +19,7 @@ exports.getDashboardStats = async (req, res) => {
     const isAccountant = userRoles.includes('accountant');
     const isManager = userRoles.includes('manager');
     const isAdmin = userRoles.includes('admin');
-    const isLanhDao = isAdmin || isManager;
+    const isLanhDao = isAdmin || isManager || userRoles.includes('deputy');
     const isResident = userRoles.includes('resident') && !isLanhDao && !isAccountant;
 
     // Nếu là cư dân thường (không kiêm nhiệm quản lý), trả về thông tin hạn chế hoặc dashboard cá nhân
