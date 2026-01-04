@@ -7,17 +7,23 @@ const { sanitizeHtml, isValidUsername, isValidPassword, isValidName, isValidEmai
  */
 exports.getAllUsers = async (req, res) => {
   try {
+    const isRequesterAdmin = req.user.roles.includes('admin');
     const users = await User.findAll({
       order: [['fullName', 'ASC']],
-      // Chỉ lấy các trường cần thiết, không gửi mật khẩu về frontend
       attributes: ['id', 'username', 'fullName', 'email', 'status'],
       include: {
         model: Role,
         attributes: ['id', 'name'],
-        through: { attributes: [] } // Không lấy thông tin từ bảng trung gian
+        through: { attributes: [] }
       }
     });
-    res.status(200).json({ success: true, data: users });
+
+    // Post-processing filter: Hide Admins if requester is not Admin
+    const filteredUsers = isRequesterAdmin
+      ? users
+      : users.filter(u => !u.Roles.some(r => r.name === 'admin'));
+
+    res.status(200).json({ success: true, data: filteredUsers });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
@@ -28,41 +34,40 @@ exports.getAllUsers = async (req, res) => {
  */
 exports.updateUserStatus = async (req, res) => {
   try {
-    // Lấy các tham số truy vấn từ URL (ví dụ: /users?username=test&status=active)
-    const { username, fullName, roleId, status } = req.query;
+    const { userId } = req.params;
+    const { status } = req.body;
 
-    // Xây dựng điều kiện lọc động
-    const whereClause = {};
-    const includeOptions = {
-      model: Role,
-      attributes: ['id', 'name'],
-      through: { attributes: [] }
-    };
-
-    if (username) {
-      // Dùng Op.iLike để tìm kiếm không phân biệt hoa thường và chứa chuỗi
-      whereClause.username = { [Op.iLike]: `%${username}%` };
-    }
-    if (fullName) {
-      whereClause.fullName = { [Op.iLike]: `%${fullName}%` };
-    }
-    if (status) {
-      whereClause.status = status;
-    }
-
-    // Nếu có lọc theo vai trò, thêm điều kiện vào phần include
-    if (roleId) {
-      includeOptions.where = { id: roleId };
-    }
-
-    const users = await User.findAll({
-      where: whereClause, // Áp dụng điều kiện lọc cho bảng User
-      include: includeOptions, // Áp dụng điều kiện lọc cho bảng Role
-      order: [['fullName', 'ASC']],
-      attributes: ['id', 'username', 'fullName', 'email', 'status'],
+    const user = await User.findByPk(userId, {
+      include: { model: Role }
     });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
 
-    res.status(200).json({ success: true, data: users });
+    // SECURITY: Check permissions
+    const targetRoles = user.Roles.map(r => r.name.toLowerCase());
+    const isTargetAdmin = targetRoles.includes('admin');
+    const isActorAdmin = req.user.roles.includes('admin');
+
+    if (isTargetAdmin) {
+      if (!isActorAdmin) {
+        return res.status(403).json({ success: false, message: 'Bạn không có quyền khóa tài khoản Admin.' });
+      }
+
+      // Last Admin Lockout Protection
+      if (status !== 'active') {
+        const adminCount = await User.count({
+          include: [{ model: Role, where: { name: 'admin' } }],
+          where: { status: 'active' }
+        });
+        if (adminCount <= 1 && user.status === 'active') {
+          return res.status(403).json({ success: false, message: 'Không thể khóa Admin đang hoạt động duy nhất.' });
+        }
+      }
+    }
+
+    user.status = status;
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Cập nhật trạng thái thành công.' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
