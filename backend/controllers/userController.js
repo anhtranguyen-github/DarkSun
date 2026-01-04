@@ -89,6 +89,12 @@ exports.deleteUser = async (req, res) => {
     // FIXED: Check for Last Admin Lockout
     const userRoles = user.Roles.map(role => role.name.toLowerCase());
     if (userRoles.includes('admin')) {
+      // SECURITY: Prevent non-admin from deleting Admin
+      if (!req.user.roles.includes('admin')) {
+        return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa tài khoản Admin.' });
+      }
+
+      // Check for Last Admin Lockout
       const adminCount = await User.count({
         include: [{
           model: Role,
@@ -252,6 +258,11 @@ exports.createUser = async (req, res) => {
     // Validate Role
     const role = await Role.findByPk(roleId);
     if (!role) return res.status(400).json({ message: 'Vai trò không tồn tại.' });
+
+    // SECURITY: Prevent non-admin from creating Admin
+    if (role.name === 'admin' && !req.user.roles.includes('admin')) {
+      return res.status(403).json({ message: 'Bạn không có quyền tạo tài khoản Admin.' });
+    }
 
     // Sanitize
     const sanitizedFullName = sanitizeHtml(fullName);

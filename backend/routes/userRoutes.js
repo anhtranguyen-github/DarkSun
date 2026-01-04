@@ -5,12 +5,12 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.use(protect);
 
-// User management is Admin-only (per RBAC spec: "Manage User Accounts")
-router.get('/', authorize('admin'), userController.getAllUsers);
-router.post('/', authorize('admin'), userController.createUser); // Admin creates users directly
-router.post('/:userId/assign-role', authorize('admin'), userController.assignRoleToUser);
-router.patch('/:userId/status', authorize('admin'), userController.updateUserStatus);
-router.put('/:userId/assign-household', authorize('admin'), userController.assignHouseholdToUser);
-router.delete('/:userId', authorize('admin'), userController.deleteUser);
+// User management (Admin & Manager)
+router.get('/', authorize('admin', 'manager'), userController.getAllUsers);
+router.post('/', authorize('admin', 'manager'), userController.createUser);
+router.post('/:userId/assign-role', authorize('admin', 'manager'), userController.assignRoleToUser);
+router.patch('/:userId/status', authorize('admin', 'manager'), userController.updateUserStatus);
+router.put('/:userId/assign-household', authorize('admin', 'manager'), userController.assignHouseholdToUser);
+router.delete('/:userId', authorize('admin', 'manager'), userController.deleteUser);
 
 module.exports = router;
