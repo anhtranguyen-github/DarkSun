@@ -67,6 +67,7 @@ cd backend
 if exist "scripts\seed-rbac.js" call node scripts/seed-rbac.js >nul 2>&1
 if exist "scripts\create-demo-users.js" call node scripts/create-demo-users.js >nul 2>&1
 if exist "scripts\seed-fee-types.js" call node scripts/seed-fee-types.js >nul 2>&1
+if exist "scripts\seed-full-data.js" call node scripts/seed-full-data.js >nul 2>&1
 cd ..
 echo    - Database synced.
 

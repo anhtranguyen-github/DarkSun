@@ -101,6 +101,9 @@ EOT
     if [ -f "scripts/seed-fee-types.js" ]; then
         node scripts/seed-fee-types.js > /dev/null 2>&1
     fi
+    if [ -f "scripts/seed-full-data.js" ]; then
+        node scripts/seed-full-data.js > /dev/null 2>&1
+    fi
     cd ..
     echo -e "${GREEN}   ✓ Database synced${NC}"
 
