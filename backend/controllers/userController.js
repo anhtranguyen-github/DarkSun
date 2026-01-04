@@ -101,7 +101,7 @@ exports.deleteUser = async (req, res) => {
       }
     }
 
-    const adminRoles = ['to_truong', 'to_pho'];
+    const adminRoles = ['manager', 'deputy'];
     if (userRoles.some(role => adminRoles.includes(role))) {
       return res.status(403).json({ success: false, message: 'Không thể xóa tài khoản có vai trò quản trị.' });
     }
@@ -155,7 +155,7 @@ exports.assignRoleToUser = async (req, res) => {
     // Nếu người thực hiện KHÔNG PHẢI LÀ ADMIN, chúng ta cần kiểm tra thêm
     if (!isActorAdmin) {
       // Định nghĩa các vai trò mà Tổ trưởng/Tổ phó được phép gán
-      const allowedRolesToAssign = ['to_truong', 'to_pho', 'cu_dan'];
+      const allowedRolesToAssign = ['manager', 'deputy', 'resident'];
 
       // Nếu vai trò sắp được gán không nằm trong danh sách cho phép, từ chối.
       if (!allowedRolesToAssign.includes(roleToAssign.name.toLowerCase())) {

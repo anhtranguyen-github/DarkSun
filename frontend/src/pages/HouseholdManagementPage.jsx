@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const HouseholdManagementPage = () => {
   const { user } = useAuth();
   const userRoles = user?.roles?.map(r => r.toLowerCase()) || [];
-  const canEdit = userRoles.includes('admin') || userRoles.includes('to_truong') || userRoles.includes('to_pho');
+  const canEdit = userRoles.includes('admin') || userRoles.includes('manager');
 
   const [households, setHouseholds] = useState([]);
   const [loading, setLoading] = useState(true);

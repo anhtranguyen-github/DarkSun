@@ -8,7 +8,7 @@ const RELATIONSHIP_OPTIONS = ['Chủ hộ', 'Vợ', 'Chồng', 'Con', 'Bố', 'M
 const ResidentManagementPage = () => {
   const { user } = useAuth();
   const userRoles = user?.roles?.map(r => r.toLowerCase()) || [];
-  const canEdit = userRoles.includes('admin') || userRoles.includes('to_truong') || userRoles.includes('to_pho');
+  const canEdit = userRoles.includes('admin') || userRoles.includes('manager');
 
   const [residents, setResidents] = useState([]);
   const [households, setHouseholds] = useState([]);
