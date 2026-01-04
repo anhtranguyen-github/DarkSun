@@ -1,0 +1,16 @@
+@startuml table_invoices
+class invoices {
+    + id : INTEGER [PK]
+    --
+    household_id : INTEGER [FK]
+    fee_period_id : INTEGER [FK]
+    * total_amount : DECIMAL(15,2)
+    * status : VARCHAR(50)
+    payment_method : ENUM
+    cashier_id : INTEGER [FK]
+    paid_date : DATE
+    notes : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

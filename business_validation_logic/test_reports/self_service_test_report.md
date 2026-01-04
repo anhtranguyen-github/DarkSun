@@ -23,10 +23,12 @@
 | 15 | Xem thông tin hộ khẩu của mình | Cho phép | Xử lý chuẩn | PASS |
 | 16 | Xem nhân khẩu trong hộ mình | Cho phép | Xử lý chuẩn | PASS |
 | 17 | Xem xe trong hộ mình | Cho phép | Xử lý chuẩn | PASS |
+| 18 | **Xem lịch sử đóng góp** | Chỉ hiện loại voluntary | Xử lý chuẩn | **PASS** ✅ |
+| 19 | Truy cập `/reports` | Bị chặn 403 | Xử lý chuẩn | PASS |
 
 ---
 
-### Tổng kết: 15 PASS | 2 FAIL
+### Tổng kết: 17 PASS | 2 FAIL
 
 **Các validation đã hoạt động:**
 - ✅ Mass Assignment protection (field whitelisting)

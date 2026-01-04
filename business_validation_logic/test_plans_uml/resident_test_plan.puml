@@ -1,0 +1,21 @@
+@startuml
+title Test Plan: Resident Management
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 25 | Duplicate National ID (CCCD) | Block with 409 Conflict | PASS |
+| 26 | Delete Household Head | Block delete (Requires role transfer) | PASS |
+| 27 | Name Length Validation | Block if > 100 characters | PASS |
+| 28 | Age Range Validation | Block if < 0 or > 150 years | PASS |
+| 29 | ID Card Format | Validated (9 or 12 digits only) | PASS |
+| 30 | XSS Injection in Name/Places | Sanitize HTML tags | PASS |
+| 31 | Type Juggling (householdId) | Block non-numeric IDs | PASS |
+| 32 | Gender Selection | Restrict to Enum (Nam/Nu/Khac) | PASS |
+| 33 | Field Length (Optional) | Block ethnicity/religion > 50 chars | PASS |
+| 34 | Name Auto-Trim | Remove leading/trailing spaces | PASS |
+| 35 | Fuzzy Name Search | Support case-insensitive partial match | PASS |
+| 36 | Soft Delete Logic | Hide from active list but keep in DB | PASS |
+end legend
+@enduml

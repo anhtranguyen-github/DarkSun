@@ -24,7 +24,7 @@ if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 echo "[TC-USER-10] Mass Assignment Protection"
 TOKEN_CUDAN=$(curl -s -X POST "$BASE_URL/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"username":"demo_cu_dan","password":"password123"}' | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+  -d '{"username":"demo_resident","password":"password123"}' | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
 
 curl -s -X PUT "$BASE_URL/me/profile" \
   -H "Content-Type: application/json" \

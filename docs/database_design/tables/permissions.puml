@@ -1,0 +1,12 @@
+@startuml table_permissions
+class permissions {
+    + id : INTEGER [PK]
+    --
+    * code : VARCHAR(50) [UNIQUE]
+    * name : VARCHAR(100)
+    group_name : VARCHAR(50)
+    description : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

@@ -1,0 +1,20 @@
+@startuml System_Architecture
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+Person(admin, "Cán bộ quản lý", "Quản lý nhân khẩu, hộ khẩu, thu phí và thống kê.")
+Person(resident, "Cư dân", "Xem thông tin cá nhân, lịch sử đóng phí, phản ánh.")
+
+System_Boundary(c1, "Hệ thống Quản lý Chung cư (DarkSun)") {
+    Container(frontend, "Frontend Application", "React, Vite, Tailwind", "Cung cấp giao diện người dùng cho quản lý và cư dân.")
+    Container(backend, "Backend API", "Node.js, Express, Sequelize", "Xử lý logic nghiệp vụ, xác thực và quản lý dữ liệu.")
+    ContainerDb(database, "PostgreSQL Database", "PostgreSQL", "Lưu giữ thông tin người dùng, hộ khẩu, cư dân, và hóa đơn phí.")
+}
+
+Rel(admin, frontend, "Sử dụng", "HTTPS")
+Rel(resident, frontend, "Sử dụng", "HTTPS")
+Rel(frontend, backend, "Gọi API", "JSON/HTTPS")
+Rel(backend, database, "Đọc/Ghi dữ liệu", "Sequelize ORM")
+
+@enduml

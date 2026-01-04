@@ -1,0 +1,205 @@
+@startuml Database_Model
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define primary_key(x) <b>PK: x</b>
+!define foreign_key(x) <i>FK: x</i>
+!define column(x) <color:#000000>x</color>
+
+skinparam Linetype ortho
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+package "IAM Module" {
+    Table(users, "users") {
+        primary_key(id) : INTEGER
+        column(username) : VARCHAR(255)
+        column(password) : VARCHAR(255)
+        column(full_name) : VARCHAR(255)
+        column(email) : VARCHAR(255)
+        column(phone_number) : VARCHAR(20)
+        column(avatar_url) : TEXT
+        column(status) : VARCHAR(20)
+        foreign_key(household_id) : INTEGER
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(roles, "roles") {
+        primary_key(id) : INTEGER
+        column(name) : VARCHAR(255)
+        column(display_name) : VARCHAR(255)
+        column(description) : TEXT
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(permissions, "permissions") {
+        primary_key(id) : INTEGER
+        column(code) : VARCHAR(50)
+        column(name) : VARCHAR(100)
+        column(group_name) : VARCHAR(50)
+        column(description) : TEXT
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(user_roles, "user_roles") {
+        primary_key(user_id) : INTEGER
+        primary_key(role_id) : INTEGER
+    }
+
+    Table(role_permissions, "role_permissions") {
+        primary_key(role_id) : INTEGER
+        primary_key(permission_id) : INTEGER
+    }
+}
+
+package "Household & Resident Module" {
+    Table(households, "households") {
+        primary_key(id) : INTEGER
+        column(household_code) : VARCHAR(255)
+        foreign_key(owner_id) : INTEGER
+        column(member_count) : INTEGER
+        column(address_street) : VARCHAR(255)
+        column(address_ward) : VARCHAR(255)
+        column(address_district) : VARCHAR(255)
+        column(address) : VARCHAR(255)
+        column(area) : NUMERIC(10,2)
+        column(status) : VARCHAR(50)
+        column(created_date) : DATE
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(residents, "residents") {
+        primary_key(id) : INTEGER
+        foreign_key(household_id) : INTEGER
+        column(full_name) : VARCHAR(255)
+        column(date_of_birth) : DATE
+        column(id_card_number) : VARCHAR(20)
+        column(gender) : ENUM
+        column(occupation) : VARCHAR(255)
+        column(relationship_with_owner) : VARCHAR(255)
+        column(alias) : VARCHAR(255)
+        column(birth_place) : VARCHAR(255)
+        column(native_place) : VARCHAR(255)
+        column(ethnicity) : VARCHAR(50)
+        column(religion) : VARCHAR(50)
+        column(workplace) : VARCHAR(255)
+        column(id_card_date) : DATE
+        column(id_card_place) : VARCHAR(255)
+        column(previous_residence) : VARCHAR(255)
+        column(move_in_date) : DATE
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(temporary_residences, "temporary_residences") {
+        primary_key(id) : INTEGER
+        foreign_key(resident_id) : INTEGER
+        column(type) : ENUM
+        column(permit_code) : VARCHAR(100)
+        column(start_date) : DATE
+        column(end_date) : DATE
+        column(address) : VARCHAR(255)
+        column(reason) : TEXT
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(vehicles, "vehicles") {
+        primary_key(id) : INTEGER
+        foreign_key(household_id) : INTEGER
+        column(license_plate) : VARCHAR(20)
+        column(type) : ENUM
+        column(name) : VARCHAR(100)
+        column(color) : VARCHAR(50)
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+}
+
+package "Finance Module" {
+    Table(fee_types, "fee_types") {
+        primary_key(id) : INTEGER
+        column(name) : VARCHAR(255)
+        column(unit) : VARCHAR(50)
+        column(price) : DECIMAL(12,2)
+        column(description) : TEXT
+        column(category) : ENUM
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(fee_periods, "fee_periods") {
+        primary_key(id) : INTEGER
+        column(name) : VARCHAR(255)
+        column(start_date) : DATE
+        column(end_date) : DATE
+        column(status) : ENUM
+        column(type) : ENUM
+        column(description) : TEXT
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(period_fees, "period_fees") {
+        primary_key(id) : INTEGER
+        foreign_key(fee_period_id) : INTEGER
+        foreign_key(fee_type_id) : INTEGER
+        column(amount) : DECIMAL(15,2)
+        column(description) : TEXT
+        column(type) : ENUM
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(invoices, "invoices") {
+        primary_key(id) : INTEGER
+        foreign_key(household_id) : INTEGER
+        foreign_key(fee_period_id) : INTEGER
+        column(total_amount) : DECIMAL(15,2)
+        column(status) : VARCHAR(50)
+        column(payment_method) : ENUM
+        foreign_key(cashier_id) : INTEGER
+        column(paid_date) : DATE
+        column(notes) : TEXT
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+
+    Table(invoice_details, "invoice_details") {
+        primary_key(id) : INTEGER
+        foreign_key(invoice_id) : INTEGER
+        foreign_key(fee_type_id) : INTEGER
+        column(quantity) : NUMERIC(10,2)
+        column(price_at_time) : DECIMAL(12,2)
+        column(amount) : DECIMAL(15,2)
+        column(created_at) : TIMESTAMP
+        column(updated_at) : TIMESTAMP
+    }
+}
+
+' Relationships
+users "0..*" --o{ user_roles
+roles "0..*" --o{ user_roles
+roles "0..*" --o{ role_permissions
+permissions "0..*" --o{ role_permissions
+
+households "1" --o{ residents : "contains"
+households "1" --o{ vehicles : "owns"
+households "1" --o{ invoices : "due"
+residents "1" --o{ temporary_residences : "signs"
+residents "1" -- "0..1" households : "owns (as Owner)"
+users "0..1" -- "1" households : "belongs to"
+
+fee_periods "1" --o{ period_fees
+fee_types "1" --o{ period_fees
+fee_periods "1" --o{ invoices
+invoices "1" --o{ invoice_details
+fee_types "1" --o{ invoice_details
+users "1" --o{ invoices : "processes (as Cashier)"
+
+@enduml

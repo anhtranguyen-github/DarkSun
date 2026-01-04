@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         type: {
-            type: DataTypes.ENUM('Oto', 'XeMay'), // Car, Motorbike
+            type: DataTypes.ENUM('Oto', 'XeMay', 'XeDapDien'), // Car, Motorbike, E-bike
             allowNull: false,
             defaultValue: 'XeMay'
         },

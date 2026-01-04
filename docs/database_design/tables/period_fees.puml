@@ -1,0 +1,13 @@
+@startuml table_period_fees
+class period_fees {
+    + id : INTEGER [PK]
+    --
+    fee_period_id : INTEGER [FK]
+    fee_type_id : INTEGER [FK]
+    * amount : DECIMAL(15,2)
+    description : TEXT
+    type : ENUM
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

@@ -25,14 +25,20 @@
 | 17 | SQL Injection filter | Chặn (ORM) | Xử lý chuẩn | PASS |
 | 18 | Loại phí không tồn tại | 404 | Xử lý chuẩn | PASS |
 | 19 | `category` = 'voluntary' | Lưu thành công | Xử lý chuẩn | PASS |
-| 20 | RBAC: Cu dan tạo fee type | 403 | Xử lý chuẩn | PASS |
+| 20 | **Thêm phí vào Đợt thu** | Lưu vào PeriodFee | Chặn trùng phí/đợt | **PASS** ✅ |
+| 21 | **Sửa đơn giá phí trong Đợt** | Cập nhật amount | Xử lý chuẩn | **PASS** ✅ |
+| 22 | **Xóa phí khỏi Đợt (đã có hóa đơn)** | **Chặn xóa** | Xử lý chuẩn | **PASS** ✅ |
+| 23 | **Xóa phí khỏi Đợt (chưa hóa đơn)** | Cho phép xóa | Xử lý chuẩn | **PASS** ✅ |
+| 24 | RBAC: Cu dan tạo fee type | 403 | Xử lý chuẩn | PASS |
 
 ---
 
-### Tổng kết: 20 PASS | 0 FAIL
+### Tổng kết: 24 PASS | 0 FAIL
 
 **Các validation đã hoạt động:**
 - ✅ Name/Unit required validation
 - ✅ Price >= 0 validation
 - ✅ Dependency check (PeriodFee, InvoiceDetail)
+- ✅ **PeriodFee overlap prevention (unique pair check)**
+- ✅ **Blocking deletion of active PeriodFees (with Invoices)**
 - ✅ XSS sanitization

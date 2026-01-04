@@ -1,0 +1,19 @@
+@startuml
+title Test Plan: Temporary Residence & Absence
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 49 | Duplicate permitCode | Block with 409 Conflict | PASS |
+| 50 | endDate before startDate | Block logic error (400) | PASS |
+| 51 | Address Length Check | Reject if length < 5 | PASS |
+| 52 | Fuzzy Name Search | iLike search on resident names | PASS |
+| 53 | permitCode Sanitization | Force alphanumeric format | PASS |
+| 54 | Type Enum Check | Restricted to tam_tru or tam_vang | PASS |
+| 55 | XSS in Address/Reason | Sanitize HTML tags | FAIL |
+| 56 | Self-Service Restriction | Non-admins only see their own records | PASS |
+| 57 | Resident Existence Check | Block if residentId does not exist | PASS |
+| 58 | Optional Date Handling | Allow endDate to be null (Open-ended) | PASS |
+end legend
+@enduml

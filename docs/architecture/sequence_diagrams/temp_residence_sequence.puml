@@ -1,0 +1,41 @@
+@startuml Temporary_Residence_Sequence
+actor Resident as "Cư dân/Cán bộ"
+participant "TempResidenceRoutes" as Routes
+participant "authMiddleware" as Middleware
+participant "TempResidenceController" as Controller
+participant "Resident" as RModel
+participant "TemporaryResidence" as TRModel
+database "PostgreSQL" as DB
+
+Resident -> Routes : POST /api/temporary-residences (data)
+activate Routes
+
+Routes -> Middleware : verifyToken(req)
+activate Middleware
+Middleware --> Routes : authorized
+deactivate Middleware
+
+Routes -> Controller : registerTemporaryResidence(req, res)
+activate Controller
+
+Controller -> Controller : validateRange(startDate, endDate)
+
+Controller -> RModel : findByPk(residentId)
+activate RModel
+RModel -> DB : SELECT * FROM residents WHERE id = ?
+DB --> RModel : resident data
+RModel --> Controller : resident object
+deactivate RModel
+
+Controller -> TRModel : create(registrationData)
+activate TRModel
+TRModel -> DB : INSERT INTO temporary_residences...
+DB --> TRModel : record object
+TRModel --> Controller : newRecord
+deactivate TRModel
+
+Controller --> Resident : 201: Created {success: true, data}
+
+deactivate Controller
+deactivate Routes
+@enduml

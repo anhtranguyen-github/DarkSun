@@ -1,0 +1,49 @@
+@startuml Overview_ERD
+skinparam Linetype ortho
+skinparam nodesep 100
+skinparam ranksep 100
+
+package "IAM" {
+  entity "User" as user
+  entity "Role" as role
+  entity "Permission" as permission
+  entity "UserRole" as user_role
+  entity "RolePermission" as role_permission
+}
+
+package "Resident & Household" {
+  entity "Household" as household
+  entity "Resident" as resident
+  entity "TemporaryResidence" as temp_res
+  entity "Vehicle" as vehicle
+}
+
+package "Finance" {
+  entity "FeeType" as fee_type
+  entity "FeePeriod" as fee_period
+  entity "PeriodFee" as period_fee
+  entity "Invoice" as invoice
+  entity "InvoiceDetail" as invoice_detail
+}
+
+' Relations
+user ||--o{ user_role
+role ||--o{ user_role
+role ||--o{ role_permission
+permission ||--o{ role_permission
+
+user }o--|| household : "Belongs to"
+resident }o--|| household : "Part of"
+household |o--|| resident : "Owned by"
+vehicle }o--|| household : "Owned by"
+resident ||--o{ temp_res : "Status"
+
+fee_type ||--o{ period_fee
+fee_period ||--o{ period_fee
+fee_period ||--o{ invoice
+invoice ||--o{ invoice_detail
+fee_type ||--o{ invoice_detail
+household ||--o{ invoice : "Billed to"
+user ||--o{ invoice : "Collected by (Cashier)"
+
+@enduml

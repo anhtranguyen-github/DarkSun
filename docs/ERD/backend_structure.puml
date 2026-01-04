@@ -1,0 +1,57 @@
+@startuml Backend_Structure
+skinparam componentStyle uml2
+
+package "Backend App (Node.js/Express)" {
+    component [server.js] as server
+    
+    package "Routes Layer" {
+        [authRoutes]
+        [userRoutes]
+        [residentRoutes]
+        [householdRoutes]
+        [invoiceRoutes]
+        [statisticsRoutes]
+        [etc_routes] as "..."
+    }
+    
+    package "Middleware Layer" {
+        [authMiddleware] as auth_mid
+        [errorMiddleware] as error_mid
+    }
+    
+    package "Controllers Layer" {
+        [authController]
+        [userController]
+        [residentController]
+        [householdController]
+        [invoiceController]
+        [statisticsController]
+        [etc_controllers] as "..."
+    }
+    
+    package "Services/Utils Layer" {
+        [passwordUtils]
+        [pdfService]
+        [excelService]
+    }
+    
+    package "Models Layer (Sequelize)" {
+        [User]
+        [Resident]
+        [Household]
+        [Invoice]
+        [FeeType]
+        [etc_models] as "..."
+    }
+}
+
+database "PostgreSQL" as db
+
+server --> [Routes Layer]
+[Routes Layer] ..> auth_mid : "Protect"
+[Routes Layer] --> [Controllers Layer]
+[Controllers Layer] --> [Models Layer (Sequelize)] : "ORM Query"
+[Controllers Layer] --> [Services/Utils Layer] : "Helper functions"
+[Models Layer (Sequelize)] --> db : "SQL"
+
+@enduml

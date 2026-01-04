@@ -1,0 +1,6 @@
+@startuml table_user_roles
+class user_roles {
+    + user_id : INTEGER [PK, FK]
+    + role_id : INTEGER [PK, FK]
+}
+@enduml

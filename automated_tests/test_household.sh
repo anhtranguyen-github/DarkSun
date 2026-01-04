@@ -5,7 +5,7 @@ BASE_URL="http://127.0.0.1:5000/api"
 # Get Token
 TOKEN=$(curl -s -X POST "$BASE_URL/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"username":"demo_totruong","password":"password123"}' | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+  -d '{"username":"demo_manager","password":"password123"}' | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
 
 echo "--------------------------------------------------"
 echo "RUNNING COMPREHENSIVE HOUSEHOLD TESTS"

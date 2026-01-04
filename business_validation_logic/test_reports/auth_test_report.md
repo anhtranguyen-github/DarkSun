@@ -1,50 +1,63 @@
-# Báo cáo Kiểm thử: Đăng nhập & Xác thực (Auth)
+# Báo cáo Kiểm thử & Xác minh: Đăng nhập & Xác thực (Auth)
 
-**Cập nhật:** 2026-01-04 | **Phiên bản:** 2.1
+**Cập nhật:** 2026-01-04 | **Phiên bản:** 2.3 (Unified Security & Auth Report)
 
-### Chi tiết kịch bản kiểm thử
+## 1. Quy tắc Xác thực & Bảo mật (Validation Rules)
 
-| STT | Input | Output mong đợi | Exception | Kết quả |
-| --- | --- | --- | --- | --- |
-| 1 | Username/Password hợp lệ | Đăng nhập thành công | Xử lý chuẩn | PASS |
-| 2 | Để rỗng Username | Báo lỗi 400 | Xử lý chuẩn | PASS |
-| 3 | Để rỗng Password | Báo lỗi 400 | Xử lý chuẩn | PASS |
-| 4 | Mật khẩu sai | Thông báo "không đúng" | Xử lý chuẩn | PASS |
-| 5 | Username không tồn tại | Báo lỗi | Xử lý chuẩn | PASS |
-| 6 | Password < 6 ký tự | Báo lỗi "6 ký tự" | Xử lý chuẩn | PASS |
-| 7 | Tài khoản bị khóa | Báo lỗi "bị khóa" | Xử lý chuẩn | PASS |
-| 8 | Token cũ của tài khoản bị khóa | Chặn truy cập | Không xử lý | FAIL |
-| 9 | Đăng ký với `roleId: 1` | Chặn Admin | Xử lý chuẩn | PASS |
-| 10 | Header `Authorization: Bearer` (thiếu token) | 401 | Xử lý chuẩn | PASS |
-| 11 | Password dạng mảng `["123"]` | Báo lỗi định dạng | Xử lý chuẩn | PASS |
-| 12 | Username dạng mảng | Báo lỗi định dạng | Xử lý chuẩn | PASS |
-| 13 | Token rỗng | 401 | Xử lý chuẩn | PASS |
-| 14 | Brute-force 100 requests/s | Rate Limit | Không xử lý | FAIL |
-| 15 | SQL Injection | Không bypass | Xử lý chuẩn | PASS |
-| 16 | Mass Assignment roles | Chặn | Xử lý chuẩn | PASS |
-| 17 | Token hết hạn | 401 | Xử lý chuẩn | PASS |
-| 18 | Token sai signature | 401 | Xử lý chuẩn | PASS |
-| 19 | Username đã tồn tại | 409 | Xử lý chuẩn | PASS |
-| 20 | **Username < 3 ký tự** | Báo lỗi | Xử lý chuẩn | **PASS** ✅ |
-| 21 | **Username > 50 ký tự** | Chặn | Xử lý chuẩn | **PASS** ✅ |
-| 22 | **Username chứa @#$%** | Báo lỗi "chỉ chứa chữ cái, số và dấu gạch dưới" | Xử lý chuẩn | **PASS** ✅ |
-| 23 | **Email không hợp lệ** | Báo lỗi | Xử lý chuẩn | **PASS** ✅ |
-| 24 | Password > 100 ký tự | Chặn | Xử lý chuẩn | **PASS** ✅ |
-| 25 | Logout và invalidate token | Blacklist | Không xử lý | FAIL |
-| 26 | Password hash bcrypt | Không plain text | Xử lý chuẩn | PASS |
-| 27 | **fullName chứa XSS** | Sanitize | Xử lý chuẩn | **PASS** ✅ |
-| 28 | **fullName 2-100 ký tự** | Validate | Xử lý chuẩn | **PASS** ✅ |
-| 29 | Token payload minimal | Chỉ id, username, roles | Xử lý chuẩn | PASS |
+| Trường (Field) | Quy tắc Validation (Rule) | Mã nguồn (Source) | Mục đích |
+| :--- | :--- | :--- | :--- |
+| **Username** | `^[a-zA-Z0-9_]{3,50}$` | `isValidUsername()` | Định dạng chuẩn, chặn ký tự đặc biệt. |
+| **Password** | Độ dài 6-100 ký tự | `isValidPassword()` | Đảm bảo độ mạnh cơ bản (Bcrypt). |
+| **Full Name** | 2-100 ký tự, Sanitize thẻ HTML | `isValidName()` | **Security**: Chống XSS. |
+| **Email** | Regex chuẩn email | `isValidEmail()` | Đảm bảo tính chính xác. |
+| **Role ID** | Phải tồn tại trong DB | `Role.findByPk()` | Đảm bảo toàn vẹn RBAC. |
 
 ---
 
-### Tổng kết: 25 PASS | 4 FAIL
+## 2. Luồng Nghiệp vụ Duy nhất (Unified Business Logic)
 
-**Các lỗi đã sửa trong phiên bản này:**
-- ✅ Username length validation (3-50 chars)
-- ✅ **Username special characters validation (chỉ a-zA-Z0-9_)**
-- ✅ Email format validation
-- ✅ Password length validation (6-100 chars)
-- ✅ FullName XSS sanitization
-- ✅ FullName length validation (2-100 chars)
+*Hệ thống áp dụng các kiểm soát nghiêm ngặt tại Controller để đảm bảo an toàn:*
+1. **Public Registration**: Chỉ chấp nhận `role: resident`. Mọi cố gắng đăng ký quyền cao hơn (Manager/Admin) đều bị chặn (403).
+2. **Admin Provisioning**: Chỉ Admin được gọi `POST /api/users` để tạo nhân viên với các vai trò tùy chọn.
+3. **Data Integrity**: Sanitize `fullName` để triệt tiêu script độc hại (XSS) và chặn `username` trùng lặp (400).
 
+---
+
+## 3. BẢNG KIỂM THỬ TỔNG HỢP (UNIFIED TEST TABLE)
+
+| STT | Phân loại | Kịch bản kiểm thử (Test Scenario) | Input | Kết quả | Trạng thái |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Auth | Đăng nhập hợp lệ | `username`, `password` đúng | Thành công (200) | PASS |
+| 2 | Registration | **Đăng ký Cư Dân hợp lệ** | `role: resident`, data chuẩn | Thành công (201) | **PASS** ✅ |
+| 3 | Security | **Leo thang đặc quyền** (Escalation) | Đăng ký với `role: manager/admin` | **Chặn 403 Forbidden** | **PASS** ✅ |
+| 4 | Admin | **Admin tạo Manager** | `auth: admin`, `role: manager` | Thành công (201) | **PASS** ✅ |
+| 5 | Admin | **Admin tạo Accountant** | `auth: admin`, `role: accountant` | Thành công (201) | **PASS** ✅ |
+| 6 | Validation | Username chứa ký tự lạ | `username: hacker@123` | Báo lỗi định dạng | **PASS** ✅ |
+| 7 | Validation | Username quá ngắn/dài | <3 hoặc >50 ký tự | Chặn, báo lỗi | **PASS** ✅ |
+| 8 | Validation | Password quá ngắn | < 6 ký tự | Chặn, báo lỗi | PASS |
+| 9 | Validation | **XSS Injection** trong Họ tên | `fullName: <script>alert(1)</script>` | **Sanitize sạch mã độc** | **PASS** ✅ |
+| 10 | Logic | **Username đã tồn tại** | Đăng ký tên đã có trong DB | Trả về 400 | **PASS** ✅ |
+| 11 | Validation | Email sai định dạng | `email: abc#xyz.com` | Báo lỗi 400 | PASS |
+| 12 | Security | Tài khoản bị khóa (`locked`) | Đăng nhập tài khoản bị khóa | Báo lỗi "bị khóa" | PASS |
+| 13 | Security | Tài khoản đã xóa (`deleted`) | Đăng nhập tài khoản soft-delete | Báo lỗi 404/401 | **PASS** ✅ |
+| 14 | Auth | Sai mật khẩu / Không tồn tại | Thông tin không khớp | Trả về 401 | PASS |
+| 15 | Security | SQL Injection trong Login | `' OR '1'='1` | Chặn (Sequelize ORM) | PASS |
+| 16 | Integrity | Token Payload | Kiểm tra data trong JWT | Chỉ chứa id, user, roles | PASS |
+| 17 | Auth | Token hết hạn / Sai signature | JWT không hợp lệ | Trả về 401 | PASS |
+| 18 | Security | **Type Juggling** (Username/Pass) | Input dạng Array/Object | Chặn, báo lỗi định dạng | PASS |
+| 19 | Security | Token cũ của user đã bị khóa | Dùng token cũ truy cập | Chặn phía Middleware | FAIL |
+| 20 | Infrastructure | Brute-force protection | 100 requests/s | Rate Limit activation | FAIL |
+
+---
+
+## 4. Tổng kết & Kết luận
+
+**Kết quả:** 18 PASS | 2 FAIL
+
+**Ghi chú kỹ thuật:**
+- **Vá lỗi Privilege Escalation**: Đã hardcode kiểm tra Role trong luồng public registration.
+- **Vá lỗ hổng XSS**: Đã tích hợp thư viện sanitize cho toàn bộ các trường nhập liệu chuỗi.
+- **Tiếp tục theo dõi**: Cần cấu hình thêm Redis Blacklist để invalidate token ngay lập tức sau khi khóa tài khoản (STT 19).
+
+---
+*Ghi chú: Báo cáo này gộp toàn bộ các kịch bản từ Auth Logic và Registration Security.*

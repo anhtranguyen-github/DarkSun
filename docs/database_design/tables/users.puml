@@ -1,0 +1,16 @@
+@startuml table_users
+class users {
+    + id : INTEGER [PK]
+    --
+    * username : VARCHAR(255) [UNIQUE]
+    * password : VARCHAR(255)
+    * full_name : VARCHAR(255)
+    email : VARCHAR(255) [UNIQUE]
+    phone_number : VARCHAR(20)
+    avatar_url : TEXT
+    status : VARCHAR(20)
+    household_id : INTEGER [FK]
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

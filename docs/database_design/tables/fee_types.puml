@@ -1,0 +1,13 @@
+@startuml table_fee_types
+class fee_types {
+    + id : INTEGER [PK]
+    --
+    * name : VARCHAR(255) [UNIQUE]
+    * unit : VARCHAR(50)
+    * price : DECIMAL(12,2)
+    description : TEXT
+    * category : ENUM
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

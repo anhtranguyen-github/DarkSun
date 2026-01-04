@@ -1,0 +1,68 @@
+@startuml Finance_ERD
+skinparam Linetype ortho
+
+entity "FeeType" as fee_type {
+  *id : INTEGER <<PK>>
+  --
+  *name : STRING <<unique>>
+  *unit : STRING
+  *price : DECIMAL(12,2)
+  description : TEXT
+  *category : ENUM(mandatory, contribution)
+}
+
+entity "FeePeriod" as fee_period {
+  *id : INTEGER <<PK>>
+  --
+  *name : STRING
+  start_date : DATE
+  end_date : DATE
+  status : ENUM(open, closed, pending)
+  *type : ENUM(mandatory, contribution)
+  description : TEXT
+  created_at : DATE
+  updated_at : DATE
+}
+
+entity "PeriodFee" as period_fee {
+  *id : INTEGER <<PK>>
+  --
+  *fee_period_id : INTEGER <<FK>>
+  *fee_type_id : INTEGER <<FK>>
+  *amount : DECIMAL(15,2)
+  description : TEXT
+  type : ENUM(Bắt buộc, Đóng góp)
+}
+
+entity "Invoice" as invoice {
+  *id : INTEGER <<PK>>
+  --
+  *household_id : INTEGER <<FK>>
+  *fee_period_id : INTEGER <<FK>>
+  *total_amount : DECIMAL(15,2)
+  *status : STRING
+  payment_method : ENUM(TienMat, ChuyenKhoan)
+  cashier_id : INTEGER <<FK>>
+  paid_date : DATE
+  notes : TEXT
+  created_at : DATE
+  updated_at : DATE
+}
+
+entity "InvoiceDetail" as invoice_detail {
+  *id : INTEGER <<PK>>
+  --
+  *invoice_id : INTEGER <<FK>>
+  *fee_type_id : INTEGER <<FK>>
+  *quantity : NUMERIC(10,2)
+  *price_at_time : DECIMAL(12,2)
+  *amount : DECIMAL(15,2)
+}
+
+fee_type ||--o{ period_fee
+fee_period ||--o{ period_fee
+fee_period ||--o{ invoice
+invoice ||--o{ invoice_detail
+fee_type ||--o{ invoice_detail
+
+@enduml

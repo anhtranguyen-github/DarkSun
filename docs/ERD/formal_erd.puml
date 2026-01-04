@@ -1,0 +1,115 @@
+@startuml DarkSun_ERD
+!define Table(name) entity name
+!define PK(x) <b><u>x</u></b>
+!define FK(x) <i>x</i>
+
+skinparam linetype crowfoot
+skinparam entity {
+    BackgroundColor White
+    BorderColor Black
+}
+
+' 1. Identify Data Entities & 2. Identify Attributes
+Table(User) {
+    PK(id) : INTEGER
+    username : VARCHAR
+    password : VARCHAR
+    fullName : VARCHAR
+    email : VARCHAR
+    status : ENUM
+    FK(householdId) : INTEGER
+}
+
+Table(Role) {
+    PK(id) : INTEGER
+    name : VARCHAR
+    displayName : VARCHAR
+}
+
+Table(Permission) {
+    PK(id) : INTEGER
+    code : VARCHAR
+    name : VARCHAR
+}
+
+Table(Household) {
+    PK(id) : INTEGER
+    PK(householdCode) : VARCHAR
+    address : VARCHAR
+    area : NUMERIC
+    status : VARCHAR
+    FK(ownerId) : INTEGER
+}
+
+Table(Resident) {
+    PK(id) : INTEGER
+    fullName : VARCHAR
+    dateOfBirth : DATE
+    PK(idCardNumber) : VARCHAR
+    gender : ENUM
+    relationship : VARCHAR
+    FK(householdId) : INTEGER
+}
+
+Table(Vehicle) {
+    PK(id) : INTEGER
+    PK(licensePlate) : VARCHAR
+    type : ENUM
+    FK(householdId) : INTEGER
+}
+
+Table(TemporaryResidence) {
+    PK(id) : INTEGER
+    type : ENUM
+    startDate : DATE
+    endDate : DATE
+    FK(residentId) : INTEGER
+}
+
+Table(FeeType) {
+    PK(id) : INTEGER
+    name : VARCHAR
+    unit : VARCHAR
+    price : DECIMAL
+}
+
+Table(FeePeriod) {
+    PK(id) : INTEGER
+    name : VARCHAR
+    status : ENUM
+}
+
+Table(Invoice) {
+    PK(id) : INTEGER
+    totalAmount : DECIMAL
+    status : ENUM
+    paidDate : DATE
+    FK(householdId) : INTEGER
+    FK(feePeriodId) : INTEGER
+    FK(cashierId) : INTEGER
+}
+
+Table(InvoiceDetail) {
+    PK(id) : INTEGER
+    quantity : NUMERIC
+    amount : DECIMAL
+    FK(invoiceId) : INTEGER
+    FK(feeTypeId) : INTEGER
+}
+
+' 3. Identify Relationships
+User }|--|{ Role : "assigned"
+Role }|--|{ Permission : "grants"
+
+Household ||--o{ Resident : "contains"
+Household ||--o| Resident : "owned by"
+Resident ||--o{ TemporaryResidence : "registers"
+Household ||--o{ Vehicle : "parking"
+
+Household ||--o{ Invoice : "billed to"
+FeePeriod ||--o{ Invoice : "issued in"
+Invoice ||--|{ InvoiceDetail : "has details"
+FeeType ||--o{ InvoiceDetail : "categorizes"
+User ||--o{ Invoice : "collected by"
+
+@enduml

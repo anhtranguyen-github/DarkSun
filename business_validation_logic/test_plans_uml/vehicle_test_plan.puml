@@ -1,0 +1,19 @@
+@startuml
+title Test Plan: Vehicle Management
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 59 | Duplicate License Plate | Block with 409 Conflict | PASS |
+| 60 | Fuzzy License Plate Search | Support case-insensitive partial match | PASS |
+| 61 | Plate Length Validation | Block if length > 20 characters | PASS |
+| 62 | Vehicle Type Enum | Only allow Oto, XeMay, XeDapDien | PASS |
+| 63 | XSS in Vehicle Color/Name | Sanitize input fields | PASS |
+| 64 | Plate Standardization | Auto-uppercase and trim spaces | PASS |
+| 65 | Reject Special Chars in Plate | Sanitize (Alphanumeric and Dash only) | PASS |
+| 66 | Household Ownership Check | Check if householdId exists before saving | PASS |
+| 67 | Empty Plate Check | Reject mandatory empty fields | PASS |
+| 68 | Update Type Restriction | Block updating to invalid vehicle types | PASS |
+end legend
+@enduml

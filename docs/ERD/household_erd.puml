@@ -1,0 +1,76 @@
+@startuml Household_ERD
+skinparam Linetype ortho
+
+entity "Household" as household {
+  *id : INTEGER <<PK>>
+  --
+  *household_code : STRING <<unique>>
+  owner_id : INTEGER <<FK>>
+  member_count : INTEGER
+  address_street : STRING
+  address_ward : STRING
+  address_district : STRING
+  address : STRING
+  area : NUMERIC(10,2)
+  status : STRING
+  created_date : DATE
+  created_at : DATE
+  updated_at : DATE
+}
+
+entity "Resident" as resident {
+  *id : INTEGER <<PK>>
+  --
+  *household_id : INTEGER <<FK>>
+  *full_name : STRING
+  date_of_birth : DATE
+  id_card_number : STRING <<unique>>
+  gender : ENUM
+  occupation : STRING
+  relationship_with_owner : STRING
+  alias : STRING
+  birth_place : STRING
+  native_place : STRING
+  ethnicity : STRING
+  religion : STRING
+  workplace : STRING
+  id_card_date : DATE
+  id_card_place : STRING
+  previous_residence : STRING
+  move_in_date : DATE
+  created_at : DATE
+  updated_at : DATE
+}
+
+entity "TemporaryResidence" as temp_res {
+  *id : INTEGER <<PK>>
+  --
+  *resident_id : INTEGER <<FK>>
+  *type : ENUM(TamTru, TamVang)
+  permit_code : STRING <<unique>>
+  *start_date : DATE
+  end_date : DATE
+  address : STRING
+  reason : TEXT
+  created_at : DATE
+  updated_at : DATE
+}
+
+entity "Vehicle" as vehicle {
+  *id : INTEGER <<PK>>
+  --
+  *household_id : INTEGER <<FK>>
+  *license_plate : STRING <<unique>>
+  *type : ENUM(Oto, XeMay, XeDapDien)
+  name : STRING
+  color : STRING
+  created_at : DATE
+  updated_at : DATE
+}
+
+household ||--o{ resident
+household ||--o{ vehicle
+resident |o--o| household : "Owner"
+resident ||--o{ temp_res
+
+@enduml

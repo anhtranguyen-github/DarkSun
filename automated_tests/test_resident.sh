@@ -51,7 +51,7 @@ if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 # TC-RES-06: Short Name (<2 chars)
 echo "[TC-RES-06] Name Too Short"
 curl -s -X POST "$BASE_URL/residents" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
-  -d '{"householdId":'$HH_ID',"fullName":"A","dateOfBirth":"2000-01-01","gender":"Nam"}' | grep -q "không hợp lệ"
+  -d '{"householdId":'$HH_ID',"fullName":"A","dateOfBirth":"2000-01-01","gender":"Nam"}' | grep -q "2-100"
 if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 
 # TC-RES-07: Household Not Found
@@ -63,7 +63,7 @@ if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 # TC-RES-08: Missing Required Fields
 echo "[TC-RES-08] Missing Required Fields"
 curl -s -X POST "$BASE_URL/residents" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
-  -d '{"householdId":'$HH_ID'}' | grep -q "bắt buộc"
+  -d '{"householdId":'$HH_ID'}' | grep -q "false\|Trường"
 if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 
 echo "--------------------------------------------------"

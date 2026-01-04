@@ -1,0 +1,47 @@
+@startuml IAM_Package_Design
+skinparam ClassAttributeIconSize 0
+skinparam linetype ortho
+
+package "Routing_Package" {
+    class UserRoutes {
+    }
+    class AuthRoutes {
+    }
+}
+
+package "Logic_Package" {
+    class UserController {
+    }
+    class AuthController {
+    }
+    class AuthMiddleware {
+    }
+}
+
+package "Data_Package" {
+    class User {
+    }
+    class Role {
+    }
+    class Permission {
+    }
+    class UserRole {
+    }
+    class RolePermission {
+    }
+}
+
+' Relationships
+UserRoutes ..> UserController : <<use>>
+AuthRoutes ..> AuthController : <<use>>
+UserRoutes ..> AuthMiddleware : <<use>>
+
+UserController --> User : "manages"
+AuthController ..> User : <<checks>>
+
+User "1" *-- "0..*" UserRole : "composition"
+Role "1" *-- "0..*" UserRole : "composition"
+Role "1" *-- "0..*" RolePermission : "composition"
+Permission "1" *-- "0..*" RolePermission : "composition"
+
+@enduml

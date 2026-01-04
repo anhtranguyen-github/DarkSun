@@ -1,0 +1,21 @@
+@startuml
+title Test Plan: Non-Functional Requirements
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Category |= Scenario |= Expected Output |= Status |
+| 115 | Performance | Concurrent users load (50 users) | Response time under 2 seconds | PASS |
+| 116 | Performance | Database query optimization | Use indexing for foreign keys and search fields | PASS |
+| 117 | Security | JWT Token Encryption | Use HS256 algorithm with strong secret key | PASS |
+| 118 | Security | Sensitive Data Masking | Passwords in DB are hashed using Bcrypt | PASS |
+| 119 | Security | Secure HTTP headers | Use Helmet middleware to protect headers | PASS |
+| 120 | Usability | Responsive User Interface | Layout adapts to mobile, tablet, and desktop | PASS |
+| 121 | Usability | Client-side form validation | Real-time feedback before submitting forms | PASS |
+| 122 | Reliability | Database Transaction Rollback | Revert all changes if partial failure occurs | PASS |
+| 123 | Reliability | Error Logging System | Log server errors to console or file for audit | PASS |
+| 124 | Compatibility | Docker Environment | System runs consistently across Docker containers | PASS |
+| 125 | Compatibility | Cross-browser support | Support latest Chrome, Firefox, and Edge | PASS |
+| 126 | Maintainability | Modular Codebase Structure | Clear separation of routes, controllers, and models | PASS |
+end legend
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+title Test Plan: Household Management
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 37 | Duplicate Household Code | Block with 409 Conflict | PASS |
+| 38 | Area Validation | Block if value <= 0 | PASS |
+| 39 | Empty Address Check | Reject empty address fields | PASS |
+| 40 | XSS Injection in Address | Sanitize input before saving | FAIL |
+| 41 | Household Head must be Member | Block owner not belonging to the house | PASS |
+| 42 | Delete Household with Residents | Block deletion (Cascade guard) | PASS |
+| 43 | Delete Household with Vehicles | Block deletion (Cascade guard) | PASS |
+| 44 | Delete Household with Unpaid Invoices | Block (Financial Integrity) | PASS |
+| 45 | Delete Household with Paid Invoices | Allow deletion (Keep records as history) | PASS |
+| 46 | Owner Change reset logic | Set old owner to Thanh vien automatically | PASS |
+| 47 | Transaction Rollback | Rollback if Resident creation fails | PASS |
+| 48 | Address District/Ward Mandatory | Reject if missing location details | PASS |
+end legend
+@enduml

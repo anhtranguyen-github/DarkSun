@@ -1,0 +1,32 @@
+@startuml Vehicle_Registration_Sequence
+actor Resident as "Cư dân/Cán bộ"
+participant "VehicleRoutes" as Routes
+participant "VehicleController" as Controller
+participant "Household" as HModel
+participant "Vehicle" as VModel
+database "PostgreSQL" as DB
+
+Resident -> Routes : POST /api/vehicles (vehicleData)
+activate Routes
+
+Routes -> Controller : registerVehicle(req, res)
+activate Controller
+
+Controller -> Controller : validateVehicleInfo(licensePlate, type)
+
+Controller -> HModel : findByPk(householdId)
+HModel -> DB : SELECT * FROM households WHERE id = ?
+DB --> HModel : household exists
+
+Controller -> VModel : create(vehicleData)
+activate VModel
+VModel -> DB : INSERT INTO vehicles...
+DB --> VModel : vehicle object
+VModel --> Controller : newVehicle
+deactivate VModel
+
+Controller --> Resident : 201: Created {success: true, data}
+
+deactivate Controller
+deactivate Routes
+@enduml

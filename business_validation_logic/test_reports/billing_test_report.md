@@ -26,12 +26,19 @@
 | 18 | **Xóa invoice unpaid** | Cho phép | Xử lý chuẩn | **PASS** ✅ |
 | 19 | paidDate auto set | Đúng | Xử lý chuẩn | PASS |
 | 20 | cashierId auto set | Đúng | Xử lý chuẩn | PASS |
+| 21 | **Tự động tính theo Nhân khẩu** | Số người * đơn giá | Logic: (vệ sinh/người) | **PASS** ✅ |
+| 22 | **Tự động tính theo Xe máy/Ô tô** | Số xe * đơn giá | Phân loại Oto/XeMay | **PASS** ✅ |
+| 23 | **Tự động tính theo Diện tích** | m2 * đơn giá | Logic: (quản lý/m2) | **PASS** ✅ |
+| 24 | **Tạo hóa đơn trùng đợt** | Chặn, không tạo lại | Xử lý chuẩn | **PASS** ✅ |
+| 25 | **FeePeriod không có phí** | Báo lỗi 400 | Xử lý chuẩn | PASS |
 
 ---
 
-### Tổng kết: 18 PASS | 2 FAIL
+### Tổng kết: 23 PASS | 2 FAIL
 
 **Các lỗi đã sửa trong phiên bản này:**
 - ✅ Edit paid invoice blocking
 - ✅ Delete paid invoice blocking
+- ✅ **Dynamic Amount Calculation based on household data**
+- ✅ **Duplicate invoice generation prevention**
 - ✅ Delete unpaid invoice with cascade (InvoiceDetail)

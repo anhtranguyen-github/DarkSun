@@ -1,0 +1,54 @@
+@startuml Delete_Household_Sequence
+actor Admin as "Quản trị viên"
+participant "HouseholdRoutes" as Routes
+participant "HouseholdController" as Controller
+participant "Resident" as RModel
+participant "Vehicle" as VModel
+participant "Invoice" as IModel
+participant "Household" as HModel
+database "PostgreSQL" as DB
+
+Admin -> Routes : DELETE /api/households/:id
+activate Routes
+
+Routes -> Controller : deleteHousehold(req, res)
+activate Controller
+
+' Cascade checks
+Controller -> RModel : count({where: {householdId: id}})
+RModel -> DB : SELECT count(*) FROM residents...
+DB --> RModel : count
+
+alt count > 0
+    Controller --> Admin : 400: Bad Request "Còn nhân khẩu trong hộ"
+else count == 0
+    Controller -> VModel : count({where: {householdId: id}})
+    VModel -> DB : SELECT count(*) FROM vehicles...
+    DB --> VModel : vehicleCount
+    
+    alt vehicleCount > 0
+        Controller --> Admin : 400: Bad Request "Còn phương tiện đăng ký"
+    else
+        Controller -> IModel : count({where: {householdId: id, status: 'unpaid'}})
+        IModel -> DB : SELECT count(*) FROM invoices...
+        DB --> IModel : unpaidCount
+        
+        alt unpaidCount > 0
+            Controller --> Admin : 400: Bad Request "Còn hóa đơn chưa thanh toán"
+        else
+            Controller -> HModel : findByPk(id)
+            Controller -> HModel : destroy()
+            activate HModel
+            HModel -> DB : DELETE FROM households WHERE id = ?
+            DB --> HModel : success
+            HModel --> Controller : success
+            deactivate HModel
+            
+            Controller --> Admin : 200: OK {success: true}
+        end
+    end
+end
+
+deactivate Controller
+deactivate Routes
+@enduml

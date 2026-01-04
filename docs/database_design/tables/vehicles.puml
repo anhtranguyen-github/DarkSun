@@ -1,0 +1,13 @@
+@startuml table_vehicles
+class vehicles {
+    + id : INTEGER [PK]
+    --
+    household_id : INTEGER [FK]
+    * license_plate : VARCHAR(20) [UNIQUE]
+    * type : ENUM
+    name : VARCHAR(100)
+    color : VARCHAR(50)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

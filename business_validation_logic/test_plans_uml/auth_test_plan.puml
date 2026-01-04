@@ -1,0 +1,21 @@
+@startuml
+title Test Plan: Authentication & Authorization (Auth)
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Category |= Scenario |= Expected Output |= Status |
+| 1 | Registration | Resident registration | Thanh cong (201) | PASS |
+| 2 | Security | Privilege Escalation (Register as Admin) | Blocked (403) | PASS |
+| 3 | Validation | Username regex ^[a-zA-Z0-9_]{3,50}$ | Block special chars | PASS |
+| 4 | Validation | Password length (6-100 chars) | Block if < 6 | PASS |
+| 5 | Security | XSS Injection in Full Name | Sanitize HTML tags | PASS |
+| 6 | Integrity | Duplicate Username | Block (400) | PASS |
+| 7 | Integrity | Login with soft-deleted account | Block (401/404) | PASS |
+| 8 | Security | SQL Injection in Login | Prevented via ORM | PASS |
+| 9 | Security | Type Juggling (Input as Object/Array) | Block (400) | PASS |
+| 10 | Logic | Token Invalidation after Password Change | Invalidate old JWT | FAIL |
+| 11 | Infra | Brute-force Protection (Rate Limit) | 429 Too Many Requests | FAIL |
+| 12 | Logic | Email Format Validation | Reject invalid email regex | PASS |
+end legend
+@enduml

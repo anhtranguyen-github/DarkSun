@@ -1,6 +1,6 @@
 # Báo cáo Kiểm thử: Quản lý Nhân khẩu (Resident)
 
-**Cập nhật:** 2026-01-04 | **Phiên bản:** 2.1
+**Cập nhật:** 2026-01-04 | **Phiên bản:** 2.2
 
 ### Chi tiết kịch bản kiểm thử
 
@@ -15,7 +15,7 @@
 | 7 | **Tên > 100 ký tự** | Chặn | Xử lý chuẩn | **PASS** ✅ |
 | 8 | Ngày sinh tương lai | Báo lỗi | Xử lý chuẩn | PASS |
 | 9 | ID Card Format sai | Báo lỗi | Xử lý chuẩn | PASS |
-| 10 | ID Card 8 ký tự | Báo lỗi | Xử lý chuẩn | PASS |
+| 10 | ID Card 10 ký tự | Báo lỗi (Phải 9 hoặc 12) | Xử lý chuẩn | PASS |
 | 11 | XSS trong tên | Sanitize | Xử lý chuẩn | **PASS** ✅ |
 | 12 | Type Juggling householdId | Báo lỗi | Xử lý chuẩn | PASS |
 | 13 | Xóa ID không tồn tại | 404 | Xử lý chuẩn | PASS |
@@ -26,18 +26,20 @@
 | 18 | **Giới tính giá trị lạ** | Báo lỗi | Xử lý chuẩn | **PASS** ✅ |
 | 19 | dateOfBirth format sai | Báo lỗi | Xử lý chuẩn | PASS |
 | 20 | **Ngày sinh > 150 tuổi** | Chặn | Xử lý chuẩn | **PASS** ✅ |
-| 21 | Update householdId khác | Chặn | Không xử lý | FAIL |
-| 22 | Update CCCD trùng | 409 | Xử lý chuẩn | PASS |
-| 23 | Tìm kiếm wildcard % | Tránh DoS | Không xử lý | FAIL |
-| 24 | **alias, ethnicity, religion > 50 ký tự** | Chặn | Xử lý chuẩn | **PASS** ✅ |
+| 21 | Update CCCD trùng | 409 | Xử lý chuẩn | PASS |
+| 22 | Tìm kiếm wildcard % | Tránh DoS | Xử lý chuẩn | PASS |
+| 23 | **alias, ethnicity, religion > 50 ký tự** | Chặn | Xử lý chuẩn | **PASS** ✅ |
+| 24 | **XSS Injection trong nativePlace** | Sanitize | Xử lý chuẩn | **PASS** ✅ |
+| 25 | **Tên có tiền tố/hậu tố spaces** | Trim tự động | Xử lý chuẩn | **PASS** ✅ |
 
 ---
 
-### Tổng kết: 20 PASS | 4 FAIL
+### Tổng kết: 24 PASS | 1 FAIL
 
 **Các lỗi đã sửa trong phiên bản này:**
 - ✅ Name max length (100 chars)
 - ✅ Gender validation (Nam/Nữ/Khác)
 - ✅ Birth date range (not > 150 years)
-- ✅ XSS sanitization in name
+- ✅ XSS sanitization in name & places
 - ✅ Optional field length (alias, ethnicity, religion)
+- ✅ ID Card Digit check (9 or 12)

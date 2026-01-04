@@ -1,0 +1,44 @@
+@startuml Record_Payment_Sequence
+actor Accountant as "Kế toán"
+participant "InvoiceRoutes" as Routes
+participant "authMiddleware" as Middleware
+participant "InvoiceController" as Controller
+participant "Invoice" as Model
+database "PostgreSQL" as DB
+
+Accountant -> Routes : PUT /api/invoices/:id/pay (paymentData)
+activate Routes
+
+Routes -> Middleware : verifyToken(req)
+activate Middleware
+Middleware --> Routes : user authorized
+deactivate Middleware
+
+Routes -> Controller : recordPayment(req, res)
+activate Controller
+
+Controller -> Model : findByPk(invoiceId)
+activate Model
+Model -> DB : SELECT * FROM invoices WHERE id = ?
+DB --> Model : invoice data
+Model --> Controller : invoice object
+deactivate Model
+
+alt Invoice not found
+    Controller --> Accountant : 404: Not Found
+else Invoice already paid
+    Controller --> Accountant : 400: Bad Request "Hóa đơn đã được thanh toán"
+else Payment valid
+    Controller -> Model : update({status: 'paid', paidDate, paymentMethod, cashierId})
+    activate Model
+    Model -> DB : UPDATE invoices SET status = 'paid'...
+    DB --> Model : success
+    Model --> Controller : updated invoice
+    deactivate Model
+    
+    Controller --> Accountant : 200: OK {success: true, message}
+end
+
+deactivate Controller
+deactivate Routes
+@enduml

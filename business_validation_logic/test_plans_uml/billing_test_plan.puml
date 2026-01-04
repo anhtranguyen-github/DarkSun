@@ -1,0 +1,21 @@
+@startuml
+title Test Plan: Billing & Invoicing
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 81 | Negative Total Amount | Block storage (Value >= 0) | PASS |
+| 82 | Type Validation (Numeric) | Reject non-numeric amounts (NaN) | PASS |
+| 83 | Date Logic Violation | Block if invoiceDate > paymentDate | PASS |
+| 84 | Paid Invoice Lock (Edit) | Block editing status or details | PASS |
+| 85 | Paid Invoice Lock (Delete) | Block deletion (Audit Trail protection) | PASS |
+| 86 | Duplicate FeePeriod Check | Block creating multiple invoices for same Ky-Ho | PASS |
+| 87 | XSS in Invoice Description | Sanitize HTML input | FAIL |
+| 88 | Delete Unpaid Invoice | Allow deletion with cascade detail cleanup | PASS |
+| 89 | Auto-Calculation: Residents | (Count * UnitPrice) correctly calculated | PASS |
+| 90 | Auto-Calculation: Vehicles | (CarCount * CarPrice) correctly calculated | PASS |
+| 91 | Auto-Calculation: Area | (m2 * UnitPrice) correctly calculated | PASS |
+| 92 | Empty Fee Category | Reject if FeePeriod has no assigned fees | PASS |
+end legend
+@enduml

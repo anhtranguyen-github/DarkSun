@@ -1,0 +1,21 @@
+@startuml
+title Test Plan: Self-Service (Resident Portal)
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 103 | Access /households routes | Block (403 Forbidden) for Residents | PASS |
+| 104 | Mass Assignment: Role Escalation | Block roleId change via profile update | PASS |
+| 105 | Malicious File Upload | Block .bat, .exe, .sh files | PASS |
+| 106 | Password Change Rate Limit | Block spamming (429 Too Many Requests) | FAIL |
+| 107 | Unauthorized Status Update | Block manual status change via profile | PASS |
+| 108 | Unauthorized Household Unlink | Block manual householdId change | PASS |
+| 109 | Min Password Length | Reject if < 6 characters | PASS |
+| 110 | Donation History Filter | Only show Voluntary type fees | PASS |
+| 111 | Access /reports routes | Block management reports (403) | PASS |
+| 112 | Profile XSS Injection | Sanitize Name/Email on update | PASS |
+| 113 | Session Expiry on Change | Logout user after password change | FAIL |
+| 114 | Own Invoice Visibility | Only show invoices linked to your household | PASS |
+end legend
+@enduml

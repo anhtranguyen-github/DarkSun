@@ -1,0 +1,58 @@
+@startuml Navigation_Flow
+skinparam linetype ortho
+skinparam rectangle {
+    BackgroundColor White
+    BorderColor Black
+}
+
+rectangle "Màn hình Login" as Login
+rectangle "Màn hình Register" as Register
+
+rectangle "Main Layout" as Main {
+    rectangle "Dashboard" as Dash
+    rectangle "Quản lý Hộ khẩu" as Household
+    rectangle "Tìm kiếm Hộ khẩu" as HouseholdSearch
+    rectangle "Thống kê Hộ khẩu" as HouseholdStats
+    
+    rectangle "Quản lý Nhân khẩu" as Resident
+    rectangle "Tìm kiếm Nhân khẩu" as ResidentSearch
+    rectangle "Thống kê Nhân khẩu" as ResidentStats
+    
+    rectangle "Quản lý Người dùng" as UserMgmt
+    rectangle "Quản lý Loại phí" as FeeType
+    rectangle "Quản lý Đợt thu" as FeePeriod
+    rectangle "Chi tiết Đợt thu" as FeePeriodDetail
+    
+    rectangle "Hóa đơn của tôi" as MyInvoices
+}
+
+rectangle "Unauthorized" as Unauthorized
+rectangle "Not Found" as NotFound
+
+' Top level transitions
+Login --> Register : "Đăng ký"
+Register --> Login : "Quay lại Login"
+Login --> Dash : "Đăng nhập thành công"
+
+' Main connections
+Dash --> Household
+Dash --> Resident
+Dash --> UserMgmt
+Dash --> FeeType
+Dash --> FeePeriod
+Dash --> MyInvoices
+
+' Sub-pages
+Household --> HouseholdSearch : "Tìm kiếm"
+Household --> HouseholdStats : "Xem thống kê"
+
+Resident --> ResidentSearch : "Tìm kiếm"
+Resident --> ResidentStats : "Xem thống kê"
+
+FeePeriod --> FeePeriodDetail : "Xem chi tiết"
+
+' Error handling
+Dash --> Unauthorized : "Không đủ quyền"
+Dash --> NotFound : "Sai đường dẫn"
+
+@enduml

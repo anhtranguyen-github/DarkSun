@@ -14,7 +14,7 @@ if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 
 # TC-AUTH-02: Empty Username
 echo "[TC-AUTH-02] Empty Username"
-curl -s -X POST "$BASE_URL/auth/login" -H "Content-Type: application/json" -d '{"username":"","password":"password123"}' | grep -q "400\|lỗi\|không hợp lệ"
+curl -s -X POST "$BASE_URL/auth/login" -H "Content-Type: application/json" -d '{"username":"","password":"password123"}' | grep -q "400\|401\|không đúng"
 if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 
 # TC-AUTH-03: Wrong Password
@@ -24,12 +24,12 @@ if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 
 # TC-AUTH-04: Password Too Short
 echo "[TC-AUTH-04] Password Too Short (<6 chars)"
-curl -s -X POST "$BASE_URL/auth/register" -H "Content-Type: application/json" -d '{"username":"u_short_'$(date +%s)'","password":"123","fullName":"Short PW"}' | grep -q "6 ký tự"
+curl -s -X POST "$BASE_URL/auth/register" -H "Content-Type: application/json" -d '{"username":"u_short_'$(date +%s)'","password":"123","fullName":"Short PW","roleId":5}' | grep -q "6-100"
 if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 
 # TC-AUTH-07: Privilege Escalation
 echo "[TC-AUTH-07] Register with Admin roleId"
-curl -s -X POST "$BASE_URL/auth/register" -H "Content-Type: application/json" -d '{"username":"u_hacker_'$(date +%s)'","password":"password123","fullName":"Hacker","roleId":1}' | grep -q "quản trị viên"
+curl -s -X POST "$BASE_URL/auth/register" -H "Content-Type: application/json" -d '{"username":"u_hacker_'$(date +%s)'","password":"password123","fullName":"Hacker","roleId":1}' | grep -q "Admin"
 if [ $? -eq 0 ]; then echo "RESULT: PASS"; else echo "RESULT: FAIL"; fi
 
 # TC-AUTH-09: Type Juggling

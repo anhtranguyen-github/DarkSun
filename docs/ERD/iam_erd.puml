@@ -1,0 +1,53 @@
+@startuml IAM_ERD
+skinparam Linetype ortho
+
+entity "User" as user {
+  *id : INTEGER <<PK>>
+  --
+  *username : STRING <<unique>>
+  *password : STRING
+  *full_name : STRING
+  email : STRING <<unique>>
+  phone_number : STRING
+  avatar_url : TEXT
+  status : STRING
+  household_id : INTEGER <<FK>>
+  created_at : DATE
+  updated_at : DATE
+}
+
+entity "Role" as role {
+  *id : INTEGER <<PK>>
+  --
+  *name : STRING <<unique>>
+  display_name : STRING
+  description : TEXT
+  created_at : DATE
+  updated_at : DATE
+}
+
+entity "Permission" as permission {
+  *id : INTEGER <<PK>>
+  --
+  *code : STRING(50) <<unique>>
+  *name : STRING(100)
+  group_name : STRING(50)
+  description : TEXT
+}
+
+entity "UserRole" as user_role {
+  *user_id : INTEGER <<PK, FK>>
+  *role_id : INTEGER <<PK, FK>>
+}
+
+entity "RolePermission" as role_permission {
+  *role_id : INTEGER <<PK, FK>>
+  *permission_id : INTEGER <<PK, FK>>
+}
+
+user ||--o{ user_role
+role ||--o{ user_role
+role ||--o{ role_permission
+permission ||--o{ role_permission
+
+@enduml

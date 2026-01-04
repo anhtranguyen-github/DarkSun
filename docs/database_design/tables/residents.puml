@@ -1,0 +1,25 @@
+@startuml table_residents
+class residents {
+    + id : INTEGER [PK]
+    --
+    household_id : INTEGER [FK]
+    * full_name : VARCHAR(255)
+    date_of_birth : DATE
+    id_card_number : VARCHAR(20) [UNIQUE]
+    gender : ENUM
+    occupation : VARCHAR(255)
+    relationship_with_owner : VARCHAR(255)
+    alias : VARCHAR(255)
+    birth_place : VARCHAR(255)
+    native_place : VARCHAR(255)
+    ethnicity : VARCHAR(50)
+    religion : VARCHAR(50)
+    workplace : VARCHAR(255)
+    id_card_date : DATE
+    id_card_place : VARCHAR(255)
+    previous_residence : VARCHAR(255)
+    move_in_date : DATE
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

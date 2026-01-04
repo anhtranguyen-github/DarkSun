@@ -1,0 +1,21 @@
+@startuml
+title Test Plan: Fee Type Management
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 69 | Fee Name Required | Reject empty or whitespace-only name | PASS |
+| 70 | Duplicate Fee Name | Block with 409 Conflict | PASS |
+| 71 | Price Validation | Block negative values (Value >= 0) | PASS |
+| 72 | Blocked Deletion (PeriodFee) | Cascade block if used in open periods | PASS |
+| 73 | Blocked Deletion (Invoices) | Cascade block if used in historical invoices | PASS |
+| 74 | XSS in Name/Unit Fields | Sanitize HTML tags | PASS |
+| 75 | Category Constraints | Must match system enums (e.g., Mandatory) | PASS |
+| 76 | Overlapping PeriodFees | Block duplicate fee assignment in same period | PASS |
+| 77 | Price Lock (Invoiced) | Block price edits once invoices are generated | PASS |
+| 78 | RBAC Protection | Non-admins blocked from creating fees (403) | PASS |
+| 79 | Unit Field Validation | Reject empty units (e.g., per person, per m2) | PASS |
+| 80 | SQL Injection in Filter | Prevented via ORM parameters | PASS |
+end legend
+@enduml

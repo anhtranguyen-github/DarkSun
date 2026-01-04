@@ -1,0 +1,37 @@
+@startuml Household_Package_Design
+skinparam ClassAttributeIconSize 0
+skinparam linetype ortho
+
+package "Controller_Package" {
+    class HouseholdController {
+    }
+    class ResidentController {
+    }
+    class VehicleController {
+    }
+}
+
+package "Entity_Package" {
+    class Household {
+    }
+    class Resident {
+    }
+    class Vehicle {
+    }
+    class TemporaryResidence {
+    }
+}
+
+' Relationships
+HouseholdController ..> Household : <<use>>
+ResidentController ..> Resident : <<use>>
+VehicleController ..> Vehicle : <<use>>
+
+Household "1" *-- "1..*" Resident : "1"
+Household "1" *-- "0..*" Vehicle : "1"
+Resident "1" o-- "0..*" TemporaryResidence : "aggregation"
+
+' Shared association
+Resident "1" -- "0..1" Household : "owner_id"
+
+@enduml

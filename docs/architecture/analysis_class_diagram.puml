@@ -1,0 +1,98 @@
+@startuml Detailed_Analysis_Class_Diagram
+skinparam ClassAttributeIconSize 0
+skinparam linetype ortho
+
+' Stereotypes icons
+hide circle
+skinparam class {
+    BackgroundColor<<boundary>> White
+    BackgroundColor<<control>> White
+    BackgroundColor<<entity>> White
+}
+
+package "Management_Module" {
+    class "AuthView" <<boundary>> {
+        + displayLoginForm()
+        + displayRegisterForm()
+        + showErrorMessage()
+    }
+
+    class "AuthControl" <<control>> {
+        + login(username, password)
+        + register(userData)
+        + verifyToken(token)
+    }
+
+    class "User" <<entity>> {
+        - username
+        - password
+        - fullName
+        + findByUsername()
+        + validatePassword()
+    }
+}
+
+package "Residence_Module" {
+    class "HouseholdView" <<boundary>> {
+        + displayHouseholdList()
+        + showAddResidentDialog()
+    }
+
+    class "HouseholdControl" <<control>> {
+        + createHousehold(data)
+        + addResident(data)
+        + deleteHousehold(id)
+        + validateBusinessRules()
+    }
+
+    class "Household" <<entity>> {
+        - householdCode
+        - area
+        - address
+        + update()
+        + getMembers()
+    }
+
+    class "Resident" <<entity>> {
+        - fullName
+        - idCardNumber
+        - relationship
+        + create()
+    }
+}
+
+package "Billing_Module" {
+    class "InvoiceView" <<boundary>> {
+        + displayInvoiceList()
+        + showPaymentForm()
+    }
+
+    class "InvoiceControl" <<control>> {
+        + generateInvoices(periodId)
+        + recordPayment(invoiceId, data)
+        + calculateFees(household)
+    }
+
+    class "Invoice" <<entity>> {
+        - totalAmount
+        - status
+        - paidDate
+        + updateStatus()
+    }
+}
+
+' Links
+"AuthView" ..> "AuthControl"
+"AuthControl" ..> "User"
+
+"HouseholdView" ..> "HouseholdControl"
+"HouseholdControl" ..> "Household"
+"HouseholdControl" ..> "Resident"
+
+"InvoiceView" ..> "InvoiceControl"
+"InvoiceControl" ..> "Invoice"
+"InvoiceControl" ..> "Household" : "read data"
+
+"Household" "1" *-- "0..*" "Resident"
+
+@enduml

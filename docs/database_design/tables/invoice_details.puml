@@ -1,0 +1,13 @@
+@startuml table_invoice_details
+class invoice_details {
+    + id : INTEGER [PK]
+    --
+    invoice_id : INTEGER [FK]
+    fee_type_id : INTEGER [FK]
+    * quantity : NUMERIC(10,2)
+    * price_at_time : DECIMAL(12,2)
+    * amount : DECIMAL(15,2)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

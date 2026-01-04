@@ -1,0 +1,11 @@
+@startuml table_roles
+class roles {
+    + id : INTEGER [PK]
+    --
+    * name : VARCHAR(255) [UNIQUE]
+    display_name : VARCHAR(255)
+    description : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

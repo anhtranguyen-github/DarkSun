@@ -1,0 +1,49 @@
+@startuml Create_Household_Sequence
+actor Admin as "Quản trị viên"
+participant "HouseholdRoutes" as Routes
+participant "authMiddleware" as Middleware
+participant "HouseholdController" as Controller
+participant "Household" as HModel
+participant "Resident" as RModel
+database "PostgreSQL" as DB
+
+Admin -> Routes : POST /api/households (data)
+activate Routes
+
+Routes -> Middleware : verifyToken(req)
+activate Middleware
+Middleware --> Routes : user authorized
+deactivate Middleware
+
+Routes -> Controller : createHousehold(req, res)
+activate Controller
+
+Controller -> Controller : validateHouseholdData(data)
+
+Controller -> HModel : create(householdData, {transaction})
+activate HModel
+HModel -> DB : INSERT INTO households...
+DB --> HModel : household object
+HModel --> Controller : newHousehold
+deactivate HModel
+
+Controller -> RModel : create(ownerData, {householdId, transaction})
+activate RModel
+RModel -> DB : INSERT INTO residents...
+DB --> RModel : resident object
+RModel --> Controller : newOwner
+deactivate RModel
+
+Controller -> HModel : update({ownerId: newOwner.id}, {transaction})
+activate HModel
+HModel -> DB : UPDATE households SET owner_id = ?
+DB --> HModel : success
+HModel --> Controller : updatedHousehold
+deactivate HModel
+
+Controller -> Controller : commitTransaction()
+Controller --> Admin : 201: Created {success: true, data}
+
+deactivate Controller
+deactivate Routes
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+title Test Plan: User Management & RBAC
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 13 | Data Masking (Staff view) | Hide other Admin accounts from staff | PASS |
+| 14 | Mass Assignment (roleId) | Block role updates via profile edit | PASS |
+| 15 | Delete Last Admin | Block deletion of the only system admin | PASS |
+| 16 | Self-Action Restriction | Block deleting or locking your own account | PASS |
+| 17 | Staff deleting Admin (Escalation) | Block (403 Forbidden) | PASS |
+| 18 | Delete Household Head | Block (Must transfer ownership first) | PASS |
+| 19 | Delete Management Staff (Manager/Deputy) | Block direct delete (Staff Protection) | PASS |
+| 20 | Role Assignment Logic | Block non-admins from assigning Admin roles | PASS |
+| 21 | Unlink Household | Correctly set householdId = null | PASS |
+| 22 | Username Sanitization | Block special chars in staff usernames | PASS |
+| 23 | XSS in Full Name (Staff Update) | Sanitize input before saving | PASS |
+| 24 | Inactive User Access | Block login if status = locked/deleted | PASS |
+end legend
+@enduml

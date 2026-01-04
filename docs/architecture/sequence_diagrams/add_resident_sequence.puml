@@ -1,0 +1,41 @@
+@startuml Add_Resident_Sequence
+actor Staff as "Cán bộ"
+participant "ResidentRoutes" as Routes
+participant "authMiddleware" as Middleware
+participant "ResidentController" as Controller
+participant "Household" as HModel
+participant "Resident" as RModel
+database "PostgreSQL" as DB
+
+Staff -> Routes : POST /api/residents (residentData)
+activate Routes
+
+Routes -> Middleware : verifyToken(req)
+activate Middleware
+Middleware --> Routes : user authorized
+deactivate Middleware
+
+Routes -> Controller : createResident(req, res)
+activate Controller
+
+Controller -> Controller : validateResidentData(data)
+
+Controller -> HModel : findByPk(householdId)
+activate HModel
+HModel -> DB : SELECT * FROM households WHERE id = ?
+DB --> HModel : household exists
+HModel --> Controller : household object
+deactivate HModel
+
+Controller -> RModel : create(residentData)
+activate RModel
+RModel -> DB : INSERT INTO residents...
+DB --> RModel : resident object
+RModel --> Controller : newResident
+deactivate RModel
+
+Controller --> Staff : 201: Created {success: true, data}
+
+deactivate Controller
+deactivate Routes
+@enduml

@@ -1,0 +1,38 @@
+@startuml Package_Diagram
+skinparam packageStyle rect
+skinparam linetype ortho
+
+package "Tầng Trình diễn (Presentation Layer)" as Presentation {
+    package "frontend/src/pages" as Pages
+    package "frontend/src/components" as Components
+}
+
+package "Tầng Giao tiếp API (API/Interface Layer)" as API {
+    package "backend/routes" as Routes
+    package "backend/middleware" as Middleware
+}
+
+package "Tầng Xử lý Nghiệp vụ (Business Logic Layer)" as Logic {
+    package "backend/controllers" as Controllers
+    package "backend/services" as Services
+}
+
+package "Tầng Truy cập Dữ liệu (Data Access Layer)" as Data {
+    package "backend/models" as Models
+}
+
+database "PostgreSQL" as DB
+
+' Dependencies
+Pages ..> Routes : "HTTP Requests"
+Routes ..> Middleware : "Sử dụng"
+Routes --> Controllers : "Điều hướng"
+Controllers --> Services : "Gọi logic"
+Controllers --> Models : "Truy vấn dữ liệu"
+Services --> Models : "Thao tác dữ liệu"
+Models --> DB : "SQL/ORM"
+
+' Rules enforcement: Lower layers don't depend on upper layers
+' No arrow from Data to Logic, Logic to API, etc.
+
+@enduml

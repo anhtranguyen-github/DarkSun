@@ -1,0 +1,15 @@
+@startuml table_temporary_residences
+class temporary_residences {
+    + id : INTEGER [PK]
+    --
+    resident_id : INTEGER [FK]
+    * type : ENUM
+    permit_code : VARCHAR(100) [UNIQUE]
+    * start_date : DATE
+    end_date : DATE
+    address : VARCHAR(255)
+    reason : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

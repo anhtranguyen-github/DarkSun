@@ -1,0 +1,57 @@
+@startuml Frontend_Structure
+skinparam componentStyle uml2
+
+package "Frontend App (React/Vite)" {
+    component [App.jsx] as app
+    component [Main.jsx] as main
+    
+    package "Routes/Layouts" {
+        [PublicRoute]
+        [PrivateRoute]
+        [MainLayout]
+        [AuthLayout]
+    }
+    
+    package "Pages Layer" {
+        [DashboardPage]
+        [ResidentListPage]
+        [HouseholdDetailPage]
+        [FeeManagementPage]
+        [InvoiceListPage]
+        [ProfilePage]
+        [etc_pages] as "..."
+    }
+    
+    package "Components Layer" {
+        [Reusable Table]
+        [Modal/Dialog]
+        [Charts/Statistics]
+        [Navigation/Sidebar]
+    }
+    
+    package "Context/Hooks" {
+        [AuthContext]
+        [useFetch]
+        [useNotification]
+    }
+    
+    package "Services Layer (API Client)" {
+        [authService]
+        [residentService]
+        [householdService]
+        [invoiceService]
+        [apiConfig (Axios)]
+    }
+}
+
+cloud "Backend API" as api
+
+main --> app
+app --> [Routes/Layouts]
+[Routes/Layouts] --> [Pages Layer]
+[Pages Layer] *-- [Components Layer]
+[Pages Layer] ..> [Context/Hooks]
+[Pages Layer] --> [Services Layer (API Client)]
+[Services Layer (API Client)] --> api : "HTTP Request"
+
+@enduml

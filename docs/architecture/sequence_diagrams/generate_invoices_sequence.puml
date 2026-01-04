@@ -1,0 +1,53 @@
+@startuml Generate_Invoices_Sequence
+actor Accountant as "Kế toán"
+participant "InvoiceRoutes" as Routes
+participant "InvoiceController" as Controller
+participant "FeePeriod" as FPModel
+participant "PeriodFee" as PFModel
+participant "Household" as HModel
+participant "Invoice" as IModel
+participant "InvoiceDetail" as IDModel
+database "PostgreSQL" as DB
+
+Accountant -> Routes : POST /api/invoices/generate/:feePeriodId
+activate Routes
+
+Routes -> Controller : generateInvoicesForPeriod(req, res)
+activate Controller
+
+Controller -> Controller : startTransaction()
+
+Controller -> FPModel : findByPk(feePeriodId)
+FPModel -> DB : SELECT * FROM fee_periods...
+DB --> FPModel : period data
+
+Controller -> PFModel : findAll({where: {feePeriodId}, include: [FeeType]})
+PFModel -> DB : SELECT * FROM period_fees JOIN fee_types...
+DB --> PFModel : applicable fees list
+
+Controller -> HModel : findAll({include: [Resident, Vehicle]})
+HModel -> DB : SELECT * FROM households...
+DB --> HModel : households list
+
+loop For each Household in households
+    Controller -> Controller : calculateTotalAmount(household, applicableFees)
+    note right: Tự động tính dựa trên số nhân khẩu,\n diện tích và loại xe.
+    
+    alt If amount > 0 and no existing invoice
+        Controller -> IModel : create({householdId, totalAmount, status: 'unpaid'})
+        IModel -> DB : INSERT INTO invoices...
+        DB --> IModel : newInvoice
+        
+        loop For each Fee in applicableFees
+            Controller -> IDModel : create({invoiceId, feeTypeId, amount...})
+            IDModel -> DB : INSERT INTO invoice_details...
+        end
+    end
+end
+
+Controller -> Controller : commitTransaction()
+Controller --> Accountant : 201: Created {success: true, message: "Generated X invoices"}
+
+deactivate Controller
+deactivate Routes
+@enduml

@@ -1,0 +1,20 @@
+@startsalt
+{+
+  <b>Quản lý tài chính - Hóa đơn
+  {+
+    {
+      <#black>|<white> Trang chủ
+      <#gray>|<white> <b>Tài chính
+      <#gray>|<white> Thống kê
+    } | {
+      { [ Chọn đợt thu        ^] | [ + Tạo hóa đơn đợt này ] }
+      {#
+        <b>Mã hộ | <b>Tổng tiền | <b>Trạng thái | <b>Ngày nộp | <b>Thao tác
+        HK001 | 500,000đ | <#green>Đã nộp | 02/01/2026 | [ Xem ]
+        HK002 | 350,000đ | <#red>Chưa nộp | - | [ Thu tiền ]
+        HK003 | 720,000đ | <#red>Chưa nộp | - | [ Thu tiền ]
+      }
+    }
+  }
+}
+@endsalt

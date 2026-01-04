@@ -1,0 +1,19 @@
+@startuml
+title Test Plan: Dashboard & Statistics
+skinparam TitleFontSize 20
+skinparam BackgroundColor #FDFEFE
+
+legend
+|= STT |= Scenario |= Expected Output |= Status |
+| 93 | Empty Data Handling | Display 0s or empty charts without crashing | PASS |
+| 94 | Accountant Privileges | Only show financial-related figures | PASS |
+| 95 | Resident Access Block | Block /dashboard API for basic residents | PASS |
+| 96 | SQL Injection in Year | Prevented via ORM variable binding | PASS |
+| 97 | Invalid Date Range | Return empty dataset (200 OK) | PASS |
+| 98 | Parallel Query Load | Use Promise.all for performance | PASS |
+| 99 | PDF Report Export | Puppeteer creates file with valid content | PASS |
+| 100 | Age Group Calculation | Correct logic for <18, 18-35, 36-60, >60 | PASS |
+| 101 | XSS in Filter Parameters | Sanitize input before query execution | PASS |
+| 102 | Large Export Timeout | Handle termination if data exceeds limits | FAIL |
+end legend
+@enduml

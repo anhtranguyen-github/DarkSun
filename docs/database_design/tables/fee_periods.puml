@@ -1,0 +1,14 @@
+@startuml table_fee_periods
+class fee_periods {
+    + id : INTEGER [PK]
+    --
+    * name : VARCHAR(255)
+    start_date : DATE
+    end_date : DATE
+    status : ENUM
+    type : ENUM
+    description : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+@enduml

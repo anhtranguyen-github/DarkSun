@@ -1,0 +1,43 @@
+@startuml Login_Sequence
+actor User as "Người dùng"
+participant "AuthRoutes" as Routes
+participant "AuthController" as Controller
+participant "User" as Model
+participant "jwtUtils" as JWT
+database "PostgreSQL" as DB
+
+User -> Routes : POST /api/auth/login (username, password)
+activate Routes
+
+Routes -> Controller : login(req, res)
+activate Controller
+
+Controller -> Controller : validateInput(username, password)
+
+Controller -> Model : findOne({ where: {username} })
+activate Model
+Model -> DB : SELECT * FROM users WHERE username = ?
+DB --> Model : user data
+Model --> Controller : user object
+deactivate Model
+
+alt User not found
+    Controller --> User : 401: Unauthorized "Sai tên đăng nhập/mật khẩu"
+else User exists
+    Controller -> Controller : comparePassword(password, user.password)
+    
+    alt Password mismatch
+        Controller --> User : 401: Unauthorized "Sai tên đăng nhập/mật khẩu"
+    else Password correct
+        Controller -> JWT : generateToken(payload)
+        activate JWT
+        JWT --> Controller : token string
+        deactivate JWT
+        
+        Controller --> User : 200: OK {success: true, token, user}
+    end
+end
+
+deactivate Controller
+deactivate Routes
+@enduml

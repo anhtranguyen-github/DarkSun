@@ -1,0 +1,38 @@
+@startuml Finance_Package_Design
+skinparam ClassAttributeIconSize 0
+skinparam linetype ortho
+
+package "Billing_Logic" {
+    class InvoiceController {
+    }
+    class FinanceController {
+    }
+}
+
+package "Pricing_Data" {
+    class FeeType {
+    }
+    class FeePeriod {
+    }
+    class PeriodFee {
+    }
+}
+
+package "Transaction_Data" {
+    class Invoice {
+    }
+    class InvoiceDetail {
+    }
+}
+
+' Relationships
+InvoiceController ..> Invoice : <<use>>
+FinanceController ..> FeeType : <<use>>
+
+Invoice "1" *-- "1..*" InvoiceDetail : "has details"
+InvoiceDetail "0..*" -- "1" FeeType : "refers to"
+PeriodFee "0..*" o-- "1" FeePeriod : "aggregation"
+PeriodFee "0..*" o-- "1" FeeType : "aggregation"
+Invoice "0..*" -- "1" FeePeriod : "period_id"
+
+@enduml

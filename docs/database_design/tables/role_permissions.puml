@@ -1,0 +1,6 @@
+@startuml table_role_permissions
+class role_permissions {
+    + role_id : INTEGER [PK, FK]
+    + permission_id : INTEGER [PK, FK]
+}
+@enduml
