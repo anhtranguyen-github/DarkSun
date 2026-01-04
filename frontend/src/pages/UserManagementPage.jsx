@@ -256,7 +256,9 @@ const UserManagementPage = () => {
                   <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Vai trò khởi tạo*</label>
                   <select className="premium-input bg-dark-950/40" value={newUser.roleId} onChange={e => setNewUser({ ...newUser, roleId: e.target.value })}>
                     <option value="" disabled className="bg-dark-900">-- Chọn vai trò --</option>
-                    {allRoles.map(r => <option key={r.id} value={r.id} className="bg-dark-900">{r.displayName || r.name}</option>)}
+                    {allRoles
+                      .filter(r => currentUser?.roles?.some(ur => ur.name === 'admin' || ur === 'admin') || r.name !== 'admin')
+                      .map(r => <option key={r.id} value={r.id} className="bg-dark-900">{r.displayName || r.name}</option>)}
                   </select>
                 </div>
                 <div className="pt-4 flex justify-end gap-3">
@@ -270,7 +272,9 @@ const UserManagementPage = () => {
                   <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Chọn vai trò bổ sung</label>
                   <select className="premium-input bg-dark-950/40" value={roleToAssign} onChange={(e) => setRoleToAssign(e.target.value)}>
                     <option value="" disabled className="bg-dark-900">-- Chọn vai trò --</option>
-                    {allRoles.map(r => <option key={r.id} value={r.id} className="bg-dark-900">{r.displayName || r.name}</option>)}
+                    {allRoles
+                      .filter(r => currentUser?.roles?.some(ur => ur.name === 'admin' || ur === 'admin') || r.name !== 'admin')
+                      .map(r => <option key={r.id} value={r.id} className="bg-dark-900">{r.displayName || r.name}</option>)}
                   </select>
                 </div>
                 <div className="pt-4 flex justify-end gap-3">
