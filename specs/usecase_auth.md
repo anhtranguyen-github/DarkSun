@@ -5,6 +5,7 @@ graph LR
     %% Actors
     Resident["👤 Cư dân (Resident)"]
     Manager["👤 Tổ trưởng (Manager)"]
+    Deputy["👤 Tổ phó (Deputy)"]
     Accountant["👤 Kế toán (Accountant)"]
     Admin["👤 Quản trị viên (Admin)"]
     
@@ -30,6 +31,7 @@ graph LR
     Resident --> UC_ViewRoles
     
     Manager --> UC_Login
+    Deputy --> UC_Login
     Accountant --> UC_Login
     Admin --> UC_Login
 
@@ -40,10 +42,16 @@ graph LR
     %% Inheritance (All roles are Authenticated Users)
     Resident -.-> AuthenticatedUser
     Manager -.-> AuthenticatedUser
+    Deputy -.-> AuthenticatedUser
     Accountant -.-> AuthenticatedUser
     Admin -.-> AuthenticatedUser
 
-    %% Relationships - Admin Specific
+    %% Relationships - Management
+    Manager --> UC_CRUD_User
+    Manager --> UC_AssignRole
+    Manager --> UC_DeleteUser
+
+    %% Relationships - Admin Specific (Inherits Manager rights implicitly or explicitly)
     Admin --> UC_CRUD_User
     Admin --> UC_AssignRole
     Admin --> UC_DeleteUser

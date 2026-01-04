@@ -5,6 +5,8 @@ graph LR
     %% Actors
     Accountant["👤 Kế toán (Accountant)"]
     Admin["👤 Quản trị viên (Admin)"]
+    Manager["👤 Tổ trưởng (Manager)"]
+    Deputy["👤 Tổ phó (Deputy)"]
     Resident["👤 Cư dân (Resident)"]
 
     %% System
@@ -24,6 +26,11 @@ graph LR
 
     %% Inheritance
     Admin -.-> Accountant
+    Admin -.-> Manager
+    Manager -.-> Deputy
+
+    %% Relationships - Manager/Deputy (View Only)
+    Deputy --> UC_ViewAllInvoices
 
     %% Relationships
     Accountant --> UC_ManageFeeTypes

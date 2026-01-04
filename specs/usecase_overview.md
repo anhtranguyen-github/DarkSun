@@ -5,6 +5,7 @@ graph LR
     %% Actors
     Resident["👤 Cư dân (Resident)"]
     Manager["👤 Tổ trưởng (Manager)"]
+    Deputy["👤 Tổ phó (Deputy)"]
     Accountant["👤 Kế toán (Accountant)"]
     Admin["👤 Quản trị viên (Admin)"]
 
@@ -34,6 +35,15 @@ graph LR
     Manager --> UC_ManageVehicle
     Manager --> UC_ManageTemp
     Manager --> UC_ViewBills
+    Manager --> UC_ManageUser
+    Manager --> UC_Stats
+
+    Deputy --> UC_Auth
+    Deputy --> UC_Profile
+    Deputy --> UC_ManageHouse
+    Deputy --> UC_ManageVehicle
+    Deputy --> UC_ViewBills
+    Deputy --> UC_Stats
 
     Accountant --> UC_Auth
     Accountant --> UC_Profile
@@ -48,4 +58,5 @@ graph LR
     %% Inheritance (Simulated)
     Admin -.-> Manager
     Admin -.-> Accountant
+    Manager -.-> Deputy
 ```

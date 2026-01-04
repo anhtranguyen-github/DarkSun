@@ -3,6 +3,8 @@
 ```mermaid
 graph LR
     %% Actors
+    Manager["👤 Tổ trưởng (Manager)"]
+    Deputy["👤 Tổ phó (Deputy)"]
     Accountant["👤 Kế toán (Accountant)"]
     Admin["👤 Quản trị viên (Admin)"]
 
@@ -15,14 +17,20 @@ graph LR
         UC_StatFees(["💰 Thống kê Thu phí (Đã thu / Chưa thu)"])
         UC_Export(["📥 Xuất Báo cáo Excel (Future)"])
     end
+    
+    %% Inheritance
+    Admin -.-> Manager
+    Manager -.-> Deputy
+    Admin -.-> Accountant
 
-    %% Relationships
-    Admin --> UC_Dashboard
-    Admin --> UC_StatResident
-    Admin --> UC_StatTemp
-    Admin --> UC_StatFees
-    Admin --> UC_Export
+    %% Relationships - Deputy (Broad Access)
+    Deputy --> UC_Dashboard
+    Deputy --> UC_StatResident
+    Deputy --> UC_StatTemp
+    Deputy --> UC_StatFees
+    Deputy --> UC_Export
 
+    %% Relationships - Accountant (Financial Focus)
     Accountant --> UC_Dashboard
     Accountant --> UC_StatFees
     Accountant --> UC_Export

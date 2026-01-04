@@ -4,6 +4,7 @@
 graph LR
     %% Actors
     Manager["👤 Tổ trưởng (Manager)"]
+    Deputy["👤 Tổ phó (Deputy)"]
     Admin["👤 Quản trị viên (Admin)"]
     Resident["👤 Cư dân (Resident)"]
 
@@ -29,9 +30,15 @@ graph LR
 
     %% Inheritance
     Admin -.-> Manager
+    Manager -.-> Deputy
     
-    %% Relationships
-    Manager --> UC_ViewHouse
+    %% Relationships - Deputy (View Only)
+    Deputy --> UC_ViewHouse
+    Deputy --> UC_SearchResident
+    Deputy --> UC_TempStay
+    Deputy --> UC_ManageVehicle
+
+    %% Relationships - Manager (Full Control)
     Manager --> UC_CreateHouse
     Manager --> UC_EditHouse
     Manager --> UC_ChangeOwner
@@ -40,10 +47,7 @@ graph LR
     Manager --> UC_AddResident
     Manager --> UC_EditResident
     Manager --> UC_DeleteResident
-    Manager --> UC_SearchResident
     
-    Manager --> UC_TempStay
-    Manager --> UC_ManageVehicle
-
+    %% Relationships - Resident
     Resident --> UC_ViewMyHouse
 ```
