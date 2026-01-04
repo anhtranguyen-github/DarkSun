@@ -30,8 +30,18 @@ exports.registerVehicle = async (req, res) => {
     try {
         const { householdId, licensePlate, type, name, color } = req.body;
 
+        // FIXED: Enhanced Validation
         if (!householdId || !licensePlate || !type) {
             return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc (Hộ khẩu, Biển số, Loại xe).' });
+        }
+
+        if (licensePlate.length > 20) {
+            return res.status(400).json({ success: false, message: 'Biển số xe quá dài (Tối đa 20 ký tự).' });
+        }
+
+        const validTypes = ['XeMay', 'Oto', 'XeDapDien'];
+        if (!validTypes.includes(type)) {
+            return res.status(400).json({ success: false, message: 'Loại phương tiện không hợp lệ.' });
         }
 
         const household = await Household.findByPk(householdId);
@@ -39,7 +49,17 @@ exports.registerVehicle = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Hộ khẩu không tồn tại.' });
         }
 
-        const vehicle = await Vehicle.create({ householdId, licensePlate, type, name, color });
+        // Sanitization
+        const sanitizedPlate = licensePlate.toUpperCase().trim().replace(/[^A-Z0-9- ]/g, '');
+        const sanitizedColor = color ? color.trim().replace(/<[^>]*>?/gm, '') : null;
+
+        const vehicle = await Vehicle.create({
+            householdId,
+            licensePlate: sanitizedPlate,
+            type,
+            name: name ? name.trim() : null,
+            color: sanitizedColor
+        });
 
         res.status(201).json({ success: true, message: 'Đăng ký xe thành công.', data: vehicle });
     } catch (error) {
@@ -58,6 +78,11 @@ exports.updateVehicle = async (req, res) => {
 
         if (!vehicle) {
             return res.status(404).json({ success: false, message: 'Không tìm thấy xe.' });
+        }
+
+        // FIXED: Validation for update
+        if (req.body.type && !['XeMay', 'Oto', 'XeDapDien'].includes(req.body.type)) {
+            return res.status(400).json({ message: 'Loại xe không hợp lệ.' });
         }
 
         await vehicle.update(req.body);

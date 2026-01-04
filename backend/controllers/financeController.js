@@ -27,16 +27,24 @@ exports.getFeeTypeById = asyncHandler(async (req, res) => {
 exports.createFeeType = asyncHandler(async (req, res) => {
   const { name, unit, price, description, category } = req.body;
 
-  if (!name || !unit || price === undefined) {
-    return res.status(400).json({
-      success: false,
-      message: 'Các trường bắt buộc: Tên, Đơn vị, Đơn giá.'
-    });
+  // FIXED: Improved Validation for Name and Unit
+  if (!name || typeof name !== 'string' || name.trim().length === 0) {
+    return res.status(400).json({ success: false, message: 'Tên loại phí không được để trống.' });
+  }
+  if (!unit || typeof unit !== 'string' || unit.trim().length === 0) {
+    return res.status(400).json({ success: false, message: 'Đơn vị không được để trống.' });
+  }
+  if (price === undefined || isNaN(price) || price < 0) {
+    return res.status(400).json({ success: false, message: 'Đơn giá phải là số dương hợp lệ.' });
   }
 
+  // Sanitization: Trim whitespace and remove scripts
+  const sanitizedName = name.trim().replace(/<[^>]*>?/gm, '');
+  const sanitizedUnit = unit.trim().replace(/<[^>]*>?/gm, '');
+
   const newFeeType = await FeeType.create({
-    name,
-    unit,
+    name: sanitizedName,
+    unit: sanitizedUnit,
     price,
     description,
     category: category || 'mandatory'
@@ -52,6 +60,14 @@ exports.updateFeeType = asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
   }
 
+  // FIXED: Validation for updates
+  if (req.body.name !== undefined && (typeof req.body.name !== 'string' || req.body.name.trim().length === 0)) {
+    return res.status(400).json({ message: 'Tên loại phí không được để rỗng.' });
+  }
+  if (req.body.unit !== undefined && (typeof req.body.unit !== 'string' || req.body.unit.trim().length === 0)) {
+    return res.status(400).json({ message: 'Đơn vị không được để rỗng.' });
+  }
+
   await feeType.update(req.body);
   res.status(200).json({ success: true, message: 'Cập nhật thành công!', data: feeType });
 });
@@ -63,20 +79,16 @@ exports.deleteFeeType = asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
   }
 
-  // Check if being used
-  const periodFeeCount = await PeriodFee.count({ where: { feeTypeId: req.params.id } });
-  if (periodFeeCount > 0) {
-    return res.status(400).json({
-      success: false,
-      message: `Không thể xóa: Đang được sử dụng trong ${periodFeeCount} đợt thu phí.`
-    });
-  }
+  // FIXED: Enhanced Dependency Checks for Integrity
+  const [periodFeeCount, invoiceDetailCount] = await Promise.all([
+    PeriodFee.count({ where: { feeTypeId: req.params.id } }),
+    InvoiceDetail.count({ where: { feeTypeId: req.params.id } })
+  ]);
 
-  const invoiceDetailCount = await InvoiceDetail.count({ where: { feeTypeId: req.params.id } });
-  if (invoiceDetailCount > 0) {
+  if (periodFeeCount > 0 || invoiceDetailCount > 0) {
     return res.status(400).json({
       success: false,
-      message: `Không thể xóa: Đang có ${invoiceDetailCount} hóa đơn chi tiết liên quan.`
+      message: `Không thể xóa: Loại phí này đang được liên kết với ${periodFeeCount} đợt thu hoặc ${invoiceDetailCount} hóa đơn chi tiết.`
     });
   }
 

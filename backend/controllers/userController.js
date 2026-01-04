@@ -85,9 +85,22 @@ exports.deleteUser = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
     }
 
-    // Luồng thay thế UC017: Kiểm tra vai trò quản trị
+    // FIXED: Check for Last Admin Lockout
     const userRoles = user.Roles.map(role => role.name.toLowerCase());
-    const adminRoles = ['admin', 'to_truong', 'to_pho'];
+    if (userRoles.includes('admin')) {
+      const adminCount = await User.count({
+        include: [{
+          model: Role,
+          where: { name: 'admin' }
+        }],
+        where: { status: { [Op.ne]: 'deleted' } }
+      });
+      if (adminCount <= 1) {
+        return res.status(403).json({ success: false, message: 'Không thể xóa tài khoản Admin duy nhất của hệ thống.' });
+      }
+    }
+
+    const adminRoles = ['to_truong', 'to_pho'];
     if (userRoles.some(role => adminRoles.includes(role))) {
       return res.status(403).json({ success: false, message: 'Không thể xóa tài khoản có vai trò quản trị.' });
     }
@@ -115,6 +128,11 @@ exports.assignRoleToUser = async (req, res) => {
     const { userId } = req.params;
     const { roleId } = req.body;
 
+    // FIXED: Validation for roleId type
+    if (!roleId || (typeof roleId !== 'number' && typeof roleId !== 'string')) {
+      return res.status(400).json({ success: false, message: 'Vai trò không hợp lệ.' });
+    }
+
     // Lấy thông tin về người đang thực hiện hành động từ token (đã được middleware `protect` thêm vào)
     const actor = req.user;
 
@@ -141,6 +159,12 @@ exports.assignRoleToUser = async (req, res) => {
       // Nếu vai trò sắp được gán không nằm trong danh sách cho phép, từ chối.
       if (!allowedRolesToAssign.includes(roleToAssign.name.toLowerCase())) {
         return res.status(403).json({ success: false, message: 'Bạn không có quyền gán vai trò này.' });
+      }
+
+      // FIXED: Prevent staff from modifying other Admins
+      const targetRoles = await userToUpdate.getRoles();
+      if (targetRoles.some(r => r.name === 'admin')) {
+        return res.status(403).json({ message: 'Chỉ Admin mới có quyền thao tác trên tài khoản Admin khác.' });
       }
     }
 

@@ -1,22 +1,56 @@
 const { User, Role, sequelize } = require('../models');
 const { comparePassword } = require('../utils/passwordUtils');
 const { generateToken } = require('../utils/jwtUtils');
+const { sanitizeHtml, isValidUsername, isValidPassword, isValidName, isValidEmail } = require('../utils/validationUtils');
 
 exports.register = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { username, password, fullName, roleId } = req.body;
+    const { username, password, fullName, email, roleId } = req.body;
 
+    // FIXED: Validation
     if (!username || !password || !fullName || !roleId) {
-      return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin, bao gồm cả vai trò.' });
+      return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin.' });
     }
+
+    if (typeof username !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'Dữ liệu không hợp lệ.' });
+    }
+
+    // FIXED: Username validation (3-50 chars, alphanumeric)
+    if (!isValidUsername(username)) {
+      return res.status(400).json({ message: 'Tên đăng nhập phải từ 3-50 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới.' });
+    }
+
+    // FIXED: Password validation
+    if (!isValidPassword(password)) {
+      return res.status(400).json({ message: 'Mật khẩu phải từ 6-100 ký tự.' });
+    }
+
+    // FIXED: FullName validation with sanitization
+    if (!isValidName(fullName, 2, 100)) {
+      return res.status(400).json({ message: 'Họ tên phải từ 2-100 ký tự.' });
+    }
+
+    // FIXED: Email format validation (if provided)
+    if (email && !isValidEmail(email)) {
+      return res.status(400).json({ message: 'Email không đúng định dạng.' });
+    }
+
+    // FIXED: Privilege Escalation check
+    if (Number(roleId) === 1) {
+      return res.status(403).json({ message: 'Bạn không có quyền đăng ký vai trò quản trị viên.' });
+    }
+
+    // Sanitize fullName
+    const sanitizedFullName = sanitizeHtml(fullName);
 
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
       return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại.' });
     }
 
-    const newUser = await User.create({ username, password, fullName }, { transaction: t });
+    const newUser = await User.create({ username, password, fullName: sanitizedFullName, email }, { transaction: t });
 
     const role = await Role.findByPk(roleId);
     if (role) {
@@ -35,7 +69,6 @@ exports.register = async (req, res) => {
     });
   } catch (error) {
     await t.rollback();
-    console.error('LỖI KHI ĐĂNG KÝ:', error);
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
@@ -43,6 +76,11 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
+
+    // FIXED: Type Juggling check
+    if (typeof username !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ success: false, message: 'Định dạng dữ liệu không hợp lệ.' });
+    }
 
     const user = await User.findOne({
       where: { username },
@@ -57,14 +95,14 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng.' });
     }
 
-    // Kiểm tra trạng thái người dùng
+    // FIXED: Trạng thái người dùng
     if (user.status === 'locked') {
-        return res.status(403).json({ success: false, message: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' });
+      return res.status(403).json({ success: false, message: 'Tài khoản của bạn đã bị khóa.' });
     }
     if (user.status === 'deleted') {
-        return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
+      return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
     }
-    
+
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng.' });
@@ -83,7 +121,6 @@ exports.login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('LỖI KHI ĐĂNG NHẬP:', error);
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };

@@ -41,10 +41,24 @@ exports.updateMyProfile = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Người dùng không tồn tại.' });
         }
 
-        // Only allow updating contact info
-        await user.update({ email, phone_number });
+        // FIXED: Mass Assignment Protection - Only allow specific fields
+        const allowedUpdates = ['email', 'phone_number', 'fullName'];
+        const updateData = {};
 
-        res.status(200).json({ success: true, message: 'Cập nhật thành công!', data: { email, phone_number } });
+        Object.keys(req.body).forEach(key => {
+            if (allowedUpdates.includes(key)) {
+                updateData[key] = req.body[key];
+            }
+        });
+
+        // Prevention of role escalation
+        if (req.body.roleId || req.body.roles || req.body.status) {
+            return res.status(403).json({ message: 'Bạn không có quyền cập nhật các trường hệ thống nhạy cảm.' });
+        }
+
+        await user.update(updateData);
+
+        res.status(200).json({ success: true, message: 'Cập nhật thành công!', data: updateData });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
     }
