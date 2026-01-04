@@ -85,7 +85,7 @@ const ROLES = [
         permissions: PERMISSIONS.map(p => p.code) // Admin has ALL permissions
     },
     {
-        name: 'to_truong',
+        name: 'manager',
         displayName: 'Tổ Trưởng',
         description: 'Quản lý nhân khẩu, hộ khẩu',
         permissions: [
@@ -101,7 +101,7 @@ const ROLES = [
         ]
     },
     {
-        name: 'to_pho',
+        name: 'deputy',
         displayName: 'Tổ Phó',
         description: 'Hỗ trợ Tổ Trưởng, không được xóa dữ liệu',
         permissions: [
@@ -116,7 +116,7 @@ const ROLES = [
         ]
     },
     {
-        name: 'ke_toan',
+        name: 'accountant',
         displayName: 'Kế Toán',
         description: 'Quản lý tài chính, thu phí',
         permissions: [
@@ -129,7 +129,7 @@ const ROLES = [
         ]
     },
     {
-        name: 'cu_dan',
+        name: 'resident',
         displayName: 'Cư Dân',
         description: 'Tra cứu thông tin cá nhân và hóa đơn',
         permissions: [

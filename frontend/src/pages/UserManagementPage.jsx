@@ -23,6 +23,27 @@ const UserManagementPage = () => {
   const [roleToAssign, setRoleToAssign] = useState('');
   const [householdToAssign, setHouseholdToAssign] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ username: '', fullName: '', email: '', password: '', roleId: '' });
+
+  const handleCreateUser = async () => {
+    if (!newUser.username || !newUser.password || !newUser.fullName || !newUser.roleId) {
+      alert('Vui lòng điền đầy đủ thông tin bắt buộc.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await userService.createUser(newUser);
+      setIsCreateModalOpen(false);
+      setNewUser({ username: '', fullName: '', email: '', password: '', roleId: '' });
+      alert('Tạo tài khoản thành công!');
+      fetchUsers();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Tạo tài khoản thất bại.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -120,9 +141,15 @@ const UserManagementPage = () => {
           />
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
         </div>
+
+        <button onClick={() => setIsCreateModalOpen(true)} className="premium-button-primary py-2 px-4 whitespace-nowrap text-sm flex items-center gap-2 font-bold">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" /></svg>
+          Thêm tài khoản
+        </button>
+
         <select className="premium-input bg-dark-950/30 py-2 w-auto min-w-[160px]" value={selectedRoleFilter} onChange={(e) => setSelectedRoleFilter(e.target.value)}>
           <option value="">Tất cả vai trò</option>
-          {allRoles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
+          {allRoles.map(r => <option key={r.id} value={r.name}>{r.displayName || r.name}</option>)}
         </select>
         <select className="premium-input bg-dark-950/30 py-2 w-auto min-w-[160px]" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
           <option value="">Tất cả trạng thái</option>
@@ -196,24 +223,54 @@ const UserManagementPage = () => {
       </div>
 
       {/* Modals - Common Transition Logic */}
-      {(isRoleModalOpen || isHouseholdModalOpen) && (
+      {(isRoleModalOpen || isHouseholdModalOpen || isCreateModalOpen) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-dark-950/80 backdrop-blur-sm" onClick={() => { setIsRoleModalOpen(false); setIsHouseholdModalOpen(false); }}></div>
+          <div className="absolute inset-0 bg-dark-950/80 backdrop-blur-sm" onClick={() => { setIsRoleModalOpen(false); setIsHouseholdModalOpen(false); setIsCreateModalOpen(false); }}></div>
           <div className="relative w-full max-w-md glass-card rounded-3xl overflow-hidden shadow-2xl animate-page-transition-enter-active p-8 space-y-6">
             <div className="space-y-1">
               <h2 className="text-xl font-outfit font-black text-white">
-                {isRoleModalOpen ? 'Phân quyền hệ thống' : 'Liên kết hộ khẩu'}
+                {isCreateModalOpen ? 'Tạo tài khoản mới' : isRoleModalOpen ? 'Phân quyền hệ thống' : 'Liên kết hộ khẩu'}
               </h2>
-              <p className="text-dark-500 text-xs font-bold uppercase tracking-widest">Tài khoản: {selectedUser?.fullName}</p>
+              {!isCreateModalOpen && <p className="text-dark-500 text-xs font-bold uppercase tracking-widest">Tài khoản: {selectedUser?.fullName}</p>}
             </div>
 
-            {isRoleModalOpen ? (
+            {isCreateModalOpen ? (
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Tên đăng nhập*</label>
+                  <input className="premium-input bg-dark-950/40" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} placeholder="VD: manager01" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Mật khẩu*</label>
+                  <input type="password" className="premium-input bg-dark-950/40" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} placeholder="••••••••" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Họ và tên*</label>
+                  <input className="premium-input bg-dark-950/40" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} placeholder="Nguyễn Văn A" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Email</label>
+                  <input className="premium-input bg-dark-950/40" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} placeholder="email@example.com" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Vai trò khởi tạo*</label>
+                  <select className="premium-input bg-dark-950/40" value={newUser.roleId} onChange={e => setNewUser({ ...newUser, roleId: e.target.value })}>
+                    <option value="" disabled className="bg-dark-900">-- Chọn vai trò --</option>
+                    {allRoles.map(r => <option key={r.id} value={r.id} className="bg-dark-900">{r.displayName || r.name}</option>)}
+                  </select>
+                </div>
+                <div className="pt-4 flex justify-end gap-3">
+                  <button onClick={() => setIsCreateModalOpen(false)} className="px-4 py-2 text-dark-400 hover:text-white font-bold text-sm">Hủy</button>
+                  <button onClick={handleCreateUser} disabled={isSubmitting} className="premium-button-primary py-2 px-6 text-sm">Tạo mới</button>
+                </div>
+              </div>
+            ) : isRoleModalOpen ? (
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Chọn vai trò bổ sung</label>
                   <select className="premium-input bg-dark-950/40" value={roleToAssign} onChange={(e) => setRoleToAssign(e.target.value)}>
                     <option value="" disabled className="bg-dark-900">-- Chọn vai trò --</option>
-                    {allRoles.map(r => <option key={r.id} value={r.id} className="bg-dark-900">{r.name}</option>)}
+                    {allRoles.map(r => <option key={r.id} value={r.id} className="bg-dark-900">{r.displayName || r.name}</option>)}
                   </select>
                 </div>
                 <div className="pt-4 flex justify-end gap-3">

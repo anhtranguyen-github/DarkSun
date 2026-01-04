@@ -37,11 +37,6 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email không đúng định dạng.' });
     }
 
-    // FIXED: Privilege Escalation check
-    if (Number(roleId) === 1) {
-      return res.status(403).json({ message: 'Bạn không có quyền đăng ký vai trò quản trị viên.' });
-    }
-
     // Sanitize fullName
     const sanitizedFullName = sanitizeHtml(fullName);
 
@@ -50,15 +45,22 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại.' });
     }
 
-    const newUser = await User.create({ username, password, fullName: sanitizedFullName, email }, { transaction: t });
-
     const role = await Role.findByPk(roleId);
-    if (role) {
-      await newUser.addRole(role, { transaction: t });
-    } else {
+    if (!role) {
       await t.rollback();
-      return res.status(400).json({ message: 'Vai trò được chọn không hợp lệ.' });
+      return res.status(400).json({ message: 'Vai trò không tồn tại.' });
     }
+
+    // SECURITY CHECK: Public registration only allows 'resident'
+    if (role.name !== 'resident') {
+      await t.rollback();
+      return res.status(403).json({
+        message: 'Bạn chỉ có thể đăng ký tài khoản Cư Dân. Vui lòng liên hệ Admin để cấp quyền quản lý.'
+      });
+    }
+
+    const newUser = await User.create({ username, password, fullName: sanitizedFullName, email }, { transaction: t });
+    await newUser.addRole(role, { transaction: t });
 
     await t.commit();
 

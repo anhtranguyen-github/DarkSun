@@ -5,6 +5,8 @@ export const getAllUsers = (params = {}) => {
   return apiClient.get('/users', { params });
 };
 
+export const createUser = (userData) => apiClient.post('/users', userData);
+
 export const assignRole = (userId, roleId) => apiClient.post(`/users/${userId}/assign-role`, { roleId });
 
 // Dùng PATCH vì chúng ta chỉ cập nhật một phần của resource (trạng thái)

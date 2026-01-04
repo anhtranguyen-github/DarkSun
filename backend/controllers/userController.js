@@ -1,6 +1,7 @@
 // controllers/userController.js
 const { User, Role, Household } = require('../models');
 const { Op } = require('sequelize');
+const { sanitizeHtml, isValidUsername, isValidPassword, isValidName, isValidEmail } = require('../utils/validationUtils');
 /**
  * GET: Lấy danh sách tất cả người dùng, bao gồm cả vai trò của họ.
  */
@@ -224,5 +225,60 @@ exports.assignHouseholdToUser = async (req, res) => {
   } catch (error) {
     console.error("LỖI KHI GÁN HỘ KHẨU:", error);
     res.status(500).json({ success: false, message: 'Lỗi server khi gán hộ khẩu.', error: error.message });
+  }
+};
+
+/**
+ * POST: Tạo người dùng mới (Dành cho Admin - Full Access)
+ */
+exports.createUser = async (req, res) => {
+  try {
+    const { username, password, fullName, email, roleId } = req.body;
+
+    // Basic Validation
+    if (!username || !password || !fullName || !roleId) {
+      return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin: username, password, fullName, roleId.' });
+    }
+
+    if (!isValidUsername(username)) return res.status(400).json({ message: 'Tên đăng nhập không hợp lệ (3-50 ký tự, a-z0-9_).' });
+    if (!isValidPassword(password)) return res.status(400).json({ message: 'Mật khẩu phải từ 6 ký tự.' });
+    if (!isValidName(fullName)) return res.status(400).json({ message: 'Họ tên không hợp lệ.' });
+    if (email && !isValidEmail(email)) return res.status(400).json({ message: 'Email không đúng định dạng.' });
+
+    // Check duplicate user
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại.' });
+
+    // Validate Role
+    const role = await Role.findByPk(roleId);
+    if (!role) return res.status(400).json({ message: 'Vai trò không tồn tại.' });
+
+    // Sanitize
+    const sanitizedFullName = sanitizeHtml(fullName);
+
+    // Create User
+    const newUser = await User.create({
+      username,
+      password,
+      fullName: sanitizedFullName,
+      email,
+      status: 'active'
+    });
+
+    await newUser.addRole(role);
+
+    res.status(201).json({
+      success: true,
+      message: `Tạo tài khoản ${username} thành công.`,
+      data: {
+        id: newUser.id,
+        username: newUser.username,
+        role: role.name
+      }
+    });
+
+  } catch (error) {
+    console.error("CREATE USER ERROR:", error);
+    res.status(500).json({ success: false, message: 'Lỗi server khi tạo người dùng.', error: error.message });
   }
 };

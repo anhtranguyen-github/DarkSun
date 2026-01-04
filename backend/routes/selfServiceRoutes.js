@@ -8,7 +8,7 @@ router.use(protect);
 
 // All authenticated users can access their own data
 // (The authorize middleware checks for any of the listed roles)
-const anyAuthenticatedRole = ['admin', 'to_truong', 'to_pho', 'ke_toan', 'cu_dan'];
+const anyAuthenticatedRole = ['admin', 'manager', 'deputy', 'accountant', 'resident'];
 
 // GET my profile (user info + household)
 router.get('/profile', authorize(...anyAuthenticatedRole), selfServiceController.getMyProfile);

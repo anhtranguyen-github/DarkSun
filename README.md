@@ -22,19 +22,30 @@ Run:
 
 ---
 
-## 🔑 Demo Accounts
+### 🔑 Demo Accounts
 All accounts use the default password: **`password123`**
 
-| Role | Username | Permissions |
+| Role (EN/VN) | Username | Permissions |
 | :--- | :--- | :--- |
-| **Master Admin** | `admin123` | Full Audit & System Control |
-| **Admin (Demo)** | `demo_admin` | Full System Access |
-| **Accountant** | `demo_ketoan` | Billing, Fee Mgmt, Invoices |
-| **Manager** | `demo_totruong` | Resident & Household Mgmt |
-| **Deputy Manager** | `demo_topho` | Assistant Management |
-| **Resident** | `demo_cudan` | View personal bills & Profile |
+| **Admin** (Quản trị viên) | `admin123` | Full Audit & System Control |
+| **Manager** (Tổ Trưởng) | `demo_manager` | Resident & Household Mgmt |
+| **Accountant** (Kế Toán) | `demo_accountant` | Billing, Fee Mgmt, Invoices |
+| **Deputy** (Tổ Phó) | `demo_deputy` | Assistant Management |
+| **Resident** (Cư Dân) | `demo_resident` | View personal bills & Profile |
 
-> **Note:** All passwords have been unified to **`password123`**. If you cannot log in, please ensure you have run the launcher (`run.sh` / `run.bat`) at least once to synchronize the database roles.
+> **Note:** We have standardized role codes to English (`manager`, `resident`...) while keeping Vietnamese display names. If you cannot log in, please restart the server.
+
+---
+
+## 🔥 New Features (v2.1)
+- **Enhanced Security**: 
+  - Restricted public registration to **Residents** only (Anti-Privilege Escalation).
+  - Admins must now explicitly create Manager/Accountant accounts via Dashboard or API.
+- **Admin Dashboard**:
+  - New "Create User" interface for direct staff account provisioning.
+  - Localized role display names (Tổ Trưởng, Kế Toán...).
+- **Role Standardization**: 
+  - Unified RBAC system using standard English identifiers across Backend/Database.
 
 ---
 

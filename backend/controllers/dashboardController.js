@@ -14,9 +14,44 @@ const getRelativeTime = (date) => {
 // Lấy các chỉ số thống kê chính cho Dashboard
 exports.getDashboardStats = async (req, res) => {
   try {
-    // FIXED: Privilege check context
-    const isAccountant = req.user.roles.includes('accountant');
-    const isAdmin = req.user.roles.includes('admin') || req.user.roles.includes('manager');
+    // Check roles
+    const userRoles = req.user.roles || [];
+    const isAccountant = userRoles.includes('accountant');
+    const isManager = userRoles.includes('manager');
+    const isAdmin = userRoles.includes('admin');
+    const isLanhDao = isAdmin || isManager;
+    const isResident = userRoles.includes('resident') && !isLanhDao && !isAccountant;
+
+    // Nếu là cư dân thường (không kiêm nhiệm quản lý), trả về thông tin hạn chế hoặc dashboard cá nhân
+    if (isResident) {
+      // Lấy thông tin hộ khẩu của user này để hiển thị dashboard cá nhân
+      const user = await User.findOne({
+        where: { id: req.user.id },
+        include: [
+          {
+            model: Household,
+            include: [{ model: Vehicle }, { model: Resident }]
+          }
+        ]
+      });
+
+      const myHousehold = user?.Household;
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalResidents: myHousehold?.Residents?.length || 0,
+          totalHouseholds: 1, // Hộ gia đình của mình
+          totalVehicles: myHousehold?.Vehicles?.length || 0,
+          activeFeePeriods: 0, // Không cần hiển thị cho cư dân ở dashboard chính
+          recentActivities: [], // Không show log hệ thống cho cư dân
+          financialSummary: null,
+          staffList: [], // Không show list nhân viên
+          // Custom message for Resident Dashboard
+          welcomeMessage: `Chào mừng cư dân ${user?.fullName || ''}!`
+        }
+      });
+    }
 
     // OPTIMIZATION: Use Promise.all for parallel queries
     const queries = [
@@ -34,7 +69,6 @@ exports.getDashboardStats = async (req, res) => {
     ] = await Promise.all(queries);
 
     // Filter recent activities based on role if necessary
-    // For now, accountant can see basic stats but maybe limited details
     const recentResidents = await Resident.findAll({
       limit: 5,
       order: [['createdAt', 'DESC']],
@@ -49,12 +83,16 @@ exports.getDashboardStats = async (req, res) => {
       type: r.relationship === 'Chủ hộ' ? 'success' : 'info'
     }));
 
-    // Accountant should primarily see financial summaries (mocked or added as requested)
+    // Accountant sees financial summaries
     let financialSummary = null;
-    if (isAccountant || isAdmin) {
+    if (isAccountant || isLanhDao) {
+      // Mock data or real calculation
+      const paidInvoices = await Invoice.sum('totalAmount', { where: { status: 'paid' } }) || 0;
+      const unpaidCount = await Invoice.count({ where: { status: 'unpaid' } });
+
       financialSummary = {
-        totalRevenue: 150000000, // Example data
-        unpaidInvoices: await Invoice.count({ where: { status: 'unpaid' } })
+        totalRevenue: paidInvoices,
+        unpaidInvoices: unpaidCount
       };
     }
 

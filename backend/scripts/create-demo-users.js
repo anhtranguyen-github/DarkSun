@@ -10,10 +10,10 @@ async function createDemoUsers() {
         // 1. Define Core Roles (v2.0)
         const rolesDef = [
             { name: 'admin', displayName: 'Quản Trị Viên' },
-            { name: 'to_truong', displayName: 'Tổ Trưởng' },
-            { name: 'to_pho', displayName: 'Tổ Phó' },
-            { name: 'ke_toan', displayName: 'Kế Toán' },
-            { name: 'cu_dan', displayName: 'Cư Dân' }
+            { name: 'manager', displayName: 'Tổ Trưởng' },
+            { name: 'deputy', displayName: 'Tổ Phó' },
+            { name: 'accountant', displayName: 'Kế Toán' },
+            { name: 'resident', displayName: 'Cư Dân' }
         ];
 
         console.log('\n=== KHỞI TẠO VAI TRÒ (ROLES) ===');
@@ -35,10 +35,10 @@ async function createDemoUsers() {
         const demoAccounts = [
             { role: 'admin', username: 'admin123', fullName: 'Master Admin' },
             { role: 'admin', username: 'demo_admin', fullName: 'Demo Admin' },
-            { role: 'to_truong', username: 'demo_totruong', fullName: 'Demo Tổ Trưởng' },
-            { role: 'to_pho', username: 'demo_topho', fullName: 'Demo Tổ Phó' },
-            { role: 'ke_toan', username: 'demo_ketoan', fullName: 'Demo Kế Toán' },
-            { role: 'cu_dan', username: 'demo_cudan', fullName: 'Demo Cư Dân' }
+            { role: 'manager', username: 'demo_manager', fullName: 'Demo Tổ Trưởng' },
+            { role: 'deputy', username: 'demo_deputy', fullName: 'Demo Tổ Phó' },
+            { role: 'accountant', username: 'demo_accountant', fullName: 'Demo Kế Toán' },
+            { role: 'resident', username: 'demo_resident', fullName: 'Demo Cư Dân' }
         ];
 
         console.log('\n=== TẠO TÀI KHOẢN DEMO (Pass: password123) ===');

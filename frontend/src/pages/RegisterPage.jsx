@@ -3,6 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../services/authService';
 import { getAllRoles } from '../services/roleService';
 
+const ROLE_NAMES = {
+  'admin': 'Quản Trị Viên',
+  'manager': 'Tổ Trưởng',
+  'deputy': 'Tổ Phó',
+  'accountant': 'Kế Toán',
+  'resident': 'Cư Dân'
+};
+
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -19,7 +27,20 @@ const RegisterPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getAllRoles().then(res => setRoles(res.data.data)).catch(() => setError("Lỗi tải danh sách vai trò."));
+    getAllRoles()
+      .then(res => {
+        console.log("Roles fetched:", res.data.data);
+        setRoles(res.data.data);
+        // Auto-select Resident role
+        const residentRole = res.data.data.find(r => r.name === 'resident');
+        if (residentRole) {
+          setFormData(prev => ({ ...prev, roleId: residentRole.id }));
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Lỗi tải danh sách vai trò.");
+      });
   }, []);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,7 +48,7 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.roleId) {
-      setError("Vui lòng chọn vai trò truy cập.");
+      setError("Hệ thống chưa tải xong vai trò Cư Dân. Vui lòng thử tải lại trang.");
       return;
     }
 
@@ -57,7 +78,7 @@ const RegisterPage = () => {
               Quay lại đăng nhập
             </Link>
             <h2 className="text-3xl font-outfit font-black text-white">Tham gia BlueMoon</h2>
-            <p className="text-dark-400 text-sm">Điền thông tin bên dưới để đăng ký tài khoản mới.</p>
+            <p className="text-dark-400 text-sm">Điền thông tin bên dưới để đăng ký tài khoản Cư Dân mới.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -86,15 +107,7 @@ const RegisterPage = () => {
                 <input name="fullName" value={formData.fullName} onChange={handleChange} required className="premium-input bg-dark-950/40" placeholder="Nguyễn Văn A" />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Vai trò hệ thống*</label>
-                <select name="roleId" value={formData.roleId} onChange={handleChange} required className="premium-input bg-dark-950/40 appearance-none">
-                  <option value="" disabled className="bg-dark-900">-- Chọn vai trò --</option>
-                  {roles.map(r => (
-                    <option key={r.id} value={r.id} className="bg-dark-900">{r.name}</option>
-                  ))}
-                </select>
-              </div>
+              {/* Role selection hidden - auto select Resident */}
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Mật khẩu*</label>

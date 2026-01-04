@@ -126,7 +126,7 @@ const LoginPage = () => {
 
             <div className="pt-4 text-center">
               <p className="text-dark-400 text-sm">
-                Chưa có tài khoản? <Link to="/register" className="text-primary-400 font-bold hover:underline">Liên hệ quản trị viên</Link>
+                Chưa có tài khoản? <Link to="/register" className="text-primary-400 font-bold hover:text-primary-300 transition-colors ml-1">Đăng ký tài khoản mới</Link>
               </p>
             </div>
           </form>

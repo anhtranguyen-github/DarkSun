@@ -53,14 +53,14 @@ echo "=== 1. AUTHENTICATION ==="
 ADMIN_TOKEN=$(get_token "demo_admin")
 if [ -n "$ADMIN_TOKEN" ]; then echo "✅ Admin login success"; else echo "❌ Admin login failed"; fi
 
-MANAGER_TOKEN=$(get_token "demo_totruong")
+MANAGER_TOKEN=$(get_token "demo_manager")
 if [ -n "$MANAGER_TOKEN" ]; then echo "✅ Manager login success"; else echo "❌ Manager login failed"; fi
 
-ACCOUNTANT_TOKEN=$(get_token "demo_ketoan")
+ACCOUNTANT_TOKEN=$(get_token "demo_accountant")
 if [ -n "$ACCOUNTANT_TOKEN" ]; then echo "✅ Accountant login success"; else echo "❌ Accountant login failed"; fi
 
-CUDAN_TOKEN=$(get_token "demo_cudan")
-if [ -n "$CUDAN_TOKEN" ]; then echo "✅ Cư Dân login success"; else echo "❌ Cư Dân login failed"; fi
+RESIDENT_TOKEN=$(get_token "demo_resident")
+if [ -n "$RESIDENT_TOKEN" ]; then echo "✅ Resident login success"; else echo "❌ Resident login failed"; fi
 
 # ===========================
 # 2. RBAC Tests
@@ -83,11 +83,11 @@ test_endpoint "GET" "/households" "$MANAGER_TOKEN" "" "success" "Manager can acc
 test_endpoint "GET" "/fee-types" "$ACCOUNTANT_TOKEN" "" "success" "Accountant can access /fee-types"
 
 # Test: Cư Dân CANNOT access households
-response=$(curl -s -X GET "$BASE_URL/households" -H "Authorization: Bearer $CUDAN_TOKEN")
+response=$(curl -s -X GET "$BASE_URL/households" -H "Authorization: Bearer $RESIDENT_TOKEN")
 if echo "$response" | grep -q "403\|không có quyền"; then
-    echo "✅ PASS: Cư Dân CANNOT access /households (403)"
+    echo "✅ PASS: Resident CANNOT access /households (403)"
 else
-    echo "❌ FAIL: Cư Dân should NOT access /households"
+    echo "❌ FAIL: Resident should NOT access /households"
 fi
 
 # Test: Accountant CANNOT create household (Manager domain)
@@ -107,9 +107,9 @@ fi
 echo ""
 echo "=== 3. SELF-SERVICE (Cổng Cư Dân) ==="
 
-test_endpoint "GET" "/me/profile" "$CUDAN_TOKEN" "" "success.*demo_cudan" "Cư Dân can view their profile"
-test_endpoint "GET" "/me/invoices" "$CUDAN_TOKEN" "" "success" "Cư Dân can view their invoices"
-test_endpoint "PUT" "/me/profile" "$CUDAN_TOKEN" '{"email":"cudan@example.com"}' "success" "Cư Dân can update their email"
+test_endpoint "GET" "/me/profile" "$RESIDENT_TOKEN" "" "success.*demo_resident" "Resident can view their profile"
+test_endpoint "GET" "/me/invoices" "$RESIDENT_TOKEN" "" "success" "Resident can view their invoices"
+test_endpoint "PUT" "/me/profile" "$RESIDENT_TOKEN" '{"email":"resident@example.com"}' "success" "Resident can update their email"
 
 # ===========================
 # 4. CRUD Operations
@@ -135,7 +135,8 @@ fi
 echo ""
 echo "=== 5. Statistics ==="
 
-test_endpoint "GET" "/dashboard/stats" "$ADMIN_TOKEN" "" "success\|200" "Dashboard stats accessible"
+test_endpoint "GET" "/dashboard/stats" "$ADMIN_TOKEN" "" "success\|200" "Dashboard stats accessible (Admin)"
+test_endpoint "GET" "/dashboard/stats" "$RESIDENT_TOKEN" "" "success\|200" "Dashboard stats accessible (Resident)"
 
 echo ""
 echo "==============================================="
