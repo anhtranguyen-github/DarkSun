@@ -77,10 +77,7 @@ const DashboardPage = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="premium-button-secondary py-2.5 px-4 text-sm">
-            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-            Xuất báo cáo
-          </button>
+
           <button className="premium-button-primary py-2.5 px-4 text-sm">
             <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             Thu phí mới
@@ -123,29 +120,7 @@ const DashboardPage = () => {
         />
       </div>
 
-      {/* Main Section */}
-      <div className="w-full">
-        {/* Revenue Overview Chart Area */}
-        <div className="glass-card rounded-2xl p-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-outfit font-bold">Doanh thu thu phí</h3>
-            <select className="bg-dark-950/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-dark-300 focus:outline-none">
-              <option>Năm 2024</option>
-              <option>Năm 2023</option>
-            </select>
-          </div>
-          <div className="h-[320px] w-full flex items-center justify-center rounded-xl bg-dark-950/40 border border-white/5 relative overflow-hidden group">
-            <div className="absolute inset-0 shimmer opacity-10"></div>
-            <div className="flex flex-col items-center gap-4 text-center px-12 z-10">
-              <div className="p-4 rounded-full bg-primary-500/10 text-primary-400 mb-2">
-                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 20V10" /><path d="M18 20V4" /><path d="M6 20v-4" /></svg>
-              </div>
-              <h4 className="text-white font-bold">Đang tải biểu đồ phân tích</h4>
-              <p className="text-dark-500 text-sm">Hệ thống đang đồng bộ dữ liệu hóa đơn từ tất cả các hộ khẩu trong tòa nhà.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 };
