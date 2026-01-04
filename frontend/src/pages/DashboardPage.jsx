@@ -124,9 +124,9 @@ const DashboardPage = () => {
       </div>
 
       {/* Main Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="w-full">
         {/* Revenue Overview Chart Area */}
-        <div className="lg:col-span-2 glass-card rounded-2xl p-8 space-y-6">
+        <div className="glass-card rounded-2xl p-8 space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-outfit font-bold">Doanh thu thu phí</h3>
             <select className="bg-dark-950/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-dark-300 focus:outline-none">
@@ -142,58 +142,6 @@ const DashboardPage = () => {
               </div>
               <h4 className="text-white font-bold">Đang tải biểu đồ phân tích</h4>
               <p className="text-dark-500 text-sm">Hệ thống đang đồng bộ dữ liệu hóa đơn từ tất cả các hộ khẩu trong tòa nhà.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Recent Activity & Staff */}
-        <div className="space-y-8">
-          <div className="glass-card rounded-2xl p-6 space-y-6">
-            <h3 className="text-lg font-outfit font-bold flex items-center justify-between">
-              Hoạt động gần đây
-              <span className="text-[10px] text-primary-400 hover:underline cursor-pointer">Xem tất cả</span>
-            </h3>
-            <div className="space-y-4">
-              {stats?.recentActivities && stats.recentActivities.length > 0 ? (
-                stats.recentActivities.map((item, i) => (
-                  <div key={i} className="flex gap-4 items-start group">
-                    <div className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 bg-${item.type === 'success' ? 'emerald' : 'sky'}-500 shadow-[0_0_8px_rgba(var(--color-primary),0.5)]`}></div>
-                    <div className="space-y-0.5">
-                      <p className="text-sm text-dark-200 group-hover:text-white transition-colors leading-relaxed">
-                        <span className="font-bold text-primary-400">{item.user}</span>: {item.action}
-                      </p>
-                      <span className="text-[10px] text-dark-500 font-bold uppercase tracking-wider">{item.time}</span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="py-8 text-center space-y-2">
-                  <div className="text-dark-600 text-xs font-bold uppercase tracking-widest">Không có hoạt động</div>
-                  <p className="text-dark-500 text-[10px]">Hệ thống hiện chưa ghi nhận thay đổi nào.</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 space-y-6">
-            <h3 className="text-lg font-outfit font-bold">Ban Quản trị</h3>
-            <div className="space-y-4">
-              {stats?.staffList && stats.staffList.length > 0 ? (
-                stats.staffList.map((staff, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-dark-700/50 flex items-center justify-center font-bold text-[10px] text-dark-300">
-                      {staff.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-xs font-bold text-white">{staff.name}</div>
-                      <div className="text-[10px] text-dark-500 font-medium uppercase tracking-tight">{staff.role}</div>
-                    </div>
-                    <div className={`h-1.5 w-1.5 rounded-full ${staff.active ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-dark-700'}`}></div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-dark-500 text-[10px] font-bold uppercase py-4">Đang đồng bộ nhân sự...</p>
-              )}
             </div>
           </div>
         </div>

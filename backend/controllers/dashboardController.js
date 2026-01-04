@@ -44,9 +44,7 @@ exports.getDashboardStats = async (req, res) => {
           totalHouseholds: 1, // Hộ gia đình của mình
           totalVehicles: myHousehold?.Vehicles?.length || 0,
           activeFeePeriods: 0, // Không cần hiển thị cho cư dân ở dashboard chính
-          recentActivities: [], // Không show log hệ thống cho cư dân
           financialSummary: null,
-          staffList: [], // Không show list nhân viên
           // Custom message for Resident Dashboard
           welcomeMessage: `Chào mừng cư dân ${user?.fullName || ''}!`
         }
@@ -68,21 +66,6 @@ exports.getDashboardStats = async (req, res) => {
       activeFeePeriods
     ] = await Promise.all(queries);
 
-    // Filter recent activities based on role if necessary
-    const recentResidents = await Resident.findAll({
-      limit: 5,
-      order: [['createdAt', 'DESC']],
-      include: [{ model: Household }]
-    });
-
-    const recentActivities = recentResidents.map(r => ({
-      id: r.id,
-      user: r.relationship === 'Chủ hộ' ? 'CH' : 'NK',
-      action: `Thêm nhân khẩu: ${r.fullName} vào hộ ${r.Household?.householdCode || 'N/A'}`,
-      time: getRelativeTime(r.createdAt),
-      type: r.relationship === 'Chủ hộ' ? 'success' : 'info'
-    }));
-
     // Accountant sees financial summaries
     let financialSummary = null;
     if (isAccountant || isLanhDao) {
@@ -96,17 +79,6 @@ exports.getDashboardStats = async (req, res) => {
       };
     }
 
-    // Lấy danh sách quản lý viên (nhân viên hệ thống)
-    const staffList = await User.findAll({
-      limit: 3,
-      attributes: ['fullName', 'status'],
-      include: [{
-        model: Role,
-        attributes: ['displayName'],
-        through: { attributes: [] }
-      }]
-    });
-
     res.status(200).json({
       success: true,
       data: {
@@ -114,13 +86,7 @@ exports.getDashboardStats = async (req, res) => {
         totalHouseholds,
         totalVehicles,
         activeFeePeriods,
-        recentActivities: isAccountant ? [] : recentActivities, // Mask non-financial activity for strictly financial roles if desired
-        financialSummary,
-        staffList: staffList.map(s => ({
-          name: s.fullName,
-          role: s.Roles?.[0]?.displayName || 'Nhân viên',
-          active: s.status === 'active'
-        }))
+        financialSummary
       },
     });
   } catch (error) {
