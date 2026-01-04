@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 const FeeTypeManagement = () => {
   const { user } = useAuth();
-  const canEdit = user?.roles?.includes('ke_toan') || user?.roles?.includes('admin');
+  const canEdit = user?.roles?.includes('accountant') || user?.roles?.includes('admin');
 
   const [feeTypes, setFeeTypes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');

@@ -11,7 +11,7 @@ const FeePeriodDetailPage = () => {
   const { id: feePeriodId } = useParams();
   const { user } = useAuth();
   const userRoles = user?.roles?.map(r => r.toLowerCase()) || [];
-  const canEdit = userRoles.includes('admin') || userRoles.includes('ke_toan');
+  const canEdit = userRoles.includes('admin') || userRoles.includes('accountant');
 
   const [period, setPeriod] = useState(null);
   const [periodFees, setPeriodFees] = useState([]);
