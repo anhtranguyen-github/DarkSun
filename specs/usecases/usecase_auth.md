@@ -35,24 +35,37 @@ graph LR
     Accountant --> UC_Login
     Admin --> UC_Login
 
-    %% Relationships - Authenticated Shared
-    AuthenticatedUser --> UC_ChangePass
-    AuthenticatedUser --> UC_UpdateProfile
-
-    %% Inheritance (All roles are Authenticated Users)
-    Resident -.-> AuthenticatedUser
-    Manager -.-> AuthenticatedUser
-    Deputy -.-> AuthenticatedUser
-    Accountant -.-> AuthenticatedUser
-    Admin -.-> AuthenticatedUser
+    %% Relationships - Authenticated functionalities
+    Resident --> UC_ChangePass
+    Resident --> UC_UpdateProfile
+    Manager --> UC_ChangePass
+    Manager --> UC_UpdateProfile
+    Deputy --> UC_ChangePass
+    Deputy --> UC_UpdateProfile
+    Accountant --> UC_ChangePass
+    Accountant --> UC_UpdateProfile
+    Admin --> UC_ChangePass
+    Admin --> UC_UpdateProfile
 
     %% Relationships - Management
     Manager --> UC_CRUD_User
     Manager --> UC_AssignRole
     Manager --> UC_DeleteUser
-
-    %% Relationships - Admin Specific (Inherits Manager rights implicitly or explicitly)
+    
     Admin --> UC_CRUD_User
     Admin --> UC_AssignRole
     Admin --> UC_DeleteUser
 ```
+
+## Chi tiết Use Case (Phân rã)
+
+### 1. Quản lý Tài khoản (User Account Management)
+* **Tạo tài khoản mới**: 
+    - Quản lý có thể tạo tài khoản cho Cư dân hoặc Tổ phó.
+    - **Ràng buộc**: Manager KHÔNG THỂ tạo hoặc tác động lên tài khoản Admin.
+* **Xóa tài khoản**: Thực hiện "Xóa mềm" (status = 'deleted') để đảm bảo toàn vẹn dữ liệu lịch sử.
+
+### 2. Phân quyền (Role Assignment)
+* Gán 1 hoặc nhiều vai trò cho người dùng.
+* **Ràng buộc**: Chỉ Admin mới có quyền gán vai trò "Admin". Manager chỉ có thể gán Resident, Deputy, Accountant.
+

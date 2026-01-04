@@ -18,10 +18,19 @@ graph LR
         UC_Export(["📥 Xuất Báo cáo Excel (Future)"])
     end
     
-    %% Inheritance
-    Admin -.-> Manager
-    Manager -.-> Deputy
-    Admin -.-> Accountant
+    %% Relationships - Admin (Full Access)
+    Admin --> UC_Dashboard
+    Admin --> UC_StatResident
+    Admin --> UC_StatTemp
+    Admin --> UC_StatFees
+    Admin --> UC_Export
+
+    %% Relationships - Manager (Full Access)
+    Manager --> UC_Dashboard
+    Manager --> UC_StatResident
+    Manager --> UC_StatTemp
+    Manager --> UC_StatFees
+    Manager --> UC_Export
 
     %% Relationships - Deputy (Broad Access)
     Deputy --> UC_Dashboard
@@ -35,3 +44,15 @@ graph LR
     Accountant --> UC_StatFees
     Accountant --> UC_Export
 ```
+
+## Chi tiết Use Case (Phân rã)
+
+### 1. Dashboard Analytics
+* **Biểu đồ**: Hiển thị tỷ lệ thanh toán, phân bố nhân khẩu theo độ tuổi/giới tính.
+* **Tổng quan**: Số lượng hộ khẩu, tổng số cư dân, tổng tiền đã thu trong tháng.
+
+### 2. Thống kê & Báo cáo
+* **Thống kê nhân khẩu**: Lọc theo tạm trú, tạm vắng, độ tuổi lao động.
+* **Thống kê Tài chính**: Danh sách các hộ chưa đóng phí.
+* **Xuất dữ liệu**: Hỗ trợ xuất file Excel phục vụ việc nộp báo cáo cho cấp trên hoặc lưu trữ bản cứng.
+

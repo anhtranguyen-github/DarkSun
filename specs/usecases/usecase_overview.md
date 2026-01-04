@@ -53,10 +53,11 @@ graph LR
 
     Admin --> UC_Auth
     Admin --> UC_ManageUser
+    Admin --> UC_ManageFee
+    Admin --> UC_ManageInvoice
     Admin --> UC_Stats
-    
-    %% Inheritance (Simulated)
-    Admin -.-> Manager
-    Admin -.-> Accountant
-    Manager -.-> Deputy
+    Admin --> UC_ManageVehicle
+    Admin --> UC_ManageHouse
+
+    %% Note: Detailed permission rules (Read vs Write) are defined in the decomposed Module specs.
 ```
