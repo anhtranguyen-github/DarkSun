@@ -29,49 +29,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-/**
- * PATCH: Cập nhật trạng thái người dùng (Khóa/Mở khóa)
- */
-exports.updateUserStatus = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { status } = req.body;
 
-    const user = await User.findByPk(userId, {
-      include: { model: Role }
-    });
-    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
-
-    // SECURITY: Check permissions
-    const targetRoles = user.Roles.map(r => r.name.toLowerCase());
-    const isTargetAdmin = targetRoles.includes('admin');
-    const isActorAdmin = req.user.roles.includes('admin');
-
-    if (isTargetAdmin) {
-      if (!isActorAdmin) {
-        return res.status(403).json({ success: false, message: 'Bạn không có quyền khóa tài khoản Admin.' });
-      }
-
-      // Last Admin Lockout Protection
-      if (status !== 'active') {
-        const adminCount = await User.count({
-          include: [{ model: Role, where: { name: 'admin' } }],
-          where: { status: 'active' }
-        });
-        if (adminCount <= 1 && user.status === 'active') {
-          return res.status(403).json({ success: false, message: 'Không thể khóa Admin đang hoạt động duy nhất.' });
-        }
-      }
-    }
-
-    user.status = status;
-    await user.save();
-
-    res.status(200).json({ success: true, message: 'Cập nhật trạng thái thành công.' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
-  }
-};
 
 /**
  * DELETE: Xóa mềm một người dùng (thay đổi trạng thái thành 'deleted')

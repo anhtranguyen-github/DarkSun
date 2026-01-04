@@ -9,8 +9,7 @@ export const createUser = (userData) => apiClient.post('/users', userData);
 
 export const assignRole = (userId, roleId) => apiClient.post(`/users/${userId}/assign-role`, { roleId });
 
-// Dùng PATCH vì chúng ta chỉ cập nhật một phần của resource (trạng thái)
-export const updateUserStatus = (userId, status) => apiClient.patch(`/users/${userId}/status`, { status });
+
 
 export const deleteUser = (userId) => apiClient.delete(`/users/${userId}`);
 
