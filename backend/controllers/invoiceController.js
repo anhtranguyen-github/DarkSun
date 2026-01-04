@@ -102,6 +102,37 @@ exports.generateInvoicesForPeriod = async (req, res) => {
     }
 };
 
+// GET My Invoices (For Residents - view their own household invoices)
+exports.getMyInvoices = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Get user's household
+        const user = await User.findByPk(userId);
+        if (!user || !user.householdId) {
+            return res.status(200).json({
+                success: true,
+                data: [],
+                message: 'Bạn chưa được liên kết với hộ khẩu nào.'
+            });
+        }
+
+        const invoices = await Invoice.findAll({
+            where: { householdId: user.householdId },
+            include: [
+                { model: FeePeriod, attributes: ['name', 'startDate', 'endDate'] },
+                { model: InvoiceDetail, include: [{ model: FeeType, attributes: ['name', 'unit'] }] }
+            ],
+            order: [['created_at', 'DESC']]
+        });
+
+        res.status(200).json({ success: true, data: invoices });
+    } catch (error) {
+        console.error("GET MY INVOICES ERROR:", error);
+        res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+    }
+};
+
 // RECORD Payment
 exports.recordPayment = async (req, res) => {
     try {

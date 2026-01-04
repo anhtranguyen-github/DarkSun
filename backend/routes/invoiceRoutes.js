@@ -5,6 +5,9 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.use(protect);
 
+// GET my invoices (Resident - view their own household invoices)
+router.get('/my-invoices', invoiceController.getMyInvoices);
+
 // GET all invoices (Accountant/Admin)
 router.get('/', authorize('admin', 'accountant'), invoiceController.getAllInvoices);
 
