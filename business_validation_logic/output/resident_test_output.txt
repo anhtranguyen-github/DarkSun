@@ -1,0 +1,10 @@
+--------------------------------------------------
+RUNNING COMPREHENSIVE RESIDENT TESTS
+--------------------------------------------------
+[TC-RES-03] Delete Owner Resident
+RESULT: PASS
+[TC-RES-05] IDOR: Cư dân xem thông tin hộ khác
+RESULT: FAIL (Security: IDOR allowed)
+[TC-RES-09] Stored XSS in Resident Name
+RESULT: PASS
+--------------------------------------------------

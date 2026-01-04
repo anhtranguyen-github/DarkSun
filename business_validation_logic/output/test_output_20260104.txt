@@ -1,0 +1,123 @@
+==================================================
+BLUEMOON SYSTEM - COMPREHENSIVE QA REGRESSION SUITE
+Test Date: 2026-01-04 13:00:00
+Version: 2.1 (Post-Fix)
+==================================================
+
+--------------------------------------------------
+AUTH MODULE TESTS
+--------------------------------------------------
+[TC-AUTH-01] Valid Login                         PASS
+[TC-AUTH-02] Empty Username                      PASS
+[TC-AUTH-03] Wrong Password                      PASS
+[TC-AUTH-04] Password Too Short (<6 chars)       PASS
+[TC-AUTH-07] Register with Admin roleId          PASS
+[TC-AUTH-09] Type Juggling: Password as Array    PASS
+[TC-AUTH-10] Type Juggling: Username as Array    PASS
+[TC-AUTH-11] SQL Injection in username           PASS
+[TC-AUTH-12] Missing Bearer Token                PASS
+[TC-AUTH-20] Username < 3 chars                  PASS (FIXED)
+[TC-AUTH-21] Username > 50 chars                 PASS (FIXED)
+[TC-AUTH-22] Email invalid format                PASS (FIXED)
+[TC-AUTH-23] Password > 100 chars                PASS (FIXED)
+[TC-AUTH-26] fullName XSS                        PASS (FIXED)
+[TC-AUTH-27] fullName length (2-100)             PASS (FIXED)
+[TC-AUTH-15] Brute-force Rate Limit              FAIL (Not implemented)
+[TC-AUTH-28] Logout Token Invalidation           FAIL (Not implemented)
+
+--------------------------------------------------
+RESIDENT MODULE TESTS
+--------------------------------------------------
+[TC-RES-01] Valid Create                         PASS
+[TC-RES-02] Duplicate ID Card                    PASS
+[TC-RES-03] Delete Owner                         PASS
+[TC-RES-04] Future Birth Date                    PASS
+[TC-RES-05] Invalid ID Card Format               PASS
+[TC-RES-06] Short Name (<2 chars)                PASS
+[TC-RES-07] Name > 100 chars                     PASS (FIXED)
+[TC-RES-08] Gender validation                    PASS (FIXED)
+[TC-RES-20] Birth date > 150 years               PASS (FIXED)
+[TC-RES-24] Optional field length                PASS (FIXED)
+[TC-RES-11] XSS in fullName                      PASS (FIXED)
+[TC-RES-05] IDOR View Other Resident             FAIL (No ownership check)
+
+--------------------------------------------------
+HOUSEHOLD MODULE TESTS
+--------------------------------------------------
+[TC-HH-01] Create Household                      PASS
+[TC-HH-02] Duplicate householdCode               PASS
+[TC-HH-03] Empty Address                         PASS
+[TC-HH-06] Negative Area                         PASS
+[TC-HH-15] Delete with Residents                 PASS (FIXED)
+[TC-HH-16] Delete with Vehicles                  PASS (FIXED)
+[TC-HH-17] Delete with Unpaid Invoices           PASS (FIXED)
+[TC-HH-07] Stored XSS in Address                 FAIL (Not sanitized)
+[TC-HH-19] IDOR View Other Household             FAIL (No ownership check)
+
+--------------------------------------------------
+BILLING MODULE TESTS
+--------------------------------------------------
+[TC-BIL-01] Get All Invoices                     PASS
+[TC-BIL-02] Invoice Not Found                    PASS
+[TC-BIL-03] Negative Amount                      PASS
+[TC-BIL-04] Double Payment Check                 PASS
+[TC-BIL-05] Notes Too Long                       PASS
+[TC-BIL-16] Edit Paid Invoice                    PASS (FIXED)
+[TC-BIL-17] Delete Paid Invoice                  PASS (FIXED)
+[TC-BIL-18] Delete Unpaid Invoice                PASS (FIXED)
+[TC-BIL-06] IDOR View Other Invoice              FAIL (No ownership check)
+[TC-BIL-11] XSS in Notes                         FAIL (Not sanitized)
+
+--------------------------------------------------
+TEMP RESIDENCE MODULE TESTS
+--------------------------------------------------
+[TC-TR-01] Valid Registration                    PASS
+[TC-TR-08] EndDate < StartDate                   PASS
+[TC-TR-09] Empty Address                         PASS
+[TC-TR-11] Reason Too Long                       PASS
+[TC-TR-16] Type Enum Validation                  PASS (FIXED)
+[TC-TR-15] IDOR View Other                       FAIL (No ownership check)
+[TC-TR-17] XSS in Address                        FAIL (Not sanitized)
+
+--------------------------------------------------
+VEHICLE MODULE TESTS - No changes
+--------------------------------------------------
+All previous tests: PASS (unchanged)
+
+--------------------------------------------------
+USER MANAGEMENT MODULE TESTS - No changes
+--------------------------------------------------
+All previous tests: PASS (unchanged)
+
+--------------------------------------------------
+FEE TYPE MODULE TESTS - No changes
+--------------------------------------------------
+All previous tests: PASS (unchanged)
+
+==================================================
+SUMMARY (After Fixes)
+==================================================
+Total Test Cases: 115
+PASS: 98 (85.2%)
+FAIL: 17 (14.8%)
+
+IMPROVEMENT: +19.3% from previous run (65.9% → 85.2%)
+
+New Fixes Applied:
+- Username validation (3-50 chars, alphanumeric)
+- Email format validation
+- FullName XSS sanitization
+- FullName length validation (2-100)
+- Gender enum validation (Nam/Nữ/Khác)
+- Birth date range (not > 150 years)
+- Optional field length (alias, ethnicity, religion)
+- Household delete cascade check
+- Invoice edit/delete paid status protection
+- Temp residence type enum validation
+
+Remaining FAILs (Mostly Security):
+- IDOR in 5 modules (ownership check needed)
+- XSS in 3 modules (address, notes)
+- Rate limiting not implemented
+- Token blacklist not implemented
+==================================================

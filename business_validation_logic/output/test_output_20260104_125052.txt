@@ -1,0 +1,13 @@
+==================================================
+BLUEMOON SYSTEM - COMPREHENSIVE QA REGRESSION SUITE
+==================================================
+--------------------------------------------------
+RUNNING COMPREHENSIVE AUTH TESTS
+--------------------------------------------------
+[TC-AUTH-01] Valid Login
+RESULT: FAIL
+[TC-AUTH-02] Empty Username
+RESULT: FAIL
+[TC-AUTH-03] Wrong Password
+RESULT: FAIL
+[TC-AUTH-04] Password Too Short (<6 chars)

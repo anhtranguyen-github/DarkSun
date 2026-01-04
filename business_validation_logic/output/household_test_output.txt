@@ -1,0 +1,12 @@
+--------------------------------------------------
+RUNNING COMPREHENSIVE HOUSEHOLD TESTS
+--------------------------------------------------
+[TC-HH-03] Create Household with Empty Address
+RESULT: PASS
+[TC-HH-05] Change Owner Logic Verification
+Manual verification required for reset old owner state. Reporting current behavior.
+[TC-HH-06] Negative Area Value
+RESULT: PASS
+[TC-HH-07] Stored XSS in Address
+RESULT: PASS
+--------------------------------------------------

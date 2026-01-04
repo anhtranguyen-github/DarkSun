@@ -1,0 +1,10 @@
+--------------------------------------------------
+RUNNING COMPREHENSIVE BILLING TESTS
+--------------------------------------------------
+[TC-BIL-04] Double Payment Logic check
+RESULT: FAIL (Should not allow paying already paid invoice)
+[TC-BIL-05] IDOR: Cư dân xem hóa đơn nhà khác
+RESULT: FAIL (Security: IDOR allow viewing other's invoice)
+[TC-BIL-06] Negative Payment Amount Injected
+RESULT: FAIL (Should not allow negative financial values)
+--------------------------------------------------

@@ -1,0 +1,14 @@
+--------------------------------------------------
+RUNNING COMPREHENSIVE AUTH TESTS
+--------------------------------------------------
+[TC-AUTH-01] Valid Login
+RESULT: PASS
+[TC-AUTH-04] Password Too Short (<6 chars)
+RESULT: PASS
+[TC-AUTH-07] Register with Admin roleId (Privilege Escalation)
+RESULT: FAIL (Security Hole: Anyone can register as Admin)
+[TC-AUTH-08] Malformed Header 'Bearer' (No Token)
+RESULT: PASS
+[TC-AUTH-09] Type Juggling: Send password as Array
+RESULT: FAIL (Server Exception)
+--------------------------------------------------
