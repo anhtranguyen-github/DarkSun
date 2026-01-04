@@ -3,8 +3,13 @@
 ```mermaid
 graph LR
     %% Actors
-    AuthenticatedUser["👤 Người dùng đã đăng nhập"]
+    Resident["👤 Cư dân (Resident)"]
+    Manager["👤 Tổ trưởng (Manager)"]
+    Accountant["👤 Kế toán (Accountant)"]
     Admin["👤 Quản trị viên (Admin)"]
+    
+    %% Abstract Actor
+    AuthenticatedUser["👤 Người dùng đã đăng nhập"]
 
     %% System
     subgraph Module ["Module Xác thực & Quản lý Người dùng"]
@@ -19,14 +24,26 @@ graph LR
         UC_DeleteUser(["🗑️ Xóa tài khoản"])
     end
 
-    %% Relationships
-
-    %% Inheritance
-    Admin -.-> AuthenticatedUser
+    %% Relationships - Public
+    Resident --> UC_Login
+    Resident --> UC_Register
+    Resident --> UC_ViewRoles
     
+    Manager --> UC_Login
+    Accountant --> UC_Login
+    Admin --> UC_Login
+
+    %% Relationships - Authenticated Shared
     AuthenticatedUser --> UC_ChangePass
     AuthenticatedUser --> UC_UpdateProfile
 
+    %% Inheritance (All roles are Authenticated Users)
+    Resident -.-> AuthenticatedUser
+    Manager -.-> AuthenticatedUser
+    Accountant -.-> AuthenticatedUser
+    Admin -.-> AuthenticatedUser
+
+    %% Relationships - Admin Specific
     Admin --> UC_CRUD_User
     Admin --> UC_AssignRole
     Admin --> UC_DeleteUser
