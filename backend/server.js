@@ -18,6 +18,22 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Root endpoint - Welcome message
+app.get('/', (req, res) => {
+  res.status(200).json({
+    project: 'BlueMoon Apartment Management System',
+    version: '2.1',
+    status: 'running',
+    endpoints: {
+      health: '/health',
+      api: '/api'
+    }
+  });
+});
+
+// Suppress favicon 404s
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 // Main API Router
 app.use('/api', mainRouter);
 
