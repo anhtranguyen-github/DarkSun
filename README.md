@@ -44,8 +44,14 @@ All accounts use the default password: **`password123`**
 - **Database**: PostgreSQL (External/Render).
 - **Security**: JWT Authentication, Argon2/Bcrypt Hashing, Role-Based Access Control (RBAC).
 
-## 📊 Features
-- **Real-time Stats Dashboard**: Visualize resident density and fee collection status.
-- **Dynamic RBAC**: Permissions are checked at both frontend (Guards) and backend (Middleware) levels.
-- **Automated Billing**: Generate invoices automatically based on household area and member counts.
-- **Premium UI**: Dark mode glassmorphism interface with smooth transitions and optimized scrollbars.
+## 🛡️ Quality Assurance & Testing
+
+The system has undergone rigorous testing including:
+- **Comprehensive Test Suite**: 120+ test cases covering Happy Path, Exceptions, and Security.
+- **Automated Regression**: Shell scripts to verify API integrity and RBAC logic.
+- **Security Audit**: Simulated hacker attacks (SQLi, XSS, IDOR, Privilege Escalation).
+
+For detailed reports, see:
+- `TEST_REPORT.md`: Master summary.
+- `test_reports/`: Detailed functional group reports.
+- `automated_tests/`: Execution scripts for QA validation.
