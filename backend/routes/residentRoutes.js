@@ -5,11 +5,11 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.use(protect);
 
-// GET all residents (All roles can view)
-router.get('/', authorize('admin', 'manager', 'accountant'), residentController.getAllResidents);
+// GET all residents (All management roles can view)
+router.get('/', authorize('admin', 'manager', 'deputy', 'accountant'), residentController.getAllResidents);
 
 // GET residents by household
-router.get('/by-household/:householdId', authorize('admin', 'manager', 'accountant'), residentController.getResidentsByHousehold);
+router.get('/by-household/:householdId', authorize('admin', 'manager', 'deputy', 'accountant'), residentController.getResidentsByHousehold);
 
 // POST create resident (Manager only)
 router.post('/', authorize('admin', 'manager'), residentController.createResident);

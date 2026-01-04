@@ -6,11 +6,11 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 // All routes require authentication
 router.use(protect);
 
-// GET all households (Manager & Accountant can view)
-router.get('/', authorize('admin', 'manager', 'accountant'), householdController.getAllHouseholds);
+// GET all households (Manager, Deputy & Accountant can view)
+router.get('/', authorize('admin', 'manager', 'deputy', 'accountant'), householdController.getAllHouseholds);
 
 // GET household details with residents & vehicles
-router.get('/:id', authorize('admin', 'manager', 'accountant'), householdController.getHouseholdDetails);
+router.get('/:id', authorize('admin', 'manager', 'deputy', 'accountant'), householdController.getHouseholdDetails);
 
 // POST create new household (Manager only)
 router.post('/', authorize('admin', 'manager'), householdController.createHousehold);
