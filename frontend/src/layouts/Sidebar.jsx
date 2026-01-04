@@ -9,7 +9,9 @@ const Sidebar = () => {
   // Normalize roles to lowercase
   const userRoles = user?.roles?.map(r => r.toLowerCase()) || [];
   const isAdmin = userRoles.includes('admin');
-  const isToTruong = userRoles.includes('manager') || userRoles.includes('deputy');
+  const isManager = userRoles.includes('manager');
+  const isDeputy = userRoles.includes('deputy');
+  // const isToTruong = isManager || isDeputy; // Use specific checks
   const isKeToan = userRoles.includes('accountant');
   const isResident = userRoles.includes('resident');
 
@@ -75,7 +77,7 @@ const Sidebar = () => {
         </div>
 
         {/* People & House Management - Admin & Leaders */}
-        {(isAdmin || isToTruong) && (
+        {(isAdmin || isManager || isDeputy) && (
           <div>
             <h3 className="px-4 text-[10px] uppercase tracking-[0.2em] font-black text-dark-500 mb-4 opacity-50">Quản lý dân cư</h3>
             <div className="space-y-1">
@@ -124,8 +126,8 @@ const Sidebar = () => {
           </div>
         )}
 
-        {/* System Settings - Admin */}
-        {isAdmin && (
+        {/* System Settings - Admin & Manager */}
+        {(isAdmin || isManager) && (
           <div>
             <h3 className="px-4 text-[10px] uppercase tracking-[0.2em] font-black text-dark-500 mb-4 opacity-50">Quản trị hệ thống</h3>
             <div className="space-y-1">

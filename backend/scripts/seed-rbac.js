@@ -87,7 +87,7 @@ const ROLES = [
     {
         name: 'manager',
         displayName: 'Tổ Trưởng',
-        description: 'Quản lý nhân khẩu, hộ khẩu',
+        description: 'Quản lý nhân khẩu, hộ khẩu, phân quyền',
         permissions: [
             'nk:view', 'nk:create', 'nk:update', 'nk:delete', 'nk:move',
             'hk:view', 'hk:create', 'hk:update', 'hk:delete', 'hk:change_owner', 'hk:tach',
@@ -96,19 +96,19 @@ const ROLES = [
             'phi:view', 'hd:view', 'hd:export',
             'dg:view',
             'tk:nhan_khau', 'tk:ho_khau', 'tk:thu_phi', 'tk:export',
-            'sys:audit_log',
+            'sys:user_view', 'sys:user_manage', 'sys:role_assign', 'sys:audit_log',
             ...SELF_SERVICE_PERMS
         ]
     },
     {
         name: 'deputy',
         displayName: 'Tổ Phó',
-        description: 'Hỗ trợ Tổ Trưởng, không được xóa dữ liệu',
+        description: 'Tra cứu và xem thống kê (Chỉ xem)',
         permissions: [
-            'nk:view', 'nk:create', 'nk:update', 'nk:move',
-            'hk:view', 'hk:create', 'hk:update',
-            'tt:view', 'tt:register', 'tt:register_absence',
-            'pt:view', 'pt:register', 'pt:update',
+            'nk:view',
+            'hk:view',
+            'tt:view',
+            'pt:view',
             'phi:view', 'hd:view', 'hd:export',
             'dg:view',
             'tk:nhan_khau', 'tk:ho_khau', 'tk:thu_phi', 'tk:export',

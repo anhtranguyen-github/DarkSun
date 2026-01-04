@@ -53,11 +53,15 @@ const AppRoutes = () => {
           <Route element={<RoleBasedGuard allowedRoles={['manager', 'deputy', 'accountant']} />}>
             <Route path="households" element={<HouseholdManagementPage />} />
             <Route path="residents" element={<ResidentManagementPage />} />
-            <Route path="users" element={<UserManagementPage />} />
             <Route path="resident-search" element={<ResidentSearchPage />} />
             <Route path="resident-stats" element={<ResidentStatsPage />} />
             <Route path="household-stats" element={<HouseholdStatsPage />} />
             <Route path="household-search" element={<HouseholdSearchPage />} />
+          </Route>
+
+          {/* Quản lý Người dùng - Chỉ Admin và Tổ Trưởng */}
+          <Route element={<RoleBasedGuard allowedRoles={['admin', 'manager']} />}>
+            <Route path="users" element={<UserManagementPage />} />
           </Route>
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
