@@ -106,16 +106,19 @@ async function seedData() {
         const feeTypes = await FeeType.findAll();
 
         const periods = [
-            { name: 'Kỳ phí Tháng 12/2023', month: 12, year: 2023, status: 'closed' },
-            { name: 'Kỳ phí Tháng 01/2024', month: 1, year: 2024, status: 'open' }
+            { name: 'Kỳ phí Tháng 12/2025', startDate: '2025-12-01', endDate: '2025-12-31', status: 'closed', type: 'mandatory' },
+            { name: 'Kỳ phí Tháng 01/2026', startDate: '2026-01-01', endDate: '2026-01-31', status: 'open', type: 'mandatory' },
+            { name: 'Quỹ từ thiện Tết 2026', startDate: '2026-01-10', endDate: '2026-02-10', status: 'open', type: 'contribution' }
         ];
 
         for (const pData of periods) {
             const period = await FeePeriod.create(pData);
 
             // Link all mandatory fees
+            // Link fees based on period type
             for (const ft of feeTypes) {
-                if (ft.category === 'mandatory') {
+                // If Period is Mandatory, add Mandatory Fees
+                if (period.type === 'mandatory' && ft.category === 'mandatory') {
                     await PeriodFee.create({
                         feePeriodId: period.id,
                         feeTypeId: ft.id,
@@ -123,7 +126,25 @@ async function seedData() {
                         type: 'Bắt buộc'
                     });
                 }
+                // If Period is Contribution, add Contribution Fees
+                else if (period.type === 'contribution' && ft.category === 'contribution') {
+                    await PeriodFee.create({
+                        feePeriodId: period.id,
+                        feeTypeId: ft.id,
+                        amount: ft.price || 0, // Contribution often 0 initially?
+                        type: 'Đóng góp',
+                        description: 'Ủng hộ tự nguyện'
+                    });
+                }
             }
+        }
+
+        // 6. Link Demo Resident to Household 1
+        console.log('🔗 Linking Demo Resident...');
+        const demoResUser = await User.findOne({ where: { username: 'demo_resident' } });
+        if (demoResUser && households.length > 0) {
+            await demoResUser.update({ householdId: households[0].id });
+            console.log(`   -> demo_resident linked to ${households[0].householdCode}`);
         }
 
         console.log('✅ Full data seeding completed successfully!');
