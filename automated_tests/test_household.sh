@@ -1,6 +1,6 @@
 #!/bin/bash
 # Household Comprehensive Functional Tests - automated_tests/test_household.sh
-BASE_URL="http://localhost:5000/api"
+BASE_URL="http://127.0.0.1:5000/api"
 
 # Get Token
 TOKEN=$(curl -s -X POST "$BASE_URL/auth/login" \

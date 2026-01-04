@@ -12,6 +12,7 @@ echo "=================================================="
 ./automated_tests/test_resident.sh
 ./automated_tests/test_billing.sh
 ./automated_tests/test_vehicles.sh
+./automated_tests/test_user_management.sh
 
 echo "=================================================="
 echo "ALL TESTS COMPLETED"
