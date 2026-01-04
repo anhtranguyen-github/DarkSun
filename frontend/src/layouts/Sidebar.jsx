@@ -9,9 +9,9 @@ const Sidebar = () => {
   // Normalize roles to lowercase
   const userRoles = user?.roles?.map(r => r.toLowerCase()) || [];
   const isAdmin = userRoles.includes('admin');
-  const isToTruong = userRoles.includes('to_truong') || userRoles.includes('to_pho');
-  const isKeToan = userRoles.includes('ke_toan');
-  const isResident = userRoles.includes('cu_dan');
+  const isToTruong = userRoles.includes('manager') || userRoles.includes('deputy');
+  const isKeToan = userRoles.includes('accountant');
+  const isResident = userRoles.includes('resident');
 
   const handleLogout = () => {
     logout();

@@ -43,14 +43,14 @@ const AppRoutes = () => {
 
           {/* SỬ DỤNG CẤU TRÚC LỒNG NHAU Ở ĐÂY */}
           {/* Việc ai có quyền SỬA/XÓA sẽ do API ở backend quyết định */}
-          <Route element={<RoleBasedGuard allowedRoles={['admin', 'ke_toan']} />}>
+          <Route element={<RoleBasedGuard allowedRoles={['admin', 'accountant']} />}>
             <Route path="fee-types" element={<FeeTypeManagement />} />
             <Route path="fee-periods" element={<FeePeriodManagement />} />
             <Route path="fee-periods/:id" element={<FeePeriodDetailPage />} />
           </Route>
 
           {/* Nhóm route cho Quản lý Cộng đồng */}
-          <Route element={<RoleBasedGuard allowedRoles={['to_truong', 'to_pho', 'ke_toan']} />}>
+          <Route element={<RoleBasedGuard allowedRoles={['manager', 'deputy', 'accountant']} />}>
             <Route path="households" element={<HouseholdManagementPage />} />
             <Route path="residents" element={<ResidentManagementPage />} />
             <Route path="users" element={<UserManagementPage />} />
