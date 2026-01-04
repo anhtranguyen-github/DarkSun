@@ -1,18 +1,22 @@
 # Statistics & Reporting Use Cases
 
 ```mermaid
-usecaseDiagram
-    actor "Kế toán (Accountant)" as Accountant
-    actor "Quản trị viên (Admin)" as Admin
+graph LR
+    %% Actors
+    Accountant["👤 Kế toán (Accountant)"]
+    Admin["👤 Quản trị viên (Admin)"]
 
-    package "Module Thống kê & Báo cáo" {
-        usecase "Xem Dashboard Tổng quan" as UC_Dashboard
-        usecase "Thống kê Nhân khẩu" as UC_StatResident
-        usecase "Thống kê Tạm trú / Tạm vắng" as UC_StatTemp
-        usecase "Thống kê Thu phí (Đã thu / Chưa thu)" as UC_StatFees
-        usecase "Xuất Báo cáo Excel (Future)" as UC_Export
-    }
+    %% System
+    subgraph Module ["Module Thống kê & Báo cáo"]
+        direction TB
+        UC_Dashboard(["📊 Xem Dashboard Tổng quan"])
+        UC_StatResident(["👥 Thống kê Nhân khẩu"])
+        UC_StatTemp(["🛂 Thống kê Tạm trú / Tạm vắng"])
+        UC_StatFees(["💰 Thống kê Thu phí (Đã thu / Chưa thu)"])
+        UC_Export(["📥 Xuất Báo cáo Excel (Future)"])
+    end
 
+    %% Relationships
     Admin --> UC_Dashboard
     Admin --> UC_StatResident
     Admin --> UC_StatTemp

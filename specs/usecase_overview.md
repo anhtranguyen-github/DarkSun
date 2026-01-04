@@ -1,27 +1,29 @@
 # Overview Use Case Diagram
 
 ```mermaid
-usecaseDiagram
-    actor "Khách (Guest)" as Guest
-    actor "Cư dân (Resident)" as Resident
-    actor "Tổ trưởng (Manager)" as Manager
-    actor "Kế toán (Accountant)" as Accountant
-    actor "Quản trị viên (Admin)" as Admin
+graph LR
+    %% Actors
+    Resident["👤 Cư dân (Resident)"]
+    Manager["👤 Tổ trưởng (Manager)"]
+    Accountant["👤 Kế toán (Accountant)"]
+    Admin["👤 Quản trị viên (Admin)"]
 
-    package "Hệ thống Quản lý Chung cư BlueMoon" {
-        usecase "Đăng nhập / Đăng ký" as UC_Auth
-        usecase "Quản lý Thông tin Cá nhân" as UC_Profile
-        usecase "Xem Hóa đơn & Phí" as UC_ViewBills
-        usecase "Quản lý Hộ khẩu & Nhân khẩu" as UC_ManageHouse
-        usecase "Quản lý Phương tiện" as UC_ManageVehicle
-        usecase "Quản lý Khoản phí & Đợt thu" as UC_ManageFee
-        usecase "Tạo & Thu Hóa đơn" as UC_ManageInvoice
-        usecase "Quản lý Tạm trú / Tạm vắng" as UC_ManageTemp
-        usecase "Quản lý Người dùng & Phân quyền" as UC_ManageUser
-        usecase "Xem Thống kê & Báo cáo" as UC_Stats
-    }
+    %% System Boundary
+    subgraph System ["Hệ thống Quản lý Chung cư BlueMoon"]
+        direction TB
+        UC_Auth(["🔐 Đăng nhập / Đăng ký"])
+        UC_Profile(["📝 Quản lý Thông tin Cá nhân"])
+        UC_ViewBills(["💸 Xem Hóa đơn & Phí"])
+        UC_ManageHouse(["🏠 Quản lý Hộ khẩu & Nhân khẩu"])
+        UC_ManageVehicle(["🛵 Quản lý Phương tiện"])
+        UC_ManageFee(["💰 Quản lý Khoản phí & Đợt thu"])
+        UC_ManageInvoice(["🧾 Tạo & Thu Hóa đơn"])
+        UC_ManageTemp(["🛂 Quản lý Tạm trú / Tạm vắng"])
+        UC_ManageUser(["👥 Quản lý Người dùng & Phân quyền"])
+        UC_Stats(["📊 Xem Thống kê & Báo cáo"])
+    end
 
-    Guest --> UC_Auth
+    %% Relationships
     Resident --> UC_Auth
     Resident --> UC_Profile
     Resident --> UC_ViewBills
@@ -42,6 +44,8 @@ usecaseDiagram
     Admin --> UC_Auth
     Admin --> UC_ManageUser
     Admin --> UC_Stats
-    Admin --|> Manager
-    Admin --|> Accountant
+    
+    %% Inheritance (Simulated)
+    Admin -.-> Manager
+    Admin -.-> Accountant
 ```

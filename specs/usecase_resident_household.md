@@ -1,31 +1,36 @@
 # Resident & Household Management Use Cases
 
 ```mermaid
-usecaseDiagram
-    actor "Tổ trưởng (Manager)" as Manager
-    actor "Quản trị viên (Admin)" as Admin
-    actor "Cư dân (Resident)" as Resident
+graph LR
+    %% Actors
+    Manager["👤 Tổ trưởng (Manager)"]
+    Admin["👤 Quản trị viên (Admin)"]
+    Resident["👤 Cư dân (Resident)"]
 
-    package "Module Quản lý Cư dân & Hộ khẩu" {
-        usecase "Xem danh sách Hộ khẩu" as UC_ViewHouse
-        usecase "Tạo Hộ khẩu mới" as UC_CreateHouse
-        usecase "Sửa thông tin Hộ khẩu" as UC_EditHouse
-        usecase "Thay đổi Chủ hộ" as UC_ChangeOwner
-        usecase "Xóa Hộ khẩu" as UC_DeleteHouse
+    %% System
+    subgraph Module ["Module Quản lý Cư dân & Hộ khẩu"]
+        direction TB
+        UC_ViewHouse(["Xem danh sách Hộ khẩu"])
+        UC_CreateHouse(["Tạo Hộ khẩu mới"])
+        UC_EditHouse(["Sửa thông tin Hộ khẩu"])
+        UC_ChangeOwner(["Thay đổi Chủ hộ"])
+        UC_DeleteHouse(["Xóa Hộ khẩu"])
         
-        usecase "Thêm Nhân khẩu vào Hộ" as UC_AddResident
-        usecase "Sửa thông tin Nhân khẩu" as UC_EditResident
-        usecase "Xóa Nhân khẩu (Chuyển đi)" as UC_DeleteResident
-        usecase "Tìm kiếm Cư dân" as UC_SearchResident
+        UC_AddResident(["Thêm Nhân khẩu vào Hộ"])
+        UC_EditResident(["Sửa thông tin Nhân khẩu"])
+        UC_DeleteResident(["Xóa Nhân khẩu (Chuyển đi)"])
+        UC_SearchResident(["Tìm kiếm Cư dân"])
         
-        usecase "Đăng ký Tạm trú / Tạm vắng" as UC_TempStay
-        usecase "Quản lý Phương tiện" as UC_ManageVehicle
+        UC_TempStay(["Đăng ký Tạm trú / Tạm vắng"])
+        UC_ManageVehicle(["Quản lý Phương tiện"])
         
-        usecase "Xem thông tin Hộ mình" as UC_ViewMyHouse
-    }
+        UC_ViewMyHouse(["Xem thông tin Hộ mình"])
+    end
 
-    Admin --|> Manager
+    %% Inheritance
+    Admin -.-> Manager
     
+    %% Relationships
     Manager --> UC_ViewHouse
     Manager --> UC_CreateHouse
     Manager --> UC_EditHouse

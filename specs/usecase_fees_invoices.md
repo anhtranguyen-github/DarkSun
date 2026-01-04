@@ -1,26 +1,31 @@
 # Fees & Billing Use Cases
 
 ```mermaid
-usecaseDiagram
-    actor "Kế toán (Accountant)" as Accountant
-    actor "Quản trị viên (Admin)" as Admin
-    actor "Cư dân (Resident)" as Resident
+graph LR
+    %% Actors
+    Accountant["👤 Kế toán (Accountant)"]
+    Admin["👤 Quản trị viên (Admin)"]
+    Resident["👤 Cư dân (Resident)"]
 
-    package "Module Quản lý Phí & Hóa đơn" {
-        usecase "Quản lý Loại phí (Fee Types)" as UC_ManageFeeTypes
-        usecase "Tạo Đợt thu phí (Fee Period)" as UC_CreatePeriod
-        usecase "Cấu hình Phí cho Đợt thu" as UC_ConfigFee
+    %% System
+    subgraph Module ["Module Quản lý Phí & Hóa đơn"]
+        direction TB
+        UC_ManageFeeTypes(["Quản lý Loại phí (Fee Types)"])
+        UC_CreatePeriod(["Tạo Đợt thu phí (Fee Period)"])
+        UC_ConfigFee(["Cấu hình Phí cho Đợt thu"])
         
-        usecase "Tạo Hóa đơn (Invoices) hàng loạt" as UC_GenInvoice
-        usecase "Ghi nhận Thanh toán" as UC_RecordPayment
-        usecase "Sửa / Xóa Hóa đơn (Chưa thanh toán)" as UC_EditInvoice
+        UC_GenInvoice(["Tạo Hóa đơn (Invoices) hàng loạt"])
+        UC_RecordPayment(["Ghi nhận Thanh toán"])
+        UC_EditInvoice(["Sửa / Xóa Hóa đơn (Chưa thanh toán)"])
         
-        usecase "Xem danh sách Hóa đơn" as UC_ViewAllInvoices
-        usecase "Xem Hóa đơn của mình" as UC_ViewMyInvoice
-    }
+        UC_ViewAllInvoices(["Xem danh sách Hóa đơn"])
+        UC_ViewMyInvoice(["Xem Hóa đơn của mình"])
+    end
 
-    Admin --|> Accountant
+    %% Inheritance
+    Admin -.-> Accountant
 
+    %% Relationships
     Accountant --> UC_ManageFeeTypes
     Accountant --> UC_CreatePeriod
     Accountant --> UC_ConfigFee
