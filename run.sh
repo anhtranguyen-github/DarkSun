@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================
-# 🌙 BLUE MOON - UNIFIED SYSTEM LAUNCHER (v2.0)
+# 🌙 BLUE MOON - UNIFIED SYSTEM LAUNCHER (v2.1)
 # Works on: Ubuntu, Debian, WSL, macOS
 # =============================================================
 
@@ -21,7 +21,8 @@ FRONTEND_PORT=5173
 
 clear
 echo -e "${CYAN}${BOLD}=============================================================${NC}"
-echo -e "${CYAN}${BOLD}   🌙  BLUE MOON - UNIFIED SYSTEM LAUNCHER${NC}"
+echo -e "${CYAN}${BOLD}   🌙  BLUE MOON - Apartment Management System${NC}"
+echo -e "${CYAN}${BOLD}   📦  Version 2.1 - Business Logic Enhanced${NC}"
 echo -e "${CYAN}${BOLD}=============================================================${NC}"
 echo ""
 
@@ -38,10 +39,10 @@ read -p "Selection [1-2]: " mode
 # --- PORT MANAGEMENT ---
 kill_process_on_port() {
   local port=$1
-  local pids=$(lsof -t -i:$port)
+  local pids=$(lsof -t -i:$port 2>/dev/null)
   if [ -n "$pids" ]; then
-    echo -e "${YELLOW}   - Port $port is busy. Terminating staleprocesses...${NC}"
-    fuser -k $port/tcp > /dev/null 2>&1
+    echo -e "${YELLOW}   - Port $port is busy. Terminating stale processes...${NC}"
+    kill -9 $pids 2>/dev/null || fuser -k $port/tcp > /dev/null 2>&1
   fi
 }
 
@@ -57,16 +58,21 @@ run_native() {
     if [ ! -d "backend/node_modules" ]; then
         echo -e "${BLUE}   Installing Backend dependencies...${NC}"
         cd backend && npm install --silent && cd ..
+    else
+        echo -e "${GREEN}   ✓ Backend dependencies OK${NC}"
     fi
     
     # Check Frontend
     if [ ! -d "frontend/node_modules" ]; then
         echo -e "${BLUE}   Installing Frontend dependencies...${NC}"
         cd frontend && npm install --silent && cd ..
+    else
+        echo -e "${GREEN}   ✓ Frontend dependencies OK${NC}"
     fi
 
     # Environment Setup
     if [ ! -f "backend/.env" ]; then
+        echo -e "${BLUE}   Creating backend .env file...${NC}"
         cat <<EOT > backend/.env
 NODE_ENV=development
 PORT=$BACKEND_PORT
@@ -75,7 +81,7 @@ DB_NAME=bluemoon_db
 DB_USER=postgres
 DB_PASSWORD=98tV2v_!pT*:nuc>
 DB_PORT=5432
-JWT_SECRET=bluemoon_ultra_secure_secret_2024_dark_infinity
+JWT_SECRET=bluemoon_ultra_secure_secret_2024
 JWT_EXPIRES_IN=24h
 EOT
     fi
@@ -86,19 +92,25 @@ EOT
 
     echo -e "\n${YELLOW}🗄️  Synchronizing database...${NC}"
     cd backend
-    node scripts/seed-rbac.js > /dev/null 2>&1
-    node scripts/create-demo-users.js > /dev/null 2>&1
-    node scripts/seed-fee-types.js > /dev/null 2>&1
-    node scripts/seed-full-data.js > /dev/null 2>&1
+    if [ -f "scripts/seed-rbac.js" ]; then
+        node scripts/seed-rbac.js > /dev/null 2>&1
+    fi
+    if [ -f "scripts/create-demo-users.js" ]; then
+        node scripts/create-demo-users.js > /dev/null 2>&1
+    fi
+    if [ -f "scripts/seed-fee-types.js" ]; then
+        node scripts/seed-fee-types.js > /dev/null 2>&1
+    fi
     cd ..
+    echo -e "${GREEN}   ✓ Database synced${NC}"
 
     # Cleanup Handler
     cleanup() {
         echo -e "\n\n${MAGENTA}🛑 Shutting down BlueMoon elegantly...${NC}"
         [ -n "$BACKEND_PID" ] && kill -TERM -$BACKEND_PID 2>/dev/null
         [ -n "$FRONTEND_PID" ] && kill -TERM -$FRONTEND_PID 2>/dev/null
-        fuser -k $BACKEND_PORT/tcp > /dev/null 2>&1
-        fuser -k $FRONTEND_PORT/tcp > /dev/null 2>&1
+        kill_process_on_port $BACKEND_PORT
+        kill_process_on_port $FRONTEND_PORT
         echo -e "${GREEN}✨ Workspace clean. See you soon!${NC}"
         exit 0
     }
@@ -111,7 +123,7 @@ EOT
     BACKEND_PID=$!
     cd ..
     
-    sleep 2
+    sleep 3
     
     cd frontend
     npm run dev 2>&1 | sed 's/^/[FRONTEND] /' &
@@ -121,9 +133,16 @@ EOT
     echo -e "\n${GREEN}${BOLD}=============================================================${NC}"
     echo -e "${GREEN}${BOLD}   ✓ SYSTEM ONLINE - BLUE MOON IS READY${NC}"
     echo -e "${GREEN}${BOLD}=============================================================${NC}"
-    echo -e "   Frontend: http://localhost:$FRONTEND_PORT"
-    echo -e "   Backend:  http://localhost:$BACKEND_PORT/api"
-    echo -e "   Admin:    admin123 / password123"
+    echo -e "   Frontend: ${CYAN}http://localhost:$FRONTEND_PORT${NC}"
+    echo -e "   Backend:  ${CYAN}http://localhost:$BACKEND_PORT/api${NC}"
+    echo -e "   Health:   ${CYAN}http://localhost:$BACKEND_PORT/health${NC}"
+    echo ""
+    echo -e "   ${BOLD}Demo Accounts:${NC}"
+    echo -e "   - Admin:      demo_admin / password123"
+    echo -e "   - Manager:    demo_manager / password123"
+    echo -e "   - Accountant: demo_accountant / password123"
+    echo ""
+    echo -e "   Press ${BOLD}Ctrl+C${NC} to stop all services."
     echo ""
     wait
 }
