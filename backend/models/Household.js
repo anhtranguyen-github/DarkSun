@@ -9,12 +9,13 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Invoice, { foreignKey: 'household_id' });
       this.hasMany(models.Vehicle, { foreignKey: 'household_id' }); // Link to cars/motorbikes
       this.belongsTo(models.Resident, { as: 'Owner', foreignKey: 'owner_id' }); // Strict link to owner
+      this.hasMany(models.User, { foreignKey: 'household_id', as: 'AssociatedAccounts' }); // Link to User Accounts
     }
   }
   Household.init({
     householdCode: { type: DataTypes.STRING, field: 'household_code', allowNull: false, unique: true }, // So so ho khau
     ownerId: { type: DataTypes.INTEGER, field: 'owner_id', allowNull: true }, // Link ID chu ho (Nullable for creation)
-    count: { type: DataTypes.INTEGER, field: 'member_count', defaultValue: 0 },
+    memberCount: { type: DataTypes.INTEGER, field: 'member_count', defaultValue: 0 },
 
     // Address Breakdown
     addressStreet: { type: DataTypes.STRING, field: 'address_street' }, // Duong/Thon

@@ -9,5 +9,6 @@ export const getAllHouseholds = (filters = {}) => {
 };
 
 export const createHousehold = (data) => apiClient.post('/households', data);
+export const getHouseholdDetails = (id) => apiClient.get(`/households/${id}`);
 export const updateHousehold = (id, data) => apiClient.put(`/households/${id}`, data);
 export const deleteHousehold = (id) => apiClient.delete(`/households/${id}`);

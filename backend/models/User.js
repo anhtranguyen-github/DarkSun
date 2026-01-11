@@ -23,7 +23,9 @@ module.exports = (sequelize, DataTypes) => {
     status: { type: DataTypes.STRING, defaultValue: 'active' },
     householdId: { type: DataTypes.INTEGER, field: 'household_id' },
     createdAt: { type: DataTypes.DATE, field: 'created_at' },
-    updatedAt: { type: DataTypes.DATE, field: 'updated_at' }
+    updatedAt: { type: DataTypes.DATE, field: 'updated_at' },
+    pending_password: { type: DataTypes.STRING, allowNull: true },
+    is_reset_pending: { type: DataTypes.BOOLEAN, defaultValue: false }
   }, {
     sequelize,
     modelName: 'User',

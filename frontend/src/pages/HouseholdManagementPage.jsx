@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as householdService from '../services/householdService';
 import Button from '../components/common/Button';
 import { useAuth } from '../context/AuthContext';
+import HouseholdDetailsModal from '../components/households/HouseholdDetailsModal';
 
 const HouseholdManagementPage = () => {
   const { user } = useAuth();
@@ -11,9 +12,14 @@ const HouseholdManagementPage = () => {
   const [households, setHouseholds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Create/Edit Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentHousehold, setCurrentHousehold] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // View Details Modal State
+  const [viewDetailsId, setViewDetailsId] = useState(null);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -200,15 +206,16 @@ const HouseholdManagementPage = () => {
                 <th className="p-4 text-[10px] font-black uppercase tracking-widest text-dark-400 border-b border-white/5">Chủ Hộ</th>
                 <th className="p-4 text-[10px] font-black uppercase tracking-widest text-dark-400 border-b border-white/5">Địa Chỉ</th>
                 <th className="p-4 text-[10px] font-black uppercase tracking-widest text-dark-400 border-b border-white/5">Diện Tích</th>
-                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-dark-400 border-b border-white/5 text-center px-6">Thành viên</th>
-                {canEdit && <th className="p-4 text-[10px] font-black uppercase tracking-widest text-dark-400 border-b border-white/5 text-right whitespace-nowrap">Hành động</th>}
+                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-dark-400 border-b border-white/5">Tài Khoản</th>
+                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-dark-400 border-b border-white/5 text-center px-6">Số thành viên</th>
+                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-dark-400 border-b border-white/5 text-right whitespace-nowrap">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {loading ? (
                 Array(5).fill(0).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array(6).fill(0).map((_, j) => (
+                    {Array(7).fill(0).map((_, j) => (
                       <td key={j} className="p-4"><div className="h-4 bg-white/5 rounded"></div></td>
                     ))}
                   </tr>
@@ -220,25 +227,50 @@ const HouseholdManagementPage = () => {
                     <td className="p-4 font-bold text-dark-100">{h.Owner?.fullName || 'N/A'}</td>
                     <td className="p-4 text-sm text-dark-400">{h.addressStreet}, {h.addressWard}</td>
                     <td className="p-4 text-sm text-dark-100">{h.area ? `${h.area} m²` : '---'}</td>
-                    <td className="p-4 text-sm font-bold text-dark-400 text-center">{h.memberCount}</td>
-                    {canEdit && (
-                      <td className="p-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenModal(h)}
-                            className="p-2 text-dark-500 hover:text-primary-400 hover:bg-primary-500/10 rounded-lg transition-all"
-                          >
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(h.id)}
-                            className="p-2 text-dark-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
-                          >
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
-                          </button>
+                    <td className="p-4 text-sm">
+                      {h.AssociatedAccounts && h.AssociatedAccounts.length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          {h.AssociatedAccounts.map(acc => (
+                            <span key={acc.id} className={`text-xs px-2 py-0.5 rounded w-fit ${acc.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                              {acc.username}
+                            </span>
+                          ))}
                         </div>
-                      </td>
-                    )}
+                      ) : (
+                        <span className="text-xs text-dark-500 italic">Chưa có</span>
+                      )}
+                    </td>
+                    <td className="p-4 text-sm font-bold text-dark-400 text-center">{h.memberCount}</td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        {/* View Details Button */}
+                        <button
+                          onClick={() => setViewDetailsId(h.id)}
+                          className="p-2 text-dark-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all"
+                          title="Xem chi tiết & nhân khẩu"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        </button>
+                        {canEdit && (
+                          <>
+                            <button
+                              onClick={() => handleOpenModal(h)}
+                              className="p-2 text-dark-500 hover:text-primary-400 hover:bg-primary-500/10 rounded-lg transition-all"
+                              title="Sửa thông tin"
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(h.id)}
+                              className="p-2 text-dark-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
+                              title="Xóa hộ khẩu"
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -251,7 +283,15 @@ const HouseholdManagementPage = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Details Modal */}
+      {viewDetailsId && (
+        <HouseholdDetailsModal
+          householdId={viewDetailsId}
+          onClose={() => setViewDetailsId(null)}
+        />
+      )}
+
+      {/* Create/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-dark-950/80 backdrop-blur-sm animate-fade-in" onClick={() => setIsModalOpen(false)}></div>
