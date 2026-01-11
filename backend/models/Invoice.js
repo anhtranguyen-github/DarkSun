@@ -21,12 +21,15 @@ module.exports = (sequelize, DataTypes) => {
     cashierId: { type: DataTypes.INTEGER, field: 'cashier_id' }, // User ID of who collected
     paidDate: { type: DataTypes.DATE, field: 'paid_date' },
     notes: { type: DataTypes.TEXT },
+    createdAt: { type: DataTypes.DATE, field: 'created_at' },
+    updatedAt: { type: DataTypes.DATE, field: 'updated_at' }
   }, {
     sequelize,
     modelName: 'Invoice',
     tableName: 'invoices',
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    underscored: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
   });
   return Invoice;
 };
