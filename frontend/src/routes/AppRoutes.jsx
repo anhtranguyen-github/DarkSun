@@ -23,6 +23,7 @@ import FeePeriodDetailPage from '../pages/FeePeriodDetailPage';
 import HouseholdStatsPage from '../pages/HouseholdStatsPage';
 import ResidentManagementPage from '../pages/ResidentManagementPage';
 import ResidentStatsPage from '../pages/ResidentStatsPage';
+import FeeCollectionStatsPage from '../pages/FeeCollectionStatsPage';
 import ResidentSearchPage from '../pages/ResidentSearchPage';
 import HouseholdSearchPage from '../pages/HouseholdSearchPage';
 import MyInvoicesPage from '../pages/MyInvoicesPage';
@@ -61,6 +62,7 @@ const AppRoutes = () => {
             <Route path="resident-stats" element={<ResidentStatsPage />} />
             <Route path="household-stats" element={<HouseholdStatsPage />} />
             <Route path="household-search" element={<HouseholdSearchPage />} />
+            <Route path="fee-stats" element={<FeeCollectionStatsPage />} />
           </Route>
 
           {/* Quản lý Người dùng - Chỉ Admin và Tổ Trưởng */}
