@@ -37,7 +37,18 @@ All accounts use the default password: **`password123`**
 
 ---
 
-## 🔥 New Features (v2.2)
+## 🔥 New Features (v2.3)
+- **Authentication & Security**:
+  - **Manual Password Reset Flow**: Support for users without email to request password reset via Username (Admin-assisted).
+  - **Enhanced Validation**: Stricter input checks for Usernames and Passwords.
+- **Household Management**:
+  - **Smart UI**: Added **Linked Account** and **Member Count** columns to the main list.
+  - **Detailed Insights**: Household Details Modal now tracks associated User Accounts with status.
+- **Improved Database Seeding**:
+  - **Realistic Data**: `db:seed-full` script now generates ~300 Households, ~500 Residents, and ~200 User Accounts.
+  - **Full Lifecycle**: Includes random Vehicles, Invoices (Paid/Unpaid), and Family relationships.
+
+## 🕒 Previous Updates (v2.2)
 - **Refined RBAC Rules**:
   - **Managers** can manage all users *except* Admins. They cannot create, delete, or assign the 'Admin' role.
   - **Deputies** now have strict **Read-Only** access to sensitive data (Households, Residents) but can view Dashboard analytics.
