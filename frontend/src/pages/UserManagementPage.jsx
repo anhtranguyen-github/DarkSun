@@ -15,6 +15,7 @@ const UserManagementPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('');
+  const [showResetRequestsOnly, setShowResetRequestsOnly] = useState(false);
 
 
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -68,9 +69,11 @@ const UserManagementPage = () => {
       const term = searchTerm.toLowerCase();
       const matchesSearch = !term || u.username.toLowerCase().includes(term) || u.fullName.toLowerCase().includes(term);
       const matchesRole = !selectedRoleFilter || u.Roles.some(r => r.name === selectedRoleFilter);
-      return matchesSearch && matchesRole;
+      const matchesReset = !showResetRequestsOnly || u.is_reset_pending;
+
+      return matchesSearch && matchesRole && matchesReset;
     });
-  }, [searchTerm, selectedRoleFilter, users]);
+  }, [searchTerm, selectedRoleFilter, showResetRequestsOnly, users]);
 
 
 
@@ -124,7 +127,7 @@ const UserManagementPage = () => {
         <div className="flex-1 min-w-[300px] relative">
           <input
             className="premium-input bg-dark-950/30 py-2 pl-10"
-            placeholder="Tìm theo tên hoặc username..."
+            placeholder="Tìm theo tên, username..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -134,6 +137,15 @@ const UserManagementPage = () => {
         <button onClick={() => setIsCreateModalOpen(true)} className="premium-button-primary py-2 px-4 whitespace-nowrap text-sm flex items-center gap-2 font-bold">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" /></svg>
           Thêm tài khoản
+        </button>
+
+        <button
+          onClick={() => setShowResetRequestsOnly(!showResetRequestsOnly)}
+          className={`premium-button px-4 py-2 text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all border ${showResetRequestsOnly ? 'bg-yellow-500 text-dark-950 border-yellow-400 hover:bg-yellow-400' : 'bg-dark-950/30 text-dark-400 border-white/10 hover:border-yellow-500/50 hover:text-yellow-400 hover:bg-dark-950/50'}`}
+          title="Chỉ hiện yêu cầu đổi mật khẩu"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
+          {showResetRequestsOnly ? 'Đang lọc: Yêu cầu đổi MK' : 'Yêu cầu đổi MK'}
         </button>
 
         <select className="premium-input bg-dark-950/30 py-2 w-auto min-w-[160px]" value={selectedRoleFilter} onChange={(e) => setSelectedRoleFilter(e.target.value)}>
@@ -166,7 +178,12 @@ const UserManagementPage = () => {
                         {u.username[0].toUpperCase()}
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-bold text-white leading-tight">{u.fullName}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white leading-tight">{u.fullName}</span>
+                          {u.is_reset_pending && (
+                            <span className="px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[9px] font-bold border border-yellow-500/30">RESET</span>
+                          )}
+                        </div>
                         <span className="text-xs text-dark-500">@{u.username}</span>
                       </div>
                     </div>
@@ -188,6 +205,25 @@ const UserManagementPage = () => {
 
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-1">
+                      {u.is_reset_pending && (
+                        <button
+                          onClick={async () => {
+                            if (window.confirm(`Xác nhận duyệt yêu cầu đổi mật khẩu cho ${u.username}?`)) {
+                              try {
+                                await userService.approveReset(u.id);
+                                alert('Đã phê duyệt thành công!');
+                                fetchUsers();
+                              } catch (e) {
+                                alert('Có lỗi xảy ra.');
+                              }
+                            }
+                          }}
+                          className="p-2 text-yellow-500 hover:text-yellow-400 bg-yellow-500/10 hover:bg-yellow-500/20 rounded-lg transition-all mr-2"
+                          title="Duyệt yêu cầu đổi mật khẩu"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
+                        </button>
+                      )}
                       <button onClick={() => { setSelectedUser(u); setHouseholdToAssign(u.householdId || ''); setIsHouseholdModalOpen(true); }} className="p-2 text-dark-500 hover:text-indigo-400 transition-colors" title="Gán hộ khẩu"><svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></button>
                       <button onClick={() => { setSelectedUser(u); setRoleToAssign(''); setIsRoleModalOpen(true); }} className="p-2 text-dark-500 hover:text-primary-400 transition-colors" title="Phân quyền"><svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg></button>
                       <button onClick={() => handleDelete(u.id, u.username)} className="p-2 text-dark-500 hover:text-rose-600 transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
