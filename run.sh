@@ -90,22 +90,40 @@ EOT
         echo "VITE_API_BASE_URL=http://localhost:$BACKEND_PORT/api" > frontend/.env
     fi
 
-    echo -e "\n${YELLOW}🗄️  Synchronizing database...${NC}"
+    # Database Setup choice
+    echo ""
+    echo -e "${YELLOW}🗄️  Database Configuration${NC}"
+    echo -e "   [y] Reset database & Seed fresh data (WARNING: Deletes existing data)"
+    echo -e "   [n] Keep existing data & Sync schema (Safe update)"
+    read -p "   Selection [y/N]: " seed_choice
+    
     cd backend
-    if [ -f "scripts/seed-rbac.js" ]; then
-        node scripts/seed-rbac.js
-    fi
-    if [ -f "scripts/create-demo-users.js" ]; then
-        node scripts/create-demo-users.js
-    fi
-    if [ -f "scripts/seed-fee-types.js" ]; then
-        node scripts/seed-fee-types.js
-    fi
-    if [ -f "scripts/seed-full-data.js" ]; then
-        node scripts/seed-full-data.js
+    if [[ "$seed_choice" =~ ^[Yy]$ ]]; then
+        echo -e "\n${YELLOW}🌱 Resetting and Seeding Database...${NC}"
+        if [ -f "scripts/reset-db.js" ]; then
+             node scripts/reset-db.js
+        fi
+        if [ -f "scripts/seed-rbac.js" ]; then
+            node scripts/seed-rbac.js
+        fi
+        if [ -f "scripts/create-demo-users.js" ]; then
+            node scripts/create-demo-users.js
+        fi
+        if [ -f "scripts/seed-fee-types.js" ]; then
+            node scripts/seed-fee-types.js
+        fi
+        if [ -f "scripts/seed-full-data.js" ]; then
+            node scripts/seed-full-data.js
+        fi
+        echo -e "${GREEN}   ✓ Database seeded${NC}"
+    else 
+        echo -e "\n${YELLOW}🔄 Synchronizing Schema...${NC}"
+        if [ -f "scripts/sync-only.js" ]; then
+             node scripts/sync-only.js
+        fi
+        echo -e "${GREEN}   ✓ Schema synced${NC}"
     fi
     cd ..
-    echo -e "${GREEN}   ✓ Database synced${NC}"
 
     # Cleanup Handler
     cleanup() {

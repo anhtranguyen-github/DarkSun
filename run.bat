@@ -61,15 +61,26 @@ if not exist "frontend\.env" (
     echo    - Frontend .env already exists.
 )
 
-echo [4/5] Synchronizing database data...
-echo    - Seeding RBAC and demo data...
+echo [4/5] Database Configuration...
+echo    [Y] Reset database ^& Seed fresh data (WARNING: Deletes existing data)
+echo    [N] Keep existing data ^& Sync schema (Safe update)
+set /p SEED_CHOICE="   Selection [y/N]: "
+
 cd backend
-if exist "scripts\seed-rbac.js" call node scripts/seed-rbac.js >nul 2>&1
-if exist "scripts\create-demo-users.js" call node scripts/create-demo-users.js >nul 2>&1
-if exist "scripts\seed-fee-types.js" call node scripts/seed-fee-types.js >nul 2>&1
-if exist "scripts\seed-full-data.js" call node scripts/seed-full-data.js >nul 2>&1
+if /I "%SEED_CHOICE%"=="Y" (
+    echo    - Resetting and Seeding Database...
+    if exist "scripts\reset-db.js" call node scripts/reset-db.js >nul 2>&1
+    if exist "scripts\seed-rbac.js" call node scripts/seed-rbac.js >nul 2>&1
+    if exist "scripts\create-demo-users.js" call node scripts/create-demo-users.js >nul 2>&1
+    if exist "scripts\seed-fee-types.js" call node scripts/seed-fee-types.js >nul 2>&1
+    if exist "scripts\seed-full-data.js" call node scripts/seed-full-data.js >nul 2>&1
+    echo    - Database seeded.
+) else (
+    echo    - Synchronizing Schema...
+    if exist "scripts\sync-only.js" call node scripts/sync-only.js >nul 2>&1
+    echo    - Schema synced.
+)
 cd ..
-echo    - Database synced.
 
 echo [5/5] Launching services...
 echo    - Starting Backend API...

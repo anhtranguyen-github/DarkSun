@@ -46,11 +46,13 @@ exports.approvePasswordReset = async (req, res) => {
     }
 
     // Apply the new password
-    user.password = user.pending_password;
-    user.pending_password = null;
-    user.is_reset_pending = false;
-
-    await user.save();
+    // Apply the new password
+    // CRITICAL: We use { hooks: false } to prevent double-hashing because pending_password is ALREADY hashed.
+    await user.update({
+      password: user.pending_password,
+      pending_password: null,
+      is_reset_pending: false
+    }, { hooks: false });
 
     res.status(200).json({ success: true, message: `Đã duyệt yêu cầu đổi mật khẩu cho user ${user.username}.` });
   } catch (error) {
