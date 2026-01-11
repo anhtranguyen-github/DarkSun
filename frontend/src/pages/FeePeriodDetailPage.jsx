@@ -22,7 +22,7 @@ const FeePeriodDetailPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPeriodFee, setCurrentPeriodFee] = useState(null);
   const [formData, setFormData] = useState({
-    feeTypeId: '', amount: '', description: '', type: 'Bắt buộc'
+    feeTypeId: '', amount: '', description: '', type: 'mandatory'
   });
 
   const fetchData = useCallback(async () => {
@@ -58,7 +58,7 @@ const FeePeriodDetailPage = () => {
       });
     } else {
       setCurrentPeriodFee(null);
-      setFormData({ feeTypeId: '', amount: '', description: '', type: 'Bắt buộc' });
+      setFormData({ feeTypeId: '', amount: '', description: '', type: 'mandatory' });
     }
     setIsModalOpen(true);
   };
@@ -153,7 +153,7 @@ const FeePeriodDetailPage = () => {
       {/* Info Summary Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Trạng thái', value: period.type, color: period.type === 'Bắt buộc' ? 'text-rose-400' : 'text-emerald-400' },
+          { label: 'Trạng thái', value: period.type === 'mandatory' ? 'Bắt buộc' : 'Đóng góp', color: period.type === 'mandatory' ? 'text-rose-400' : 'text-emerald-400' },
           { label: 'Bắt đầu', value: new Date(period.startDate).toLocaleDateString('vi-VN'), color: 'text-white' },
           { label: 'Kết thúc', value: new Date(period.endDate).toLocaleDateString('vi-VN'), color: 'text-white' },
           { label: 'Khoản thu', value: periodFees.length, color: 'text-primary-400' },
@@ -198,7 +198,7 @@ const FeePeriodDetailPage = () => {
                   <td className="px-8 py-6">
                     <div className="flex flex-col">
                       <span className="text-white font-bold group-hover:text-primary-400 transition-colors">{pf.FeeType?.name}</span>
-                      <span className={`text-[10px] font-bold uppercase tracking-tighter ${pf.type === 'Bắt buộc' ? 'text-rose-500/70' : 'text-emerald-500/70'}`}>{pf.type}</span>
+                      <span className={`text-[10px] font-bold uppercase tracking-tighter ${pf.type === 'mandatory' ? 'text-rose-500/70' : 'text-emerald-500/70'}`}>{pf.type === 'mandatory' ? 'Bắt buộc' : 'Đóng góp'}</span>
                     </div>
                   </td>
                   <td className="px-8 py-6 text-sm text-dark-400 font-medium">
@@ -282,8 +282,8 @@ const FeePeriodDetailPage = () => {
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Tính chất*</label>
                   <select name="type" value={formData.type} onChange={handleInputChange} required className="premium-input bg-dark-950/40">
-                    <option value="Bắt buộc" className="bg-dark-900">Bắt buộc</option>
-                    <option value="Đóng góp" className="bg-dark-900">Đóng góp</option>
+                    <option value="mandatory" className="bg-dark-900">Bắt buộc</option>
+                    <option value="contribution" className="bg-dark-900">Đóng góp</option>
                   </select>
                 </div>
               </div>

@@ -49,26 +49,32 @@ async function seedFullData() {
 
         const residentRole = await Role.findOne({ where: { name: 'resident' } });
 
-        // 0.1 Create Fee Periods (Jan, Feb, Mar 2025)
-        console.log('🗓️  Creating Fee Periods...');
+        // 0.1 Create Fee Periods (July 2025 - Jan 2026)
+        console.log('🗓️  Creating Fee Periods (July 2025 - Jan 2026)...');
         const feePeriodsMap = {};
-        for (let m = 1; m <= 3; m++) {
-            const startDate = new Date(2025, m - 1, 1);
-            const endDate = new Date(2025, m, 0);
+        // Months: 7, 8, 9, 10, 11, 12 of 2025 and 1 of 2026
+        const monthsToSeed = [
+            { m: 7, y: 2025 }, { m: 8, y: 2025 }, { m: 9, y: 2025 },
+            { m: 10, y: 2025 }, { m: 11, y: 2025 }, { m: 12, y: 2025 },
+            { m: 1, y: 2026 }
+        ];
 
-            // Check if exists/create
+        for (const item of monthsToSeed) {
+            const startDate = new Date(item.y, item.m - 1, 1);
+            const endDate = new Date(item.y, item.m, 0);
+
             const [fp] = await FeePeriod.findOrCreate({
-                where: { name: `Đợt thu phí tháng ${m}/2025` },
+                where: { name: `Đợt thu phí tháng ${item.m}/${item.y}` },
                 defaults: {
                     startDate: startDate,
                     endDate: endDate,
-                    status: 'closed',
+                    status: (item.y === 2026 && item.m === 1) ? 'open' : 'closed',
                     type: 'mandatory',
-                    description: `Thu phí dịch vụ tháng ${m}`
+                    description: `Thu phí dịch vụ tháng ${item.m}/${item.y}`
                 },
                 transaction: t
             });
-            feePeriodsMap[m] = fp.id;
+            feePeriodsMap[`${item.m}-${item.y}`] = fp.id;
         }
 
         // 1. Generate Households
@@ -210,19 +216,21 @@ async function seedFullData() {
                 });
             }
 
-            // Invoices (Last 3 months)
+            // Invoices (Last 6 months + Jan 2026)
             if (feeService) {
-                for (let m = 1; m <= 3; m++) {
+                for (const item of monthsToSeed) {
                     const amount = (hk.area * (feeService.price || 7000)) + (bikeCount * (feeBike?.price || 70000));
-                    const isPaid = Math.random() > 0.3;
+                    // Current month (Jan 2026) might be unpaid more often
+                    const isNewestMonth = (item.m === 1 && item.y === 2026);
+                    const isPaid = isNewestMonth ? (Math.random() > 0.8) : (Math.random() > 0.15);
 
                     invoicesToCreate.push({
                         householdId: hk.id,
-                        feePeriodId: feePeriodsMap[m],
+                        feePeriodId: feePeriodsMap[`${item.m}-${item.y}`],
                         totalAmount: amount,
                         status: isPaid ? 'paid' : 'unpaid',
-                        paidDate: isPaid ? new Date(2025, m - 1, randomInt(5, 25)) : null,
-                        createdAt: new Date(),
+                        paidDate: isPaid ? new Date(item.y, item.m - 1, randomInt(5, 25)) : null,
+                        createdAt: new Date(item.y, item.m - 1, randomInt(1, 5)),
                         updatedAt: new Date()
                     });
                 }

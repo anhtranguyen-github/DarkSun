@@ -17,7 +17,7 @@ const FeePeriodManagement = () => {
     name: '',
     startDate: '',
     endDate: '',
-    type: 'Bắt buộc',
+    type: 'mandatory',
     description: ''
   });
 
@@ -162,12 +162,12 @@ const FeePeriodManagement = () => {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-dark-500 uppercase tracking-widest ml-1">Hình thức thu phí*</label>
                 <div className="grid grid-cols-2 gap-3">
-                  <label className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.type === 'Bắt buộc' ? 'bg-primary-500/10 border-primary-500 text-white' : 'bg-dark-950/40 border-white/5 text-dark-500'}`}>
-                    <input type="radio" name="type" value="Bắt buộc" checked={formData.type === 'Bắt buộc'} onChange={handleInputChange} className="hidden" />
+                  <label className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.type === 'mandatory' ? 'bg-primary-500/10 border-primary-500 text-white' : 'bg-dark-950/40 border-white/5 text-dark-500'}`}>
+                    <input type="radio" name="type" value="mandatory" checked={formData.type === 'mandatory'} onChange={handleInputChange} className="hidden" />
                     <span className="text-xs font-black uppercase tracking-widest">Bắt buộc</span>
                   </label>
-                  <label className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.type === 'Đóng góp' ? 'bg-primary-500/10 border-primary-500 text-white' : 'bg-dark-950/40 border-white/5 text-dark-500'}`}>
-                    <input type="radio" name="type" value="Đóng góp" checked={formData.type === 'Đóng góp'} onChange={handleInputChange} className="hidden" />
+                  <label className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.type === 'contribution' ? 'bg-primary-500/10 border-primary-500 text-white' : 'bg-dark-950/40 border-white/5 text-dark-500'}`}>
+                    <input type="radio" name="type" value="contribution" checked={formData.type === 'contribution'} onChange={handleInputChange} className="hidden" />
                     <span className="text-xs font-black uppercase tracking-widest">Đóng góp</span>
                   </label>
                 </div>

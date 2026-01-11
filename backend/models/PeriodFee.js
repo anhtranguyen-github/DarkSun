@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     feeTypeId: { type: DataTypes.INTEGER, field: 'fee_type_id', allowNull: false },
     amount: { type: DataTypes.DECIMAL(15, 2), allowNull: false },
     description: { type: DataTypes.TEXT },
-    type: { type: DataTypes.ENUM('Bắt buộc', 'Đóng góp'), defaultValue: 'Bắt buộc' },
+    type: { type: DataTypes.ENUM('mandatory', 'contribution'), defaultValue: 'mandatory' },
   }, {
     sequelize,
     modelName: 'PeriodFee',
