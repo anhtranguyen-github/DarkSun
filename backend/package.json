@@ -27,7 +27,8 @@
     "db:seed": "node scripts/create-demo-users.js",
     "db:seed-fees": "node scripts/seed-fee-types.js",
     "db:seed-rbac": "node scripts/seed-rbac.js",
-    "db:setup": "npm run db:reset && npm run db:seed-rbac && npm run db:seed && npm run db:seed-fees",
+    "db:seed-full": "node scripts/seed-full-data.js",
+    "db:setup": "npm run db:reset && npm run db:seed-rbac && npm run db:seed && npm run db:seed-fees && npm run db:seed-full",
     "start": "node server.js",
     "dev": "nodemon server.js"
   }

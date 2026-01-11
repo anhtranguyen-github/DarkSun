@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableExtensions DisableDelayedExpansion
-title BlueMoon - Unified System Launcher v2.1
+title BlueMoon - Unified System Launcher v2.3
 chcp 65001 >nul 2>&1
 
 set ROOT_DIR=%~dp0
@@ -8,7 +8,7 @@ cd /d "%ROOT_DIR%"
 
 echo =============================================================
 echo    BLUE MOON - Apartment Management System
-echo    Version 2.1 - Business Logic Enhanced
+echo    Version 2.3 - Manual Reset & Smart UI
 echo =============================================================
 echo.
 

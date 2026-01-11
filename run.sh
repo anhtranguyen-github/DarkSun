@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================
-# 🌙 BLUE MOON - UNIFIED SYSTEM LAUNCHER (v2.1)
+# 🌙 BLUE MOON - UNIFIED SYSTEM LAUNCHER (v2.3)
 # Works on: Ubuntu, Debian, WSL, macOS
 # =============================================================
 
@@ -22,7 +22,7 @@ FRONTEND_PORT=5173
 clear
 echo -e "${CYAN}${BOLD}=============================================================${NC}"
 echo -e "${CYAN}${BOLD}   🌙  BLUE MOON - Apartment Management System${NC}"
-echo -e "${CYAN}${BOLD}   📦  Version 2.1 - Business Logic Enhanced${NC}"
+echo -e "${CYAN}${BOLD}   📦  Version 2.3 - Manual Reset & Smart UI${NC}"
 echo -e "${CYAN}${BOLD}=============================================================${NC}"
 echo ""
 
@@ -93,16 +93,16 @@ EOT
     echo -e "\n${YELLOW}🗄️  Synchronizing database...${NC}"
     cd backend
     if [ -f "scripts/seed-rbac.js" ]; then
-        node scripts/seed-rbac.js > /dev/null 2>&1
+        node scripts/seed-rbac.js
     fi
     if [ -f "scripts/create-demo-users.js" ]; then
-        node scripts/create-demo-users.js > /dev/null 2>&1
+        node scripts/create-demo-users.js
     fi
     if [ -f "scripts/seed-fee-types.js" ]; then
-        node scripts/seed-fee-types.js > /dev/null 2>&1
+        node scripts/seed-fee-types.js
     fi
     if [ -f "scripts/seed-full-data.js" ]; then
-        node scripts/seed-full-data.js > /dev/null 2>&1
+        node scripts/seed-full-data.js
     fi
     cd ..
     echo -e "${GREEN}   ✓ Database synced${NC}"
