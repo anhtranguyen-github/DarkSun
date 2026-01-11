@@ -25,12 +25,12 @@ export const getResidentStats = (filters = {}) => {
 const handleFileDownload = async (response, filename) => {
   // Tạo một URL tạm thời cho dữ liệu file đã tải về
   const url = window.URL.createObjectURL(new Blob([response.data]));
-  
+
   // Tạo một thẻ <a> ẩn
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', filename); // Đặt tên file sẽ được tải về
-  
+
   // Gắn thẻ <a> vào DOM, click vào nó, và sau đó gỡ bỏ
   document.body.appendChild(link);
   link.click();
@@ -44,13 +44,13 @@ export const exportHouseholdStatsToExcel = async (filters = {}) => {
   const activeFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, v]) => v)
   );
-  
+
   // Sử dụng apiClient để gửi request, và quan trọng là đặt responseType là 'blob'
   const response = await apiClient.get('/statistics/households/export/excel', {
     params: activeFilters,
     responseType: 'blob', // Báo cho axios biết chúng ta đang mong đợi một file
   });
-  
+
   // Gọi hàm helper để xử lý việc tải xuống
   await handleFileDownload(response, 'BaoCaoHoKhau.xlsx');
 };
@@ -60,12 +60,12 @@ export const exportHouseholdStatsToPdf = async (filters = {}) => {
   const activeFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, v]) => v)
   );
-  
+
   const response = await apiClient.get('/statistics/households/export/pdf', {
     params: activeFilters,
     responseType: 'blob',
   });
-  
+
   await handleFileDownload(response, 'BaoCaoHoKhau.pdf');
 };
 
@@ -74,13 +74,13 @@ export const exportResidentStatsToExcel = async (filters = {}) => {
   const activeFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, v]) => v)
   );
-  
+
   // Sử dụng apiClient để gửi request, và quan trọng là đặt responseType là 'blob'
   const response = await apiClient.get('/statistics/residents/export/excel', {
     params: activeFilters,
     responseType: 'blob', // Báo cho axios biết chúng ta đang mong đợi một file
   });
-  
+
   // Gọi hàm helper để xử lý việc tải xuống
   await handleFileDownload(response, 'ThongKeNhanKhau.xlsx');
 };
@@ -90,11 +90,41 @@ export const exportResidentStatsToPdf = async (filters = {}) => {
   const activeFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, v]) => v)
   );
-  
+
   const response = await apiClient.get('/statistics/residents/export/pdf', {
     params: activeFilters,
     responseType: 'blob',
   });
-  
+
   await handleFileDownload(response, 'ThongKeNhanKhau.pdf');
+};
+
+// UC11: Fee Collection Statistics
+export const getFeeCollectionStats = (filters = {}) => {
+  const activeFilters = Object.fromEntries(
+    Object.entries(filters).filter(([_, v]) => v)
+  );
+  return apiClient.get('/statistics/fees', { params: activeFilters });
+};
+
+export const exportFeeCollectionStatsToExcel = async (filters = {}) => {
+  const activeFilters = Object.fromEntries(
+    Object.entries(filters).filter(([_, v]) => v)
+  );
+  const response = await apiClient.get('/statistics/fees/export/excel', {
+    params: activeFilters,
+    responseType: 'blob',
+  });
+  await handleFileDownload(response, 'ThongKeThuPhi.xlsx');
+};
+
+export const exportFeeCollectionStatsToPdf = async (filters = {}) => {
+  const activeFilters = Object.fromEntries(
+    Object.entries(filters).filter(([_, v]) => v)
+  );
+  const response = await apiClient.get('/statistics/fees/export/pdf', {
+    params: activeFilters,
+    responseType: 'blob',
+  });
+  await handleFileDownload(response, 'BaoCaoThuPhi.pdf');
 };

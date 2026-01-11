@@ -1,4 +1,4 @@
-const { Resident, Household, sequelize } = require('../models');
+const { Resident, Household, Invoice, FeePeriod, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const excel = require('exceljs');
 const puppeteer = require('puppeteer');
@@ -94,17 +94,18 @@ exports.getHouseholdStats = async (req, res) => {
       whereClause.status = apartmentType; // Status is the proxy for state
     }
     if (memberCount) {
-      whereClause.count = memberCount;
+      whereClause.memberCount = memberCount;
     }
 
     const filteredHouseholds = await Household.findAll({
       where: whereClause,
+      include: [{ model: Resident, as: 'Owner', attributes: ['fullName'] }],
       order: [['householdCode', 'ASC']]
     });
 
     const householdCount = filteredHouseholds.length;
     const totalMemberCount = filteredHouseholds.reduce((sum, household) => {
-      return sum + (Number(household.count) || 0);
+      return sum + (Number(household.memberCount) || 0);
     }, 0);
 
     res.status(200).json({
@@ -127,7 +128,11 @@ exports.exportHouseholdStatsToExcel = async (req, res) => {
     if (apartmentType) whereClause.status = apartmentType;
     if (memberCount) whereClause.count = memberCount;
 
-    const households = await Household.findAll({ where: whereClause, order: [['householdCode', 'ASC']] });
+    const households = await Household.findAll({
+      where: whereClause,
+      include: [{ model: Resident, as: 'Owner', attributes: ['fullName'] }],
+      order: [['householdCode', 'ASC']]
+    });
 
     // Bắt đầu tạo file Excel
     let workbook = new excel.Workbook();
@@ -139,7 +144,7 @@ exports.exportHouseholdStatsToExcel = async (req, res) => {
       { header: 'Tên Chủ hộ', key: 'ownerName', width: 30 },
       { header: 'Địa chỉ', key: 'address', width: 40 },
       { header: 'Trạng thái', key: 'status', width: 20 },
-      { header: 'Số Thành viên', key: 'count', width: 15 },
+      { header: 'Số Thành viên', key: 'memberCount', width: 15 },
       { header: 'Diện tích (m²)', key: 'area', width: 15 },
     ];
     worksheet.addRows(households);
@@ -166,7 +171,11 @@ exports.exportHouseholdStatsToPdf = async (req, res) => {
     if (area) whereClause[Op.or] = [{ householdCode: { [Op.iLike]: `%${area}%` } }, { address: { [Op.iLike]: `%${area}%` } }];
     if (apartmentType) whereClause.status = apartmentType;
     if (memberCount) whereClause.count = memberCount;
-    const households = await Household.findAll({ where: whereClause, order: [['householdCode', 'ASC']] });
+    const households = await Household.findAll({
+      where: whereClause,
+      include: [{ model: Resident, as: 'Owner', attributes: ['fullName'] }],
+      order: [['householdCode', 'ASC']]
+    });
 
     // 2. Tạo nội dung HTML cho file PDF
     const htmlContent = `
@@ -194,9 +203,9 @@ exports.exportHouseholdStatsToPdf = async (req, res) => {
             <tbody>
               ${households.map(h => `
                 <tr>
-                  <td>${h.householdCode || ''}</td><td>${h.ownerName || ''}</td>
+                  <td>${h.householdCode || ''}</td><td>${h.Owner ? h.Owner.fullName : ''}</td>
                   <td>${h.address || ''}</td><td>${h.status || ''}</td>
-                  <td>${h.count || 0}</td><td>${h.area || ''}</td>
+                  <td>${h.memberCount || 0}</td><td>${h.area || ''}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -361,6 +370,255 @@ exports.exportResidentStatsToPdf = async (req, res) => {
   } catch (error) {
     console.error("LỖI KHI XUẤT PDF NHÂN KHẨU:", error);
     res.status(500).send('Lỗi khi tạo file PDF');
+  } finally {
+    if (browser) await browser.close();
+  }
+};
+
+// =================================================================
+// HÀM MỚI: THỐNG KÊ THU PHÍ (UC11)
+// =================================================================
+exports.getFeeCollectionStats = async (req, res) => {
+  try {
+    const { startDate, endDate, feePeriodId, status, householdCode, ownerName, minAmount, maxAmount } = req.query;
+    const whereClause = {};
+    const householdWhere = {};
+    const ownerWhere = {};
+
+    if (feePeriodId) whereClause.feePeriodId = feePeriodId;
+    if (status) whereClause.status = status;
+
+    // Amount filtering
+    if (minAmount || maxAmount) {
+      whereClause.totalAmount = {};
+      if (minAmount) whereClause.totalAmount[Op.gte] = minAmount;
+      if (maxAmount) whereClause.totalAmount[Op.lte] = maxAmount;
+    }
+
+    // Household filters
+    if (householdCode) {
+      householdWhere.householdCode = { [Op.iLike]: `%${householdCode}%` };
+    }
+
+    // Owner filters
+    if (ownerName) {
+      ownerWhere.fullName = { [Op.iLike]: `%${ownerName}%` };
+    }
+
+    if (startDate && endDate) {
+      // Nếu lọc theo đã thanh toán, dùng ngày thanh toán
+      if (status === 'paid') {
+        whereClause.paidDate = { [Op.between]: [startDate, endDate] };
+      } else {
+        // Mặc định dùng ngày tạo hóa đơn
+        whereClause.createdAt = { [Op.between]: [startDate, endDate] };
+      }
+    }
+
+    const invoices = await Invoice.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: Household,
+          required: false,
+          where: Object.keys(householdWhere).length > 0 ? householdWhere : undefined,
+          include: [{
+            model: Resident,
+            as: 'Owner',
+            attributes: ['fullName'],
+            required: false,
+            where: Object.keys(ownerWhere).length > 0 ? ownerWhere : undefined
+          }]
+        },
+        { model: FeePeriod, attributes: ['name'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Tính toán thống kê tổng hợp
+    const stats = {
+      totalCount: invoices.length,
+      totalAmount: 0,
+      paidCount: 0,
+      paidAmount: 0,
+      unpaidCount: 0,
+      unpaidAmount: 0
+    };
+
+    invoices.forEach(inv => {
+      const amount = Number(inv.totalAmount) || 0;
+      stats.totalAmount += amount;
+      if (inv.status === 'paid') {
+        stats.paidCount++;
+        stats.paidAmount += amount;
+      } else {
+        stats.unpaidCount++;
+        stats.unpaidAmount += amount;
+      }
+    });
+
+    res.status(200).json({ success: true, stats, data: invoices });
+  } catch (error) {
+    console.error("LỖI KHI THỐNG KÊ THU PHÍ:", error);
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
+};
+
+exports.exportFeeCollectionStatsToExcel = async (req, res) => {
+  try {
+    const { startDate, endDate, feePeriodId, status, householdCode, ownerName, minAmount, maxAmount } = req.query;
+    const whereClause = {};
+    const householdWhere = {};
+    const ownerWhere = {};
+
+    if (feePeriodId) whereClause.feePeriodId = feePeriodId;
+    if (status) whereClause.status = status;
+
+    if (minAmount || maxAmount) {
+      whereClause.totalAmount = {};
+      if (minAmount) whereClause.totalAmount[Op.gte] = minAmount;
+      if (maxAmount) whereClause.totalAmount[Op.lte] = maxAmount;
+    }
+    if (householdCode) householdWhere.householdCode = { [Op.iLike]: `%${householdCode}%` };
+    if (ownerName) ownerWhere.fullName = { [Op.iLike]: `%${ownerName}%` };
+
+    if (startDate && endDate) {
+      if (status === 'paid') whereClause.paidDate = { [Op.between]: [startDate, endDate] };
+      else whereClause.createdAt = { [Op.between]: [startDate, endDate] };
+    }
+
+    const invoices = await Invoice.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: Household,
+          required: false,
+          where: Object.keys(householdWhere).length > 0 ? householdWhere : undefined,
+          include: [{
+            model: Resident,
+            as: 'Owner',
+            attributes: ['fullName'],
+            required: false,
+            where: Object.keys(ownerWhere).length > 0 ? ownerWhere : undefined
+          }]
+        },
+        { model: FeePeriod, attributes: ['name'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    let workbook = new excel.Workbook();
+    let worksheet = workbook.addWorksheet('ThongKeThuPhi');
+
+    worksheet.columns = [
+      { header: 'Mã Hóa đơn', key: 'id', width: 10 },
+      { header: 'Đợt thu', key: 'feePeriod', width: 30 },
+      { header: 'Hộ khẩu', key: 'householdCode', width: 20 },
+      { header: 'Chủ hộ', key: 'ownerName', width: 30 },
+      { header: 'Tổng tiền', key: 'totalAmount', width: 15 },
+      { header: 'Trạng thái', key: 'status', width: 15 },
+      { header: 'Ngày thanh toán', key: 'paidDate', width: 15 },
+    ];
+
+    const dataToExport = invoices.map(inv => ({
+      id: inv.id,
+      feePeriod: inv.FeePeriod ? inv.FeePeriod.name : '',
+      householdCode: inv.Household ? inv.Household.householdCode : '',
+      ownerName: inv.Household?.Owner ? inv.Household.Owner.fullName : '',
+      totalAmount: inv.totalAmount,
+      status: inv.status,
+      paidDate: inv.paidDate ? new Date(inv.paidDate).toLocaleDateString('vi-VN') : ''
+    }));
+
+    worksheet.addRows(dataToExport);
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=ThongKeThuPhi.xlsx');
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error("LỖI EXCEL THU PHÍ:", error);
+    res.status(500).send('Lỗi xuất Excel');
+  }
+};
+
+exports.exportFeeCollectionStatsToPdf = async (req, res) => {
+  let browser = null;
+  try {
+    const { startDate, endDate, feePeriodId, status, householdCode, ownerName, minAmount, maxAmount } = req.query;
+    const whereClause = {};
+    const householdWhere = {};
+    const ownerWhere = {};
+
+    if (feePeriodId) whereClause.feePeriodId = feePeriodId;
+    if (status) whereClause.status = status;
+
+    if (minAmount || maxAmount) {
+      whereClause.totalAmount = {};
+      if (minAmount) whereClause.totalAmount[Op.gte] = minAmount;
+      if (maxAmount) whereClause.totalAmount[Op.lte] = maxAmount;
+    }
+    if (householdCode) householdWhere.householdCode = { [Op.iLike]: `%${householdCode}%` };
+    if (ownerName) ownerWhere.fullName = { [Op.iLike]: `%${ownerName}%` };
+
+    if (startDate && endDate) {
+      if (status === 'paid') whereClause.paidDate = { [Op.between]: [startDate, endDate] };
+      else whereClause.createdAt = { [Op.between]: [startDate, endDate] };
+    }
+
+    const invoices = await Invoice.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: Household,
+          required: false,
+          where: Object.keys(householdWhere).length > 0 ? householdWhere : undefined,
+          include: [{
+            model: Resident,
+            as: 'Owner',
+            attributes: ['fullName'],
+            required: false,
+            where: Object.keys(ownerWhere).length > 0 ? ownerWhere : undefined
+          }]
+        },
+        { model: FeePeriod, attributes: ['name'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    const htmlContent = `
+      <html>
+        <head><meta charset="UTF-8" /><style>body{font-family:Arial;font-size:10px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:5px}th{background:#eee}</style></head>
+        <body>
+          <h1 style="text-align:center">Báo cáo Thu phí</h1>
+          <table>
+            <thead><tr><th>Mã HĐ</th><th>Đợt thu</th><th>Hộ khẩu</th><th>Số tiền</th><th>Trạng thái</th><th>Ngày trả</th></tr></thead>
+            <tbody>
+              ${invoices.map(i => `<tr>
+                <td>${i.id}</td>
+                <td>${i.FeePeriod?.name || ''}</td>
+                <td>${i.Household?.householdCode || ''}</td>
+                <td>${Number(i.totalAmount).toLocaleString('vi-VN')} đ</td>
+                <td>${i.status}</td>
+                <td>${i.paidDate ? new Date(i.paidDate).toLocaleDateString('vi-VN') : ''}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox'] });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    const pdfBuffer = await page.pdf({ format: 'A4' });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=BaoCaoThuPhi.pdf');
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error("LỖI PDF THU PHÍ:", error);
+    res.status(500).send('Lỗi xuất PDF');
   } finally {
     if (browser) await browser.close();
   }
