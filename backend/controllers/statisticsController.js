@@ -420,14 +420,14 @@ exports.getFeeCollectionStats = async (req, res) => {
       include: [
         {
           model: Household,
-          required: false,
-          where: Object.keys(householdWhere).length > 0 ? householdWhere : undefined,
+          required: !!householdCode || !!ownerName,
+          where: householdCode ? householdWhere : undefined,
           include: [{
             model: Resident,
             as: 'Owner',
             attributes: ['fullName'],
-            required: false,
-            where: Object.keys(ownerWhere).length > 0 ? ownerWhere : undefined
+            required: !!ownerName,
+            where: ownerName ? ownerWhere : undefined
           }]
         },
         { model: FeePeriod, attributes: ['name'] }
@@ -492,14 +492,14 @@ exports.exportFeeCollectionStatsToExcel = async (req, res) => {
       include: [
         {
           model: Household,
-          required: false,
-          where: Object.keys(householdWhere).length > 0 ? householdWhere : undefined,
+          required: !!householdCode || !!ownerName,
+          where: householdCode ? householdWhere : undefined,
           include: [{
             model: Resident,
             as: 'Owner',
             attributes: ['fullName'],
-            required: false,
-            where: Object.keys(ownerWhere).length > 0 ? ownerWhere : undefined
+            required: !!ownerName,
+            where: ownerName ? ownerWhere : undefined
           }]
         },
         { model: FeePeriod, attributes: ['name'] }
@@ -571,14 +571,14 @@ exports.exportFeeCollectionStatsToPdf = async (req, res) => {
       include: [
         {
           model: Household,
-          required: false,
-          where: Object.keys(householdWhere).length > 0 ? householdWhere : undefined,
+          required: !!householdCode || !!ownerName,
+          where: householdCode ? householdWhere : undefined,
           include: [{
             model: Resident,
             as: 'Owner',
             attributes: ['fullName'],
-            required: false,
-            where: Object.keys(ownerWhere).length > 0 ? ownerWhere : undefined
+            required: !!ownerName,
+            where: ownerName ? ownerWhere : undefined
           }]
         },
         { model: FeePeriod, attributes: ['name'] }
