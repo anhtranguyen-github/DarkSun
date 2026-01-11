@@ -10,7 +10,7 @@ exports.getAllUsers = async (req, res) => {
     const isRequesterAdmin = req.user.roles.includes('admin');
     const users = await User.findAll({
       order: [['fullName', 'ASC']],
-      attributes: ['id', 'username', 'fullName', 'email', 'status'],
+      attributes: ['id', 'username', 'fullName', 'email', 'status', 'is_reset_pending'],
       include: {
         model: Role,
         attributes: ['id', 'name'],
@@ -24,6 +24,35 @@ exports.getAllUsers = async (req, res) => {
       : users.filter(u => !u.Roles.some(r => r.name === 'admin'));
 
     res.status(200).json({ success: true, data: filteredUsers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
+};
+
+/**
+ * Approve Manual Password Reset
+ */
+exports.approvePasswordReset = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
+    }
+
+    if (!user.is_reset_pending || !user.pending_password) {
+      return res.status(400).json({ success: false, message: 'Tài khoản này không có yêu cầu reset mật khẩu nào.' });
+    }
+
+    // Apply the new password
+    user.password = user.pending_password;
+    user.pending_password = null;
+    user.is_reset_pending = false;
+
+    await user.save();
+
+    res.status(200).json({ success: true, message: `Đã duyệt yêu cầu đổi mật khẩu cho user ${user.username}.` });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }

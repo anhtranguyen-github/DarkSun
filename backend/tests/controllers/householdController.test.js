@@ -14,6 +14,7 @@ jest.mock('../../models', () => ({
         findByPk: jest.fn(),
     },
     Vehicle: {},
+    User: {},
     sequelize: {
         transaction: jest.fn().mockImplementation(() => ({
             commit: jest.fn(),
@@ -76,6 +77,37 @@ describe('Household Controller', () => {
 
             expect(res.statusCode).toBe(200);
             expect(JSON.parse(res._getData()).data).toHaveLength(1);
+        });
+    });
+
+    // NEW TEST FOR DETAILS
+    const { getHouseholdDetails } = require('../../controllers/householdController');
+    describe('getHouseholdDetails', () => {
+        test('should return 404 if household not found', async () => {
+            req.params = { id: 999 };
+            Household.findByPk.mockResolvedValue(null);
+
+            await getHouseholdDetails(req, res);
+            expect(res.statusCode).toBe(404);
+        });
+
+        test('should return details with relations', async () => {
+            req.params = { id: 1 };
+            const mockData = {
+                id: 1,
+                householdCode: 'HK001',
+                Owner: { fullName: 'Owner' },
+                Residents: [{ id: 1, fullName: 'Owner' }],
+                Vehicles: []
+            };
+            Household.findByPk.mockResolvedValue(mockData);
+
+            await getHouseholdDetails(req, res);
+
+            expect(res.statusCode).toBe(200);
+            const data = JSON.parse(res._getData()).data;
+            expect(data.householdCode).toBe('HK001');
+            expect(data.Residents).toBeDefined();
         });
     });
 });

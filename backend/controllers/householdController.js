@@ -1,4 +1,4 @@
-const { Household, Resident, Vehicle, Invoice, sequelize } = require('../models');
+const { Household, Resident, Vehicle, Invoice, User, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const { sanitizeHtml, isValidArea, isValidLength } = require('../utils/validationUtils');
 
@@ -38,6 +38,11 @@ exports.getAllHouseholds = async (req, res) => {
                     as: 'Owner',
                     attributes: ['id', 'fullName', 'dateOfBirth', 'idCardNumber'],
                     where: ownerName ? { fullName: { [Op.iLike]: `%${ownerName}%` } } : undefined
+                },
+                {
+                    model: User,
+                    as: 'AssociatedAccounts',
+                    attributes: ['id', 'username', 'status']
                 }
             ],
             order: [['householdCode', 'ASC']],
@@ -57,7 +62,8 @@ exports.getHouseholdDetails = async (req, res) => {
             include: [
                 { model: Resident, as: 'Owner' },
                 { model: Resident }, // All members
-                { model: Vehicle }   // Cars/Motos
+                { model: Vehicle },   // Cars/Motos
+                { model: User, as: 'AssociatedAccounts', attributes: ['id', 'username', 'email', 'status'] } // Linked User Accounts
             ]
         });
 
